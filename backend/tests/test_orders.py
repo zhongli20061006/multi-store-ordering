@@ -1,4 +1,5 @@
 from tests.conftest import login
+from sqlalchemy import inspect
 
 
 def _order_payload(seed, **overrides):
@@ -192,3 +193,11 @@ def test_admin_order_scope_and_cross_store_blocked(client, seed):
 
     detail = client.get(f"/api/v1/admin/orders/{order2_id}", headers=headers1)
     assert detail.status_code == 403
+
+
+def test_orders_composite_index_exists(client, seed, db_session_factory):
+    engine = db_session_factory().get_bind()
+    indexes = {ix["name"]: ix for ix in inspect(engine).get_indexes("orders")}
+    target = indexes.get("ix_orders_store_status_created")
+    assert target is not None
+    assert sorted(target["column_names"]) == ["created_at", "order_status", "store_id"]

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, utcnow
@@ -8,6 +8,9 @@ from app.core.database import Base, utcnow
 
 class Order(Base):
     __tablename__ = "orders"
+    __table_args__ = (
+        Index("ix_orders_store_status_created", "store_id", "order_status", "created_at"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     order_no: Mapped[str] = mapped_column(String(32), unique=True, index=True)
@@ -18,7 +21,7 @@ class Order(Base):
     entry_type: Mapped[str] = mapped_column(String(16), default="preorder")
     item_count: Mapped[int] = mapped_column(Integer, default=0)
     total_cents: Mapped[int] = mapped_column(Integer, default=0)
-    order_status: Mapped[str] = mapped_column(String(16), default="pending", index=True)
+    order_status: Mapped[str] = mapped_column(String(16), default="pending")
     payment_status: Mapped[str] = mapped_column(String(16), default="unpaid")
     cancel_reason: Mapped[str | None] = mapped_column(String(32), nullable=True)
     cancel_by: Mapped[int | None] = mapped_column(Integer, nullable=True)
