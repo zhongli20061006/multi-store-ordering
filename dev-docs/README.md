@@ -6,6 +6,7 @@
 
 | 文档 | 职责 | 状态 |
 | --- | --- | --- |
+| [design-draft.md](design-draft.md) | 1-6 步架构讨论汇总的设计初稿（评审依据） | 待用户评审 |
 | [project-brief.md](project-brief.md) | 产品定位、目标用户、MVP、非目标、演进边界 | 已确认（待技术路线确认后定稿） |
 | [function-list.md](function-list.md) | 功能清单、复杂功能索引、大阶段规划 | 已建立 |
 | [stage-plan.md](stage-plan.md) | 大阶段划分与各阶段验收标准 | 已建立 |
