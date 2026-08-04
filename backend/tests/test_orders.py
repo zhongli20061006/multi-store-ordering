@@ -67,8 +67,9 @@ def test_idempotent_replay_returns_same_order(client, seed):
     second = client.post("/api/v1/orders", json=payload)
     assert first.status_code == 201 and second.status_code == 201
     assert first.json()["data"]["order_no"] == second.json()["data"]["order_no"]
-    mine = client.get("/api/v1/orders", params={"phone": "13900000001"}).json()["data"]
-    assert len(mine) == 1
+    order_no = first.json()["data"]["order_no"]
+    mine = client.get("/api/v1/orders", params={"phone": "13900000001", "order_no": order_no}).json()["data"]
+    assert mine["order_no"] == order_no
 
 
 def test_limited_stock_prevents_oversell(client, seed):
@@ -150,12 +151,24 @@ def test_mark_paid_ok_and_cancelled_rejected(client, seed):
     assert resp2.status_code == 409
 
 
-def test_my_orders_only_returns_that_phone(client, seed):
-    _create_order(client, seed, "phone-key-001")
-    mine = client.get("/api/v1/orders", params={"phone": "13900000001"}).json()["data"]
-    other = client.get("/api/v1/orders", params={"phone": "13900000002"}).json()["data"]
-    assert len(mine) == 1
-    assert other == []
+def test_lookup_requires_phone_and_order_no(client, seed):
+    order = _create_order(client, seed, "lookup-key-001").json()["data"]
+    missing = client.get("/api/v1/orders", params={"phone": "13900000001"})
+    assert missing.status_code == 422
+    wrong = client.get("/api/v1/orders", params={"phone": "13900000002", "order_no": order["order_no"]})
+    assert wrong.status_code == 404
+    ok = client.get("/api/v1/orders", params={"phone": "13900000001", "order_no": order["order_no"]})
+    assert ok.status_code == 200
+    assert ok.json()["data"]["order_no"] == order["order_no"]
+
+
+def test_admin_order_list_masks_phone_detail_full(client, seed):
+    order = _create_order(client, seed, "mask-key-001").json()["data"]
+    headers = login(client, "admin1")
+    listing = client.get("/api/v1/admin/orders", headers=headers).json()["data"]
+    assert listing[0]["customer_phone"] == "139****0001"
+    detail = client.get(f"/api/v1/admin/orders/{order['id']}", headers=headers).json()["data"]
+    assert detail["customer_phone"] == "13900000001"
 
 
 def test_admin_order_scope_and_cross_store_blocked(client, seed):

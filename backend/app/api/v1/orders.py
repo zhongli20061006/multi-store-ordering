@@ -28,8 +28,12 @@ def customer_cancel(order_no: str, payload: CustomerCancelRequest, db: Session =
 
 
 @router.get("/orders")
-def my_orders(phone: str = Query(pattern=r"^1[3-9]\d{9}$"), db: Session = Depends(get_db)):
-    orders = list(
-        db.scalars(select(Order).where(Order.customer_phone == phone).order_by(Order.created_at.desc(), Order.id.desc()))
-    )
-    return ok([OrderOut.model_validate(order).model_dump() for order in orders])
+def get_my_order(
+    phone: str = Query(pattern=r"^1[3-9]\d{9}$"),
+    order_no: str = Query(min_length=8, max_length=32),
+    db: Session = Depends(get_db),
+):
+    order = db.scalar(select(Order).where(Order.order_no == order_no, Order.customer_phone == phone))
+    if order is None:
+        raise BusinessError(404, "订单不存在")
+    return ok(OrderOut.model_validate(order).model_dump())

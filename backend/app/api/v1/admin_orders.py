@@ -14,6 +14,10 @@ from app.api.v1.deps import ensure_store_access, get_current_user, get_user_stor
 router = APIRouter(prefix="/admin/orders", tags=["admin"])
 
 
+def mask_phone(phone: str) -> str:
+    return f"{phone[:3]}****{phone[-4:]}" if len(phone) == 11 else phone
+
+
 @router.get("")
 def list_admin_orders(
     store_id: int | None = None,
@@ -29,7 +33,12 @@ def list_admin_orders(
     if order_status is not None:
         query = query.where(Order.order_status == order_status)
     orders = list(db.scalars(query.order_by(Order.created_at.desc(), Order.id.desc())))
-    return ok([OrderOut.model_validate(order).model_dump() for order in orders])
+    payload = []
+    for order in orders:
+        data = OrderOut.model_validate(order).model_dump()
+        data["customer_phone"] = mask_phone(data["customer_phone"])
+        payload.append(data)
+    return ok(payload)
 
 
 @router.get("/{order_id}")
