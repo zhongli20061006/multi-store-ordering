@@ -6,9 +6,9 @@
 - stage_status: execution_ready
 - task_depth: 标准任务
 - product_confirmation: confirmed: 用户 2026-08-04 确认原型范围（小程序点单闭环 + 简单商家后台 + 本地后端），并确认三点技术路线产品后果
-- active_substage: 1.2b 后端对齐设计稿 v3
-- authorized_substage: 1.2b 后端对齐设计稿 v3
-- substage_authorization: confirmed: 用户确认实施计划并选择「逐任务执行」（2026-08-04）
+- active_substage: 1.3 商家后台
+- authorized_substage: pending: 待商家后台实施计划经用户确认后绑定
+- substage_authorization: pending: 待商家后台实施计划经用户确认
 - result_status: in_progress
 - truth_writeback: pending
 
@@ -92,3 +92,14 @@
 - remaining_risk: 无
 - next_substage: 1.2b 完成后进入 1.3 商家后台
 - git_checkpoint: 待执行完成后提交
+
+### 子阶段 1.2b 已完成
+
+- actual_result: 6 项任务全部完成——SQLite WAL/单连接池；order_status 更名与取消字段；顾客/商家取消分类、事务化库存回补、幂等；查单收紧为手机号+订单号；商家列表脱敏；删除分类连带下架商品；订单组合索引
+- changed_owners: backend/app/core/database.py、models/order.py、schemas/order.py、services/order_service.py、services/menu_service.py、api/v1/orders.py、api/v1/admin_orders.py、backend/tests
+- plan_deviation: Task 2 与 Task 3 合并提交（字段更名与取消逻辑互相依赖，避免中间红提交）；本地演示库因 schema 变更删除重建（仅种子数据）
+- evidence_status: verified
+- fresh_evidence: pytest 43 passed（2026-08-04）；冒烟：下单扣库存 5→4、顾客取消回补→5、列表脱敏 139****0001、详情完整、跨店取消 403（自动化用例）
+- remaining_risk: 商家后台与小程序的联调尚未做；跨店取消冒烟脚本 JSON 转义错误返回 422（脚本问题，非应用问题，应用由自动化用例覆盖）
+- next_substage: 1.3 商家后台（需先出实施计划并获用户确认）
+- git_checkpoint: feat/backend-align 分支 5 个提交（8d75245…9ac6bd4）

@@ -8,6 +8,9 @@ env/
 *.db
 *.sqlite3
 *.sqlite
+*.db-wal
+*.db-shm
+data/
 
 # Node / 前端构建产物
 node_modules/
