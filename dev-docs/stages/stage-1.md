@@ -6,9 +6,9 @@
 - stage_status: execution_ready
 - task_depth: 标准任务
 - product_confirmation: confirmed: 用户 2026-08-04 确认原型范围（小程序点单闭环 + 简单商家后台 + 本地后端），并确认三点技术路线产品后果
-- active_substage: 1.3 商家后台
-- authorized_substage: 1.3 商家后台
-- substage_authorization: confirmed: 用户确认计划中明确命名的「再做商家后台」执行顺序（原始请求授权）
+- active_substage: 1.2b 后端对齐设计稿 v3
+- authorized_substage: 1.2b 后端对齐设计稿 v3
+- substage_authorization: confirmed: 用户确认实施计划并选择「逐任务执行」（2026-08-04）
 - result_status: in_progress
 - truth_writeback: pending
 
@@ -44,6 +44,7 @@
 | --- | --- | --- | --- | --- | --- |
 | 1.1 后端骨架 | FastAPI 服务可启动，/health 正常，配置/错误格式/DB 连接就绪，种子脚本可用 | backend/app/core、app/main.py、seed.py | 启动命令可用；/health 返回 ok；错误格式统一 | 启动 + 接口请求 + 日志 | 业务接口 |
 | 1.2 数据模型与 API | 全部 v1 接口实现，金额服务端计算、状态机、归属校验 | backend/app/models、schemas、services、api/v1、tests | 接口测试全绿；越权/非法输入拒绝 | pytest + 手工请求 | 前端 |
+| 1.2b 后端对齐设计稿 v3 | 订单字段更名、取消分类与库存回补、查单收紧、分类联动、索引、SQLite 配置 | backend/app、backend/tests | 实施计划 6 项任务全部测试通过 | pytest + 冒烟请求 | 商家后台与小程序 |
 | 1.3 商家后台 | 登录/门店/菜单/订单四组页面 | admin/ | 浏览器走查通过 | 浏览器 + 截图 | 小程序 |
 | 1.4 顾客小程序 | 门店/菜单/购物车/下单/查单页面 | miniprogram/ | 开发者工具走查通过 | 工具预览 + 截图 | 后台 |
 | 1.5 联调与验收 | 端到端闭环贯通 | 三端 | 验收清单全部通过 | 验收走查 + 证据 | 本阶段外功能 |
@@ -80,3 +81,14 @@
 - remaining_risk: 严格 TDD 的 RED 阶段未按规范先行（本次先实现后补测试，后续以测试失败驱动修复）；仅本地验证，未做真机/浏览器验证
 - next_substage: 1.3 商家后台
 - git_checkpoint: 规划文档 + 后端骨架与 API 首次提交（见提交记录）
+
+### 子阶段 1.2b（后端对齐设计稿 v3）— 执行中
+
+- actual_result: 待执行（实施计划 dev-docs/plans/2026-08-04-backend-align.md）
+- changed_owners: backend/app、backend/tests
+- plan_deviation: 无
+- evidence_status: unverified
+- fresh_evidence: 基线 32 passed（2026-08-04）
+- remaining_risk: 无
+- next_substage: 1.2b 完成后进入 1.3 商家后台
+- git_checkpoint: 待执行完成后提交
