@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessError
@@ -74,6 +74,11 @@ def update_category(db: Session, store_id: int, category: MenuCategory, data: Ca
 
 def delete_category(db: Session, category: MenuCategory) -> None:
     category.is_active = False
+    db.execute(
+        update(MenuItem)
+        .where(MenuItem.category_id == category.id, MenuItem.is_active.is_(True))
+        .values(is_active=False)
+    )
     db.commit()
 
 

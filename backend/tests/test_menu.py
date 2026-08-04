@@ -63,3 +63,26 @@ def test_admin2_cannot_edit_store1_menu(client, seed):
         headers=headers,
     )
     assert resp.status_code == 403
+
+
+def test_delete_category_deactivates_its_items(client, seed):
+    headers = login(client, "admin1")
+    resp = client.delete(
+        f"/api/v1/admin/stores/{seed['store1_id']}/categories/{seed['cat1_id']}",
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    menu = client.get(f"/api/v1/stores/{seed['store1_id']}/menu").json()["data"]
+    item_ids = {item["id"] for group in menu for item in group["items"]}
+    assert seed["item1_id"] not in item_ids
+    order = client.post(
+        "/api/v1/orders",
+        json={
+            "store_id": seed["store1_id"],
+            "customer_name": "测试顾客",
+            "customer_phone": "13900000001",
+            "idempotency_key": "cat-inactive-key-001",
+            "items": [{"menu_item_id": seed["item1_id"], "quantity": 1}],
+        },
+    )
+    assert order.status_code == 400
