@@ -19,7 +19,7 @@ def test_create_order_computes_total_from_db(client, seed):
     data = resp.json()["data"]
     assert data["total_cents"] == 2400
     assert data["item_count"] == 2
-    assert data["status"] == "pending"
+    assert data["order_status"] == "pending"
     assert data["payment_status"] == "unpaid"
     assert data["entry_type"] == "preorder"
 
@@ -106,28 +106,28 @@ def test_status_machine_allows_valid_and_rejects_invalid(client, seed):
 
     bad = client.patch(
         f"/api/v1/admin/orders/{order_id}/status",
-        json={"status": "completed"},
+        json={"order_status": "completed"},
         headers=headers,
     )
     assert bad.status_code == 409
 
     ok1 = client.patch(
         f"/api/v1/admin/orders/{order_id}/status",
-        json={"status": "accepted"},
+        json={"order_status": "accepted"},
         headers=headers,
     )
     assert ok1.status_code == 200
 
-    cancelled = client.patch(
-        f"/api/v1/admin/orders/{order_id}/status",
-        json={"status": "cancelled"},
+    cancelled = client.post(
+        f"/api/v1/admin/orders/{order_id}/cancel",
+        json={"cancel_reason": "merchant_cancel_not_made"},
         headers=headers,
     )
     assert cancelled.status_code == 200
 
     after_cancel = client.patch(
         f"/api/v1/admin/orders/{order_id}/status",
-        json={"status": "completed"},
+        json={"order_status": "completed"},
         headers=headers,
     )
     assert after_cancel.status_code == 409
@@ -141,7 +141,11 @@ def test_mark_paid_ok_and_cancelled_rejected(client, seed):
     assert resp.json()["data"]["payment_status"] == "paid"
 
     order2_id = _create_order(client, seed, "paid-key-002").json()["data"]["id"]
-    client.patch(f"/api/v1/admin/orders/{order2_id}/status", json={"status": "cancelled"}, headers=headers)
+    client.post(
+        f"/api/v1/admin/orders/{order2_id}/cancel",
+        json={"cancel_reason": "merchant_cancel_not_made"},
+        headers=headers,
+    )
     resp2 = client.patch(f"/api/v1/admin/orders/{order2_id}/payment", json={"payment_status": "paid"}, headers=headers)
     assert resp2.status_code == 409
 

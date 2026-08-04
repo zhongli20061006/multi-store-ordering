@@ -20,6 +20,20 @@ class PaymentStatus(str, Enum):
     PAID = "paid"
 
 
+class CancelReason(str, Enum):
+    CUSTOMER_CANCEL = "customer_cancel"
+    MERCHANT_CANCEL_NOT_MADE = "merchant_cancel_not_made"
+    MERCHANT_CANCEL_MADE = "merchant_cancel_made"
+
+
+class CustomerCancelRequest(BaseModel):
+    phone: str = Field(pattern=r"^1[3-9]\d{9}$")
+
+
+class MerchantCancelRequest(BaseModel):
+    cancel_reason: CancelReason
+
+
 class OrderItemInput(BaseModel):
     menu_item_id: int
     quantity: int = Field(ge=1, le=99)
@@ -58,15 +72,17 @@ class OrderOut(BaseModel):
     remark: str | None
     item_count: int
     total_cents: int
-    status: OrderStatus
+    order_status: OrderStatus
     payment_status: PaymentStatus
+    cancel_reason: CancelReason | None
+    cancel_by: int | None
     source: str
     created_at: object
     items: list[OrderItemOut]
 
 
 class OrderStatusUpdate(BaseModel):
-    status: OrderStatus
+    order_status: OrderStatus
 
 
 class PaymentUpdate(BaseModel):

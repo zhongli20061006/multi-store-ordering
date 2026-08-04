@@ -6,12 +6,12 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessError
 from app.models import MenuItem, Order, OrderItem, Store
-from app.schemas.order import OrderCreate, OrderEntryType, OrderStatus, PaymentStatus
+from app.schemas.order import CancelReason, OrderCreate, OrderEntryType, OrderStatus, PaymentStatus
 
 
 ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
-    OrderStatus.PENDING: {OrderStatus.ACCEPTED, OrderStatus.CANCELLED},
-    OrderStatus.ACCEPTED: {OrderStatus.COMPLETED, OrderStatus.CANCELLED},
+    OrderStatus.PENDING: {OrderStatus.ACCEPTED},
+    OrderStatus.ACCEPTED: {OrderStatus.COMPLETED},
     OrderStatus.COMPLETED: set(),
     OrderStatus.CANCELLED: set(),
 }
@@ -103,19 +103,51 @@ def get_order(db: Session, order_id: int) -> Order | None:
 
 
 def update_order_status(db: Session, order: Order, new_status: OrderStatus) -> Order:
-    current = OrderStatus(order.status)
+    current = OrderStatus(order.order_status)
     if new_status not in ALLOWED_TRANSITIONS[current]:
         raise BusinessError(409, f"订单状态不允许从 {current.value} 变更为 {new_status.value}")
-    order.status = new_status.value
+    order.order_status = new_status.value
     db.commit()
     db.refresh(order)
     return order
 
 
 def mark_order_paid(db: Session, order: Order) -> Order:
-    if order.status == OrderStatus.CANCELLED.value:
+    if order.order_status == OrderStatus.CANCELLED.value:
         raise BusinessError(409, "已取消的订单不能标记付款")
     order.payment_status = PaymentStatus.PAID.value
     db.commit()
     db.refresh(order)
     return order
+
+
+def cancel_order(db: Session, order: Order, reason: CancelReason, actor_id: int | None) -> Order:
+    if order.order_status == OrderStatus.CANCELLED.value:
+        return order  # 幂等：已取消直接返回，不重复回补
+    current = OrderStatus(order.order_status)
+    if current not in (OrderStatus.PENDING, OrderStatus.ACCEPTED):
+        raise BusinessError(409, "当前状态不可取消")
+    if reason == CancelReason.CUSTOMER_CANCEL:
+        if current != OrderStatus.PENDING:
+            raise BusinessError(409, "已接单后顾客不能取消")
+    elif reason not in (CancelReason.MERCHANT_CANCEL_NOT_MADE, CancelReason.MERCHANT_CANCEL_MADE):
+        raise BusinessError(400, "取消原因不合法")
+    order.order_status = OrderStatus.CANCELLED.value
+    order.cancel_reason = reason.value
+    order.cancel_by = actor_id
+    if reason != CancelReason.MERCHANT_CANCEL_MADE:
+        _restock_items(db, order)
+    db.commit()
+    db.refresh(order)
+    return order
+
+
+def _restock_items(db: Session, order: Order) -> None:
+    for item in order.items:
+        if item.menu_item_id is None:
+            continue
+        db.execute(
+            update(MenuItem)
+            .where(MenuItem.id == item.menu_item_id, MenuItem.stock.isnot(None))
+            .values(stock=MenuItem.stock + item.quantity)
+        )
