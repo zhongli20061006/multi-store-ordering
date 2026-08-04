@@ -84,8 +84,10 @@
 | entry_type | enum(preorder, dinein) | 点单入口：提前点单 / 到店扫码点单；本质同一下单流程 |
 | item_count | int | 总件数 |
 | total_cents | int | 总额（服务端按库中单价计算） |
-| status | enum(pending, accepted, completed, cancelled) | 状态机见下 |
+| order_status | enum(pending, accepted, completed, cancelled) | 状态机见下 |
 | payment_status | enum(unpaid, paid) | 占位；到店付款由商家标记，阶段二接真实支付 |
+| cancel_reason | enum(customer_cancel, merchant_cancel_not_made, merchant_cancel_made) nullable | 取消原因；未取消为 null |
+| cancel_by | int nullable | 取消操作人（顾客取消记特殊标识）；统计退货与二期退款依赖 |
 | idempotency_key | str unique nullable | 防重复下单（客户端生成） |
 | source | str default 'wechat_miniprogram' | 下单来源 |
 | created_at / updated_at | datetime | |
@@ -115,11 +117,12 @@ pending ──接单──▶ accepted ──完成──▶ completed
 ```
 
 - 仅服务层可迁移状态；非法迁移返回错误。
-- 取消限制：已 completed 不可取消；本阶段取消无金额退款逻辑（无支付）。
+- 取消限制：已 completed 不可取消；取消必须写 cancel_reason/cancel_by；未制作的取消回补库存、已制作的取消不回补；重复取消幂等（不重复回补）。
+- 取消实现：同一事务内“锁单 → 校验可取消 → 写状态与原因 → 按原因回补库存”。
 
 ## 索引
 
-- orders(store_id, status, created_at)
+- orders(store_id, order_status, created_at)
 - menu_items(store_id, is_active)
 - menu_categories(store_id)
 - order_items(order_id)
@@ -134,6 +137,7 @@ pending ──接单──▶ accepted ──完成──▶ completed
 
 - 原型：SQLAlchemy `create_all` + 种子脚本，不引入 Alembic。
 - 上线前：引入 Alembic，SQLite→PostgreSQL 数据迁移另立计划（见 technical-selection.md 触发条件）。
+- SQLite 本地配置：WAL 模式、busy_timeout、连接池大小=1、check_same_thread=False。
 
 ## 缓存决策
 

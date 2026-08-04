@@ -1,6 +1,6 @@
 # 多门店点单系统 · 设计初稿（v3，待评审）
 
-> 状态：待用户评审。评审通过后，本初稿的结论将合并进各专题真源（project-brief / database-design / architecture / backend-boundary / security-boundary 等），并以本文档为评审依据。
+> 状态：已定稿（2026-08-04 用户确认）。结论已合并进各专题真源，本文档作为评审依据保留。
 
 ## 一、方向与目标
 

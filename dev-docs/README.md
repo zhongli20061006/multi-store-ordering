@@ -6,7 +6,7 @@
 
 | 文档 | 职责 | 状态 |
 | --- | --- | --- |
-| [design-draft.md](design-draft.md) | 1-6 步架构讨论汇总的设计初稿（评审依据） | 待用户评审 |
+| [design-draft.md](design-draft.md) | 1-6 步架构讨论汇总的设计初稿（评审依据） | 已定稿（2026-08-04） |
 | [project-brief.md](project-brief.md) | 产品定位、目标用户、MVP、非目标、演进边界 | 已确认（待技术路线确认后定稿） |
 | [function-list.md](function-list.md) | 功能清单、复杂功能索引、大阶段规划 | 已建立 |
 | [stage-plan.md](stage-plan.md) | 大阶段划分与各阶段验收标准 | 已建立 |
@@ -19,6 +19,7 @@
 | [acceptance.md](acceptance.md) | 原型验收规则与证据要求 | 草案 |
 | [runtime.md](runtime.md) | 运行环境、启动命令、依赖与版本 | 已核验（2026-08-04） |
 | stages/stage-1.md | 第一阶段（本地原型）实施真源 | 执行中（1.1/1.2 已完成，下一步 1.3） |
+| plans/2026-08-04-backend-align.md | 后端对齐设计稿 v3 的实施计划 | 待执行 |
 
 ## 规则
 

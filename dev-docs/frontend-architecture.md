@@ -19,7 +19,7 @@
 | 门店菜单 | pages/menu | 分类切换 + 商品 + 购物车栏；展示限购/库存提示 |
 | 确认下单 | pages/checkout | 明细、联系人/电话/备注、提交 |
 | 下单成功 | pages/order-success | 订单号 + 状态提示 |
-| 我的订单 | pages/my-orders | 输入电话查询订单列表 |
+| 我的订单 | pages/my-orders | 输入手机号+订单号查询订单详情 |
 
 公共组件：`components/product-card`、`components/cart-bar`、`components/price`、`components/status-badge`。
 
@@ -47,6 +47,7 @@ Vue 3 + TypeScript + Vite + Element Plus + vue-router + Pinia。
 
 - `src/api/`：axios 封装（JWT 注入、401 跳登录、统一错误提示）。
 - `src/stores/auth.ts`：登录态与用户信息。
+- 登录后选择“当前门店”并记住上次选择；订单列表 8 秒轮询，手机号脱敏展示。
 - 表单金额输入以元为单位，提交转分为后端字段。
 
 ## 四、前后端契约

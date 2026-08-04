@@ -16,7 +16,8 @@
 | GET | /stores | 营业中门店列表 |
 | GET | /stores/{id}/menu | 门店菜单（分类+上架商品） |
 | POST | /orders | 创建订单（服务端重算金额；幂等键防重；限库存原子扣减） |
-| GET | /orders?phone=xxx | 按电话查订单摘要（原型身份方案，见 security-boundary） |
+| POST | /orders/{order_no}/cancel | 顾客取消待接单订单（需校验手机号匹配；未制作回补库存） |
+| GET | /orders?phone=xxx&order_no=xxx | 顾客查单：手机号+订单号缺一不可，只返回该订单 |
 
 ### 管理接口（JWT）
 
@@ -29,10 +30,13 @@
 | PATCH | /admin/stores/{id}/status | 开/关店 |
 | GET/POST/PUT/DELETE | /admin/stores/{id}/categories | 分类管理 |
 | GET/POST/PUT/DELETE | /admin/stores/{id}/items | 商品管理（删除转下架） |
-| GET | /admin/orders | 订单列表（store_id/status 筛选） |
+| GET | /admin/orders | 订单列表（store_id/order_status 筛选；列表手机号脱敏） |
 | GET | /admin/orders/{id} | 订单详情（含明细） |
-| PATCH | /admin/orders/{id}/status | 状态迁移（接单/完成/取消） |
+| PATCH | /admin/orders/{id}/status | 状态迁移（接单/完成） |
+| POST | /admin/orders/{id}/cancel | 商家取消（取消原因：未制作/已制作） |
 | PATCH | /admin/orders/{id}/payment | 标记到店付款 |
+
+- 商家端手机号可见性：列表脱敏（138****0001），详情显示完整号码（仅限有该门店权限的账号）。
 
 ## 归属校验规则
 
