@@ -1,2 +1,63 @@
-<!-- 待 Task 5 实现 -->
-<view>菜单</view>
+<wxs module="fmt">
+module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
+</wxs>
+<view class="page">
+  <view class="header">
+    <text class="store-name">{{storeName}}</text>
+    <text class="entry-tag">{{entryType === 'dinein' ? '到店点单' : '提前点单'}}</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading">加载中…</view>
+  <empty-state
+    wx:elif="{{error}}"
+    title="菜单加载失败"
+    desc="请确认后端服务已启动后重试"
+    action-text="重试"
+    bind:action="retry"
+  />
+  <empty-state
+    wx:elif="{{categories.length === 0}}"
+    title="暂无商品"
+    desc="本店暂未上架商品"
+  />
+  <view wx:else class="body">
+    <scroll-view class="cats" scroll-y>
+      <view
+        class="cat {{item.id === activeCategoryId ? 'active' : ''}}"
+        wx:for="{{categories}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="switchCategory"
+      >{{item.name}}</view>
+    </scroll-view>
+    <scroll-view class="items" scroll-y>
+      <product-card
+        wx:for="{{items}}"
+        wx:key="id"
+        item="{{item}}"
+        bind:add="onAddItem"
+      />
+    </scroll-view>
+  </view>
+
+  <view wx:if="{{cartOpen}}" class="cart-mask" catchtap="closeCartPanel">
+    <view class="cart-panel" catchtap="noop">
+      <view class="cart-item" wx:for="{{cartItems}}" wx:key="menu_item_id">
+        <view class="cart-info">
+          <text class="cart-name">{{item.name}}</text>
+          <text class="cart-price">¥{{fmt.yuan(item.unit_price_cents)}}</text>
+        </view>
+        <quantity-stepper item="{{item}}" bind:change="onChangeQuantity" />
+      </view>
+      <button class="checkout-btn" bindtap="goCheckout">去结算（¥{{fmt.yuan(cartTotalCents)}}）</button>
+    </view>
+  </view>
+
+  <cart-bar
+    wx:if="{{cartVisible}}"
+    count="{{cartCount}}"
+    total-cents="{{cartTotalCents}}"
+    bind:toggle="toggleCartPanel"
+    bind:checkout="goCheckout"
+  />
+</view>

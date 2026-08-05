@@ -1,0 +1,17 @@
+<wxs module="fmt">
+module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
+</wxs>
+<view class="product-card">
+  <view class="info">
+    <text class="name">{{item.name}}</text>
+    <text wx:if="{{item.description}}" class="desc">{{item.description}}</text>
+    <view class="row">
+      <text class="price">¥{{fmt.yuan(item.price_cents)}}</text>
+      <text wx:if="{{item.stock != null}}" class="stock">
+        {{item.stock === 0 ? '已售罄' : '库存 ' + item.stock}}
+      </text>
+    </view>
+  </view>
+  <button wx:if="{{item.stock !== 0}}" class="add" size="mini" catchtap="onAdd">＋</button>
+  <button wx:else class="add disabled" size="mini" disabled>售罄</button>
+</view>

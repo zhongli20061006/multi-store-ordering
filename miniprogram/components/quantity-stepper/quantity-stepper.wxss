@@ -1,0 +1,19 @@
+.stepper {
+  display: flex;
+  align-items: center;
+}
+.step {
+  width: 56rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  background: #fff;
+  border: 1rpx solid var(--border-color);
+  color: var(--text-main);
+}
+.num {
+  min-width: 64rpx;
+  text-align: center;
+  font-size: 28rpx;
+}

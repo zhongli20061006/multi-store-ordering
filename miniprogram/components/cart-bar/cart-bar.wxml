@@ -1,0 +1,10 @@
+<wxs module="fmt">
+module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
+</wxs>
+<view class="cart-bar">
+  <view class="summary" bindtap="onToggle">
+    <text class="count">{{count}} 件</text>
+    <text class="total">合计 ¥{{fmt.yuan(totalCents)}}</text>
+  </view>
+  <button class="checkout" size="mini" disabled="{{count === 0}}" bindtap="onCheckout">去结算</button>
+</view>

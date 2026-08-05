@@ -1,0 +1,5 @@
+.price {
+  color: var(--brand-primary);
+  font-weight: 600;
+  font-size: 30rpx;
+}

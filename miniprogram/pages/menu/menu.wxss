@@ -1,1 +1,102 @@
-/* 待 Task 5 实现 */
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 120rpx;
+  box-sizing: border-box;
+}
+.header {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 24rpx;
+  background: var(--surface);
+  border-bottom: 1rpx solid var(--border-color);
+}
+.store-name {
+  font-size: 34rpx;
+  font-weight: 600;
+}
+.entry-tag {
+  margin-left: 16rpx;
+  font-size: 22rpx;
+  color: var(--brand-primary);
+  border: 1rpx solid var(--brand-primary);
+  border-radius: var(--radius-sm);
+  padding: 4rpx 12rpx;
+}
+.loading {
+  padding: 120rpx 0;
+  text-align: center;
+  color: var(--text-secondary);
+}
+.body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+.cats {
+  width: 180rpx;
+  background: var(--bg-page);
+  height: 100%;
+}
+.cat {
+  padding: 28rpx 16rpx;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  border-left: 4rpx solid transparent;
+}
+.cat.active {
+  background: var(--surface);
+  color: var(--brand-primary);
+  border-left-color: var(--brand-primary);
+  font-weight: 600;
+}
+.items {
+  flex: 1;
+  padding: 20rpx;
+  height: 100%;
+}
+.cart-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+.cart-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--surface);
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 24rpx 32rpx 40rpx;
+  max-height: 60vh;
+}
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid var(--border-color);
+}
+.cart-info {
+  display: flex;
+  flex-direction: column;
+}
+.cart-name {
+  font-size: 28rpx;
+}
+.cart-price {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-top: 4rpx;
+}
+.checkout-btn {
+  margin-top: 24rpx;
+  background: var(--brand-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+}

@@ -1,0 +1,34 @@
+.cart-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #303133;
+  color: #fff;
+  padding: 20rpx 32rpx;
+  border-radius: 24rpx 24rpx 0 0;
+}
+.summary {
+  display: flex;
+  align-items: baseline;
+}
+.count {
+  font-size: 26rpx;
+  margin-right: 20rpx;
+}
+.total {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+.checkout {
+  background: var(--brand-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+}
+.checkout[disabled] {
+  background: #c0c4cc;
+  color: #fff;
+}

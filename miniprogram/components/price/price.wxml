@@ -1,0 +1,4 @@
+<wxs module="fmt">
+module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
+</wxs>
+<text class="price">¥{{fmt.yuan(cents)}}</text>

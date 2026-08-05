@@ -1,4 +1,9 @@
 {
   "navigationBarTitleText": "菜单",
-  "usingComponents": {}
+  "usingComponents": {
+    "empty-state": "/components/empty-state/empty-state",
+    "product-card": "/components/product-card/product-card",
+    "cart-bar": "/components/cart-bar/cart-bar",
+    "quantity-stepper": "/components/quantity-stepper/quantity-stepper"
+  }
 }

@@ -1,0 +1,5 @@
+<view class="stepper">
+  <button class="step" size="mini" bindtap="onMinus">−</button>
+  <text class="num">{{item.quantity}}</text>
+  <button class="step" size="mini" bindtap="onPlus">＋</button>
+</view>
