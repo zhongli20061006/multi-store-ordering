@@ -1,3 +1,226 @@
+<script setup lang="ts">
+import { onMounted, reactive, ref, watch } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { menusApi, type Category, type Item } from '@/api/menus'
+import { useAsync } from '@/composables/useAsync'
+import { useCurrentStore } from '@/stores/store'
+import { centsToYuan } from '@/utils/format'
+
+const store = useCurrentStore()
+const categories = ref<Category[]>([])
+const items = ref<Item[]>([])
+const { loading, run: loadAll } = useAsync(async () => {
+  if (!store.hasStore) return
+  categories.value = await menusApi.categories(store.id)
+  items.value = await menusApi.items(store.id)
+})
+
+const categoryDialog = ref(false)
+const categoryId = ref<number | null>(null)
+const categoryForm = reactive({ name: '', sort_order: 0 })
+
+const itemDialog = ref(false)
+const itemId = ref<number | null>(null)
+const itemForm = reactive({
+  name: '',
+  description: '',
+  price_yuan: 0,
+  stock: '',
+  category_id: null as number | null,
+  sort_order: 0,
+  is_active: true,
+})
+
+function openCategoryCreate() {
+  categoryId.value = null
+  categoryForm.name = ''
+  categoryForm.sort_order = 0
+  categoryDialog.value = true
+}
+
+function openCategoryEdit(category: Category) {
+  categoryId.value = category.id
+  categoryForm.name = category.name
+  categoryForm.sort_order = category.sort_order
+  categoryDialog.value = true
+}
+
+async function submitCategory() {
+  if (!categoryForm.name) return
+  const payload = { name: categoryForm.name, sort_order: categoryForm.sort_order, is_active: true }
+  if (categoryId.value === null) {
+    await menusApi.createCategory(store.id, payload)
+    ElMessage.success('分类已创建')
+  } else {
+    await menusApi.updateCategory(store.id, categoryId.value, payload)
+    ElMessage.success('分类已保存')
+  }
+  categoryDialog.value = false
+  loadAll()
+}
+
+async function onDeleteCategory(category: Category) {
+  await ElMessageBox.confirm(`删除分类「${category.name}」会连带下架该分类下的商品，确定？`, '提示', { type: 'warning' })
+  await menusApi.deleteCategory(store.id, category.id)
+  ElMessage.success('分类已删除')
+  loadAll()
+}
+
+function openItemCreate() {
+  itemId.value = null
+  itemForm.name = ''
+  itemForm.description = ''
+  itemForm.price_yuan = 0
+  itemForm.stock = ''
+  itemForm.category_id = categories.value[0]?.id ?? null
+  itemForm.sort_order = 0
+  itemForm.is_active = true
+  itemDialog.value = true
+}
+
+function openItemEdit(item: Item) {
+  itemId.value = item.id
+  itemForm.name = item.name
+  itemForm.description = item.description || ''
+  itemForm.price_yuan = item.price_cents / 100
+  itemForm.stock = item.stock === null || item.stock === undefined ? '' : String(item.stock)
+  itemForm.category_id = item.category_id ?? null
+  itemForm.sort_order = item.sort_order
+  itemForm.is_active = item.is_active
+  itemDialog.value = true
+}
+
+async function submitItem() {
+  if (!itemForm.name || itemForm.price_yuan <= 0) return
+  const stock = itemForm.stock === '' ? null : Number(itemForm.stock)
+  if (stock !== null && (!Number.isInteger(stock) || stock < 0)) {
+    ElMessage.warning('库存必须是 ≥0 的整数或留空')
+    return
+  }
+  const payload = {
+    name: itemForm.name,
+    description: itemForm.description || null,
+    price_cents: Math.round(itemForm.price_yuan * 100),
+    stock,
+    category_id: itemForm.category_id,
+    sort_order: itemForm.sort_order,
+    is_active: itemForm.is_active,
+  }
+  if (itemId.value === null) {
+    await menusApi.createItem(store.id, payload)
+    ElMessage.success('商品已创建')
+  } else {
+    await menusApi.updateItem(store.id, itemId.value, payload)
+    ElMessage.success('商品已保存')
+  }
+  itemDialog.value = false
+  loadAll()
+}
+
+async function toggleItem(item: Item) {
+  await menusApi.updateItem(store.id, item.id, { is_active: !item.is_active })
+  ElMessage.success(item.is_active ? '已下架' : '已上架')
+  loadAll()
+}
+
+async function onDeleteItem(item: Item) {
+  await ElMessageBox.confirm(`下架「${item.name}」？`, '提示', { type: 'warning' })
+  await menusApi.deleteItem(store.id, item.id)
+  ElMessage.success('已下架')
+  loadAll()
+}
+
+watch(() => store.id, loadAll)
+onMounted(loadAll)
+</script>
+
 <template>
-  <div>占位：菜单管理（Task 5 实现）</div>
+  <div v-loading="loading">
+    <el-card>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 12px">
+        <h3 style="margin: 0">菜单管理：{{ store.name }}</h3>
+        <el-button type="primary" @click="openCategoryCreate">新建分类</el-button>
+      </div>
+
+      <div style="display: flex; gap: 16px">
+        <div style="width: 220px; flex-shrink: 0">
+          <el-card shadow="never" style="border: 1px solid var(--border-color)">
+            <div v-for="category in categories" :key="category.id" style="display: flex; justify-content: space-between; padding: 6px 0">
+              <span>{{ category.name }}</span>
+              <span>
+                <el-button link type="primary" size="small" @click="openCategoryEdit(category)">编辑</el-button>
+                <el-button link type="danger" size="small" @click="onDeleteCategory(category)">删除</el-button>
+              </span>
+            </div>
+            <el-empty v-if="categories.length === 0" description="暂无分类" :image-size="60" />
+          </el-card>
+        </div>
+
+        <div style="flex: 1">
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 12px">
+            <el-button type="primary" plain @click="openItemCreate">新增商品</el-button>
+          </div>
+          <el-table :data="items">
+            <el-table-column prop="name" label="名称" />
+            <el-table-column label="分类" width="140">
+              <template #default="{ row }">
+                {{ categories.find((c) => c.id === row.category_id)?.name || '未分类' }}
+              </template>
+            </el-table-column>
+            <el-table-column label="价格" width="110">
+              <template #default="{ row }">¥{{ centsToYuan(row.price_cents) }}</template>
+            </el-table-column>
+            <el-table-column label="库存" width="90">
+              <template #default="{ row }">{{ row.stock === null || row.stock === undefined ? '不限' : row.stock }}</template>
+            </el-table-column>
+            <el-table-column label="状态" width="100">
+              <template #default="{ row }">
+                <el-switch :model-value="row.is_active" @change="toggleItem(row)" />
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="160">
+              <template #default="{ row }">
+                <el-button link type="primary" @click="openItemEdit(row)">编辑</el-button>
+                <el-button link type="danger" @click="onDeleteItem(row)">下架</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+    </el-card>
+
+    <el-dialog v-model="categoryDialog" :title="categoryId === null ? '新建分类' : '编辑分类'" width="420px">
+      <el-form :model="categoryForm" label-width="70px">
+        <el-form-item label="名称"><el-input v-model="categoryForm.name" /></el-form-item>
+        <el-form-item label="排序"><el-input-number v-model="categoryForm.sort_order" :min="0" /></el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="categoryDialog = false">取消</el-button>
+        <el-button type="primary" @click="submitCategory">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="itemDialog" :title="itemId === null ? '新增商品' : '编辑商品'" width="520px">
+      <el-form :model="itemForm" label-width="80px">
+        <el-form-item label="名称"><el-input v-model="itemForm.name" /></el-form-item>
+        <el-form-item label="分类">
+          <el-select v-model="itemForm.category_id" style="width: 100%">
+            <el-option v-for="c in categories" :key="c.id" :label="c.name" :value="c.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="价格(元)">
+          <el-input-number v-model="itemForm.price_yuan" :min="0.01" :precision="2" :step="1" style="width: 100%" />
+        </el-form-item>
+        <el-form-item label="库存">
+          <el-input v-model="itemForm.stock" placeholder="留空=不限量" />
+        </el-form-item>
+        <el-form-item label="排序"><el-input-number v-model="itemForm.sort_order" :min="0" /></el-form-item>
+        <el-form-item label="上架"><el-switch v-model="itemForm.is_active" /></el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="itemDialog = false">取消</el-button>
+        <el-button type="primary" @click="submitItem">保存</el-button>
+      </template>
+    </el-dialog>
+  </div>
 </template>
