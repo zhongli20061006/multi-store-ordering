@@ -1,7 +1,7 @@
 const { statusText, entryTypeText, paymentStatusText } = require('../../utils/status-map')
 
 const COLOR = {
-  order: { pending: 'warning', accepted: 'primary', completed: 'success', cancelled: 'info' },
+  order: { pending: 'warning', accepted: 'primary', served: 'success', completed: 'success', cancelled: 'info' },
   payment: { unpaid: 'warning', paid: 'success' },
   entry: {},
 }

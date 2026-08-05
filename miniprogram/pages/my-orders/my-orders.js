@@ -18,8 +18,29 @@ Page({
 
   onShow() {
     this.renderOrders()
+    this.refreshActive()
+    if (!this._refreshTimer) {
+      this._refreshTimer = setInterval(() => this.refreshActive(), 8000)
+    }
+  },
+
+  onHide() {
+    if (this._refreshTimer) {
+      clearInterval(this._refreshTimer)
+      this._refreshTimer = null
+    }
+  },
+
+  onUnload() {
+    if (this._refreshTimer) {
+      clearInterval(this._refreshTimer)
+      this._refreshTimer = null
+    }
+  },
+
+  refreshActive() {
     this.data.orders.forEach((o) => {
-      if (o.order_status === 'pending' || o.order_status === 'accepted') {
+      if (o.order_status === 'pending' || o.order_status === 'accepted' || o.order_status === 'served') {
         this.silentRefresh(o)
       }
     })

@@ -2,6 +2,7 @@
 const ORDER_STATUS_TEXT = {
   pending: '待接单',
   accepted: '已接单',
+  served: '已出单',
   completed: '已完成',
   cancelled: '已取消',
 }

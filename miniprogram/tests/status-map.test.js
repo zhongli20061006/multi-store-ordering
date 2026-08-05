@@ -5,6 +5,7 @@ const { statusText, entryTypeText, paymentStatusText } = require('../utils/statu
 test('订单状态文案与兜底', () => {
   assert.strictEqual(statusText('pending'), '待接单')
   assert.strictEqual(statusText('accepted'), '已接单')
+  assert.strictEqual(statusText('served'), '已出单')
   assert.strictEqual(statusText('completed'), '已完成')
   assert.strictEqual(statusText('cancelled'), '已取消')
   assert.strictEqual(statusText('unknown'), 'unknown')
