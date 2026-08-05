@@ -29,6 +29,14 @@ test('切换门店清空购物车', () => {
   assert.deepStrictEqual(c.items, [])
 })
 
+test('同门店更新店名不清空购物车', () => {
+  cart.addItem(1, '', { menu_item_id: 1, name: '奶茶', unit_price_cents: 1200, quantity: 1 })
+  cart.ensureStore(1, '中山路店')
+  const c = cart.getCart()
+  assert.strictEqual(c.storeName, '中山路店')
+  assert.strictEqual(c.items.length, 1)
+})
+
 test('同商品合并数量，合计实时派生', () => {
   cart.addItem(1, '中山路店', { menu_item_id: 1, name: '奶茶', unit_price_cents: 500, quantity: 1 })
   cart.addItem(1, '中山路店', { menu_item_id: 1, name: '奶茶', unit_price_cents: 500, quantity: 2 })

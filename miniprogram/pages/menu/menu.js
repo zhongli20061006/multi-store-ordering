@@ -1,4 +1,4 @@
-const { getStoreMenu } = require('../../utils/api/stores')
+const { getStoreMenu, getStores } = require('../../utils/api/stores')
 const cart = require('../../store/cart')
 
 Page({
@@ -26,6 +26,20 @@ Page({
     this.setData({ storeId, storeName, entryType })
     cart.ensureStore(storeId, storeName)
     this.loadMenu()
+    // 扫码直达的 URL 只有 store_id（真源约定），门店名从门店列表补全
+    if (!storeName) this.fetchStoreName(storeId)
+  },
+
+  fetchStoreName(storeId) {
+    getStores()
+      .then((stores) => {
+        const found = stores.find((s) => s.id === storeId)
+        if (found) {
+          cart.ensureStore(storeId, found.name)
+          this.setData({ storeName: found.name })
+        }
+      })
+      .catch(() => {})
   },
 
   loadMenu() {

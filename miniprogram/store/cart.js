@@ -29,6 +29,9 @@ function ensureStore(storeId, storeName) {
   if (cart.storeId !== storeId) {
     write({ storeId, storeName, items: [] })
     wx.showToast({ title: '已切换门店，购物车已清空', icon: 'none' })
+  } else if (cart.storeName !== storeName) {
+    cart.storeName = storeName
+    write(cart)
   }
 }
 
