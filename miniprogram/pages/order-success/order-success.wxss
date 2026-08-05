@@ -1,1 +1,51 @@
-/* 待 Task 7 实现 */
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 32rpx;
+}
+.title {
+  margin-top: 24rpx;
+  font-size: 38rpx;
+  font-weight: 600;
+}
+.desc {
+  margin-top: 12rpx;
+  color: var(--text-secondary);
+  font-size: 26rpx;
+}
+.card {
+  width: 100%;
+  background: var(--surface);
+  border: 1rpx solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24rpx;
+  margin-top: 48rpx;
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 14rpx 0;
+  font-size: 28rpx;
+}
+.label {
+  color: var(--text-secondary);
+}
+.value {
+  color: var(--text-main);
+}
+.primary {
+  width: 100%;
+  margin-top: 48rpx;
+  background: var(--brand-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+}
+.ghost {
+  width: 100%;
+  margin-top: 20rpx;
+  background: var(--surface);
+  color: var(--text-main);
+  border: 1rpx solid var(--border-color);
+  border-radius: var(--radius-sm);
+}

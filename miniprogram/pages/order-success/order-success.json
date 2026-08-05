@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "下单成功",
-  "usingComponents": {}
+  "usingComponents": {
+    "price": "/components/price/price"
+  }
 }
