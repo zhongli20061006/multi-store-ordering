@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storesApi } from '@/api/stores'
 import { useAuthStore } from '@/stores/auth'
@@ -27,6 +27,8 @@ function onLogout() {
   current.clear()
   router.push('/login')
 }
+
+const menuIndex = computed(() => (current.hasStore ? `/stores/${current.id}/menu` : '/stores'))
 </script>
 
 <template>
@@ -34,6 +36,7 @@ function onLogout() {
     <el-aside width="200px" style="background: #fff; border-right: 1px solid var(--border-color)">
       <el-menu router>
         <el-menu-item index="/stores">门店管理</el-menu-item>
+        <el-menu-item :index="menuIndex" :disabled="!current.hasStore">菜单管理</el-menu-item>
         <el-menu-item index="/orders">订单管理</el-menu-item>
       </el-menu>
     </el-aside>
