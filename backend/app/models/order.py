@@ -13,7 +13,7 @@ class Order(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    order_no: Mapped[str] = mapped_column(String(32), unique=True, index=True)
+    order_no: Mapped[str] = mapped_column(String(32), index=True)
     store_id: Mapped[int] = mapped_column(ForeignKey("stores.id"), index=True)
     customer_name: Mapped[str] = mapped_column(String(30))
     customer_phone: Mapped[str] = mapped_column(String(20), index=True)

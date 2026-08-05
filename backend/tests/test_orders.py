@@ -1,5 +1,7 @@
+import re
+
 from tests.conftest import login
-from sqlalchemy import inspect
+from sqlalchemy import inspect, update
 
 
 def _order_payload(seed, **overrides):
@@ -201,3 +203,34 @@ def test_orders_composite_index_exists(client, seed, db_session_factory):
     target = indexes.get("ix_orders_store_status_created")
     assert target is not None
     assert sorted(target["column_names"]) == ["created_at", "order_status", "store_id"]
+
+
+def test_order_no_is_4_digit_and_unique_in_store_today(client, seed):
+    first = _create_order(client, seed, "no4-key-001").json()["data"]
+    second = _create_order(client, seed, "no4-key-002").json()["data"]
+    assert re.fullmatch(r"\d{4}", first["order_no"])
+    assert re.fullmatch(r"\d{4}", second["order_no"])
+    assert 1000 <= int(first["order_no"]) <= 9999
+    assert first["order_no"] != second["order_no"]
+
+
+def test_order_no_index_not_unique(client, seed, db_session_factory):
+    engine = db_session_factory().get_bind()
+    indexes = {ix["name"]: ix for ix in inspect(engine).get_indexes("orders")}
+    target = indexes.get("ix_orders_order_no")
+    assert target is not None
+    assert not target["unique"]
+
+
+def test_lookup_returns_newest_when_order_no_reused(client, seed, db_session_factory):
+    from app.models import Order
+
+    first = _create_order(client, seed, "reuse-key-001").json()["data"]
+    second = _create_order(client, seed, "reuse-key-002").json()["data"]
+    db = db_session_factory()
+    db.execute(update(Order).where(Order.id == first["id"]).values(order_no=second["order_no"]))
+    db.commit()
+    db.close()
+    resp = client.get("/api/v1/orders", params={"phone": "13900000001", "order_no": second["order_no"]})
+    assert resp.status_code == 200
+    assert resp.json()["data"]["id"] == second["id"]

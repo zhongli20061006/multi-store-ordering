@@ -1,5 +1,5 @@
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
@@ -17,9 +17,33 @@ ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
 }
 
 
-def generate_order_no() -> str:
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    return f"{timestamp}{secrets.randbelow(1_000_000):06d}"
+# 中国无夏令时，固定 UTC+8 即 Asia/Shanghai（Windows 无 tzdata 时 ZoneInfo 不可用）
+CN_TZ = timezone(timedelta(hours=8))
+
+
+def _local_day_start_utc() -> datetime:
+    """Asia/Shanghai 自然日零点对应的 UTC（落库时间为无时区 UTC）。"""
+    local_now = datetime.now(CN_TZ)
+    local_midnight = local_now.replace(hour=0, minute=0, second=0, microsecond=0)
+    return local_midnight.astimezone(timezone.utc).replace(tzinfo=None)
+
+
+def generate_order_no(db: Session, store_id: int) -> str:
+    """4 位随机订单号；同门店当天不重复，隔天可复用。"""
+    since = _local_day_start_utc()
+    used = set(
+        db.scalars(
+            select(Order.order_no).where(
+                Order.store_id == store_id,
+                Order.created_at >= since,
+            )
+        )
+    )
+    for _ in range(100):
+        candidate = f"{secrets.randbelow(9000) + 1000:04d}"
+        if candidate not in used:
+            return candidate
+    raise BusinessError(409, "今日该门店订单号已用尽，请稍后再试")
 
 
 def create_order(db: Session, payload: OrderCreate) -> tuple[Order, bool]:
@@ -78,7 +102,7 @@ def create_order(db: Session, payload: OrderCreate) -> tuple[Order, bool]:
         )
 
     order = Order(
-        order_no=generate_order_no(),
+        order_no=generate_order_no(db, payload.store_id),
         store_id=payload.store_id,
         entry_type=payload.entry_type.value,
         customer_name=payload.customer_name,

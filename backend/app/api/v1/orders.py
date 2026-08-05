@@ -21,7 +21,7 @@ def create_order_endpoint(payload: OrderCreate, db: Session = Depends(get_db)):
 
 @router.post("/orders/{order_no}/cancel")
 def customer_cancel(order_no: str, payload: CustomerCancelRequest, db: Session = Depends(get_db)):
-    order = db.scalar(select(Order).where(Order.order_no == order_no))
+    order = db.scalar(select(Order).where(Order.order_no == order_no).order_by(Order.id.desc()))
     if order is None or order.customer_phone != payload.phone:
         raise BusinessError(404, "订单不存在")
     return ok(OrderOut.model_validate(cancel_order(db, order, CancelReason.CUSTOMER_CANCEL, 0)).model_dump())
@@ -30,10 +30,14 @@ def customer_cancel(order_no: str, payload: CustomerCancelRequest, db: Session =
 @router.get("/orders")
 def get_my_order(
     phone: str = Query(pattern=r"^1[3-9]\d{9}$"),
-    order_no: str = Query(min_length=8, max_length=32),
+    order_no: str = Query(min_length=4, max_length=32),
     db: Session = Depends(get_db),
 ):
-    order = db.scalar(select(Order).where(Order.order_no == order_no, Order.customer_phone == phone))
+    order = db.scalar(
+        select(Order)
+        .where(Order.order_no == order_no, Order.customer_phone == phone)
+        .order_by(Order.id.desc())
+    )
     if order is None:
         raise BusinessError(404, "订单不存在")
     return ok(OrderOut.model_validate(order).model_dump())
