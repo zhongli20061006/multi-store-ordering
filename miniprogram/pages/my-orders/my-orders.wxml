@@ -1,2 +1,36 @@
-<!-- 待 Task 8 实现 -->
-<view>我的订单</view>
+<view class="page">
+  <block wx:if="{{order}}">
+    <order-card order="{{order}}" bind:cancel="onCancel" />
+    <view class="hint">商家接单后，重新打开或刷新可看到最新状态</view>
+  </block>
+  <empty-state
+    wx:else
+    title="还没有订单"
+    desc="下单成功后订单会直接显示在这里"
+  />
+
+  <view class="finder">
+    <view class="finder-header" bindtap="toggleFinder">
+      找回历史订单（手机号 + 订单号）
+    </view>
+    <view wx:if="{{showFinder}}" class="finder-body">
+      <input
+        class="input"
+        type="number"
+        maxlength="11"
+        placeholder="手机号"
+        data-field="phone"
+        value="{{phone}}"
+        bindinput="onInput"
+      />
+      <input
+        class="input"
+        placeholder="订单号"
+        data-field="orderNo"
+        value="{{orderNo}}"
+        bindinput="onInput"
+      />
+      <button class="search" size="mini" loading="{{querying}}" bindtap="onSearch">查询</button>
+    </view>
+  </view>
+</view>

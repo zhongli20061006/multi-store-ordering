@@ -1,0 +1,27 @@
+<view class="order-card" wx:if="{{order}}">
+  <view class="head">
+    <text class="no">{{order.order_no}}</text>
+    <status-badge status="{{order.order_status}}" type="order" />
+  </view>
+  <view class="meta">
+    <text class="store">{{order.storeName}}</text>
+    <status-badge status="{{order.entry_type}}" type="entry" />
+  </view>
+  <view class="items">
+    <view class="item" wx:for="{{order.items}}" wx:key="id">
+      <text class="item-name">{{item.item_name}} × {{item.quantity}}</text>
+      <price cents="{{item.subtotal_cents}}" />
+    </view>
+  </view>
+  <view class="foot">
+    <text class="time">{{displayTime}}</text>
+    <text class="count">共 {{order.item_count}} 件</text>
+    <price cents="{{order.total_cents}}" />
+  </view>
+  <button
+    wx:if="{{order.order_status === 'pending'}}"
+    class="cancel"
+    size="mini"
+    bindtap="onCancel"
+  >取消订单</button>
+</view>

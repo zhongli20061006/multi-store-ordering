@@ -1,0 +1,10 @@
+.badge {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: var(--radius-sm);
+  font-size: 22rpx;
+}
+.warning { background: #fdf6ec; color: #e6a23c; }
+.primary { background: #ecf5ff; color: #409eff; }
+.success { background: #f0f9eb; color: #67c23a; }
+.info { background: #f4f4f5; color: #909399; }
