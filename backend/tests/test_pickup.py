@@ -24,9 +24,20 @@ def _accept(client, seed, order):
     assert resp.status_code == 200
 
 
-def test_customer_pickup_accepted_completes(client, seed):
-    order = _create(client, seed, "pickup-001")
+def _serve(client, seed, order):
     _accept(client, seed, order)
+    headers = login(client, "admin1")
+    resp = client.patch(
+        f"/api/v1/admin/orders/{order['id']}/status",
+        json={"order_status": "served"},
+        headers=headers,
+    )
+    assert resp.status_code == 200
+
+
+def test_customer_pickup_served_completes(client, seed):
+    order = _create(client, seed, "pickup-001")
+    _serve(client, seed, order)
     resp = client.post(f"/api/v1/orders/{order['order_no']}/pickup", json={"phone": "13900000001"})
     assert resp.status_code == 200
     assert resp.json()["data"]["order_status"] == "completed"
@@ -34,21 +45,28 @@ def test_customer_pickup_accepted_completes(client, seed):
 
 def test_customer_pickup_twice_idempotent(client, seed):
     order = _create(client, seed, "pickup-002")
-    _accept(client, seed, order)
+    _serve(client, seed, order)
     first = client.post(f"/api/v1/orders/{order['order_no']}/pickup", json={"phone": "13900000001"})
     second = client.post(f"/api/v1/orders/{order['order_no']}/pickup", json={"phone": "13900000001"})
     assert first.status_code == 200 and second.status_code == 200
     assert second.json()["data"]["order_status"] == "completed"
 
 
-def test_customer_pickup_pending_rejected(client, seed):
+def test_customer_pickup_accepted_rejected(client, seed):
     order = _create(client, seed, "pickup-003")
+    _accept(client, seed, order)
+    resp = client.post(f"/api/v1/orders/{order['order_no']}/pickup", json={"phone": "13900000001"})
+    assert resp.status_code == 409
+
+
+def test_customer_pickup_pending_rejected(client, seed):
+    order = _create(client, seed, "pickup-004")
     resp = client.post(f"/api/v1/orders/{order['order_no']}/pickup", json={"phone": "13900000001"})
     assert resp.status_code == 409
 
 
 def test_customer_pickup_cancelled_rejected(client, seed):
-    order = _create(client, seed, "pickup-004")
+    order = _create(client, seed, "pickup-005")
     headers = login(client, "admin1")
     client.post(
         f"/api/v1/admin/orders/{order['id']}/cancel",
@@ -60,21 +78,7 @@ def test_customer_pickup_cancelled_rejected(client, seed):
 
 
 def test_customer_pickup_wrong_phone_not_found(client, seed):
-    order = _create(client, seed, "pickup-005")
-    _accept(client, seed, order)
+    order = _create(client, seed, "pickup-006")
+    _serve(client, seed, order)
     resp = client.post(f"/api/v1/orders/{order['order_no']}/pickup", json={"phone": "13900000002"})
     assert resp.status_code == 404
-
-
-def test_customer_pickup_after_merchant_complete_idempotent(client, seed):
-    order = _create(client, seed, "pickup-006")
-    _accept(client, seed, order)
-    headers = login(client, "admin1")
-    client.patch(
-        f"/api/v1/admin/orders/{order['id']}/status",
-        json={"order_status": "completed"},
-        headers=headers,
-    )
-    resp = client.post(f"/api/v1/orders/{order['order_no']}/pickup", json={"phone": "13900000001"})
-    assert resp.status_code == 200
-    assert resp.json()["data"]["order_status"] == "completed"

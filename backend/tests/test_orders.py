@@ -234,3 +234,26 @@ def test_lookup_returns_newest_when_order_no_reused(client, seed, db_session_fac
     resp = client.get("/api/v1/orders", params={"phone": "13900000001", "order_no": second["order_no"]})
     assert resp.status_code == 200
     assert resp.json()["data"]["id"] == second["id"]
+
+
+def test_status_machine_served_requires_pickup_to_complete(client, seed):
+    order_id = _create_order(client, seed, "state-served-001").json()["data"]["id"]
+    headers = login(client, "admin1")
+    client.patch(
+        f"/api/v1/admin/orders/{order_id}/status",
+        json={"order_status": "accepted"},
+        headers=headers,
+    )
+    ok = client.patch(
+        f"/api/v1/admin/orders/{order_id}/status",
+        json={"order_status": "served"},
+        headers=headers,
+    )
+    assert ok.status_code == 200
+    assert ok.json()["data"]["order_status"] == "served"
+    bad = client.patch(
+        f"/api/v1/admin/orders/{order_id}/status",
+        json={"order_status": "completed"},
+        headers=headers,
+    )
+    assert bad.status_code == 409

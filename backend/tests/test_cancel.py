@@ -97,3 +97,24 @@ def test_admin_cancel_cross_store_blocked(client, seed):
         headers=headers,
     )
     assert resp.status_code == 403
+
+
+def test_merchant_cancel_served_rejected(client, seed):
+    order = _create(client, seed, "cancel-served-001")
+    headers = login(client, "admin1")
+    client.patch(
+        f"/api/v1/admin/orders/{order['id']}/status",
+        json={"order_status": "accepted"},
+        headers=headers,
+    )
+    client.patch(
+        f"/api/v1/admin/orders/{order['id']}/status",
+        json={"order_status": "served"},
+        headers=headers,
+    )
+    resp = client.post(
+        f"/api/v1/admin/orders/{order['id']}/cancel",
+        json={"cancel_reason": "merchant_cancel_not_made"},
+        headers=headers,
+    )
+    assert resp.status_code == 409

@@ -11,7 +11,8 @@ from app.schemas.order import CancelReason, OrderCreate, OrderEntryType, OrderSt
 
 ALLOWED_TRANSITIONS: dict[OrderStatus, set[OrderStatus]] = {
     OrderStatus.PENDING: {OrderStatus.ACCEPTED},
-    OrderStatus.ACCEPTED: {OrderStatus.COMPLETED},
+    OrderStatus.ACCEPTED: {OrderStatus.SERVED},
+    OrderStatus.SERVED: set(),
     OrderStatus.COMPLETED: set(),
     OrderStatus.CANCELLED: set(),
 }
@@ -168,12 +169,12 @@ def cancel_order(db: Session, order: Order, reason: CancelReason, actor_id: int 
 
 def pickup_order(db: Session, order: Order) -> Order:
     if order.order_status == OrderStatus.COMPLETED.value:
-        return order  # 幂等：已完成（含商家完成）直接返回
+        return order  # 幂等：已完成直接返回
     current = OrderStatus(order.order_status)
     if current == OrderStatus.CANCELLED:
         raise BusinessError(409, "已取消的订单不能确认取单")
-    if current != OrderStatus.ACCEPTED:
-        raise BusinessError(409, "商家接单后才能确认取单")
+    if current != OrderStatus.SERVED:
+        raise BusinessError(409, "出单后才能确认取单")
     order.order_status = OrderStatus.COMPLETED.value
     db.commit()
     db.refresh(order)
