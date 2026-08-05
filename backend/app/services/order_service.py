@@ -166,6 +166,20 @@ def cancel_order(db: Session, order: Order, reason: CancelReason, actor_id: int 
     return order
 
 
+def pickup_order(db: Session, order: Order) -> Order:
+    if order.order_status == OrderStatus.COMPLETED.value:
+        return order  # 幂等：已完成（含商家完成）直接返回
+    current = OrderStatus(order.order_status)
+    if current == OrderStatus.CANCELLED:
+        raise BusinessError(409, "已取消的订单不能确认取单")
+    if current != OrderStatus.ACCEPTED:
+        raise BusinessError(409, "商家接单后才能确认取单")
+    order.order_status = OrderStatus.COMPLETED.value
+    db.commit()
+    db.refresh(order)
+    return order
+
+
 def _restock_items(db: Session, order: Order) -> None:
     for item in order.items:
         if item.menu_item_id is None:

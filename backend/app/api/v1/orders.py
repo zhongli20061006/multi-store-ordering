@@ -6,8 +6,8 @@ from app.core.database import get_db
 from app.core.errors import BusinessError
 from app.core.response import ok
 from app.models import Order
-from app.schemas.order import CancelReason, CustomerCancelRequest, OrderCreate, OrderOut
-from app.services.order_service import cancel_order, create_order
+from app.schemas.order import CancelReason, CustomerPhoneRequest, OrderCreate, OrderOut
+from app.services.order_service import cancel_order, create_order, pickup_order
 
 
 router = APIRouter(tags=["public"])
@@ -20,11 +20,19 @@ def create_order_endpoint(payload: OrderCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/orders/{order_no}/cancel")
-def customer_cancel(order_no: str, payload: CustomerCancelRequest, db: Session = Depends(get_db)):
+def customer_cancel(order_no: str, payload: CustomerPhoneRequest, db: Session = Depends(get_db)):
     order = db.scalar(select(Order).where(Order.order_no == order_no).order_by(Order.id.desc()))
     if order is None or order.customer_phone != payload.phone:
         raise BusinessError(404, "订单不存在")
     return ok(OrderOut.model_validate(cancel_order(db, order, CancelReason.CUSTOMER_CANCEL, 0)).model_dump())
+
+
+@router.post("/orders/{order_no}/pickup")
+def customer_pickup(order_no: str, payload: CustomerPhoneRequest, db: Session = Depends(get_db)):
+    order = db.scalar(select(Order).where(Order.order_no == order_no).order_by(Order.id.desc()))
+    if order is None or order.customer_phone != payload.phone:
+        raise BusinessError(404, "订单不存在")
+    return ok(OrderOut.model_validate(pickup_order(db, order)).model_dump())
 
 
 @router.get("/orders")

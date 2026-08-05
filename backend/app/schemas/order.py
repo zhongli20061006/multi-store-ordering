@@ -26,7 +26,7 @@ class CancelReason(str, Enum):
     MERCHANT_CANCEL_MADE = "merchant_cancel_made"
 
 
-class CustomerCancelRequest(BaseModel):
+class CustomerPhoneRequest(BaseModel):
     phone: str = Field(pattern=r"^1[3-9]\d{9}$")
 
 
