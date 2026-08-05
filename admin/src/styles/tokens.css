@@ -1,0 +1,15 @@
+:root {
+  --brand-primary: #FF6B35;
+  --el-color-primary: #FF6B35;
+  --text-main: #303133;
+  --text-secondary: #909399;
+  --bg-page: #F5F7FA;
+  --surface: #FFFFFF;
+  --border-color: #E4E7ED;
+}
+body {
+  margin: 0;
+  background: var(--bg-page);
+  color: var(--text-main);
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
