@@ -1,0 +1,27 @@
+{
+  "pages": [
+    "pages/store-list/store-list",
+    "pages/menu/menu",
+    "pages/checkout/checkout",
+    "pages/order-success/order-success",
+    "pages/my-orders/my-orders"
+  ],
+  "window": {
+    "navigationBarTitleText": "多门店点单",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F5F7FA"
+  },
+  "tabBar": {
+    "color": "#909399",
+    "selectedColor": "#FF6B35",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/store-list/store-list", "text": "首页" },
+      { "pagePath": "pages/my-orders/my-orders", "text": "我的订单" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

@@ -1,0 +1,23 @@
+{
+  "appid": "touristappid",
+  "compileType": "miniprogram",
+  "libVersion": "3.4.0",
+  "projectname": "multi-store-ordering-miniprogram",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": true,
+    "minified": true
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "扫码直达菜单",
+          "pathName": "pages/menu/menu",
+          "query": "store_id=1"
+        }
+      ]
+    }
+  }
+}
