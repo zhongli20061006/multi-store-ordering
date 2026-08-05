@@ -1,9 +1,10 @@
-const { queryOrder, cancelOrder } = require('../../utils/api/orders')
+const { queryOrder, cancelOrder, pickupOrder } = require('../../utils/api/orders')
 const { getStores } = require('../../utils/api/stores')
+const recentOrders = require('../../store/recent-orders')
 
 Page({
   data: {
-    order: null,
+    orders: [],
     phone: '',
     orderNo: '',
     querying: false,
@@ -16,13 +17,12 @@ Page({
   },
 
   onShow() {
-    // 下单成功页/确认下单页暂存的完整订单对象，直接渲染（零输入）
-    const pending = wx.getStorageSync('pending_order_display')
-    if (pending && pending.order_no) {
-      wx.removeStorageSync('pending_order_display')
-      this.applyOrder(pending)
-      this.silentRefresh(pending)
-    }
+    this.renderOrders()
+    this.data.orders.forEach((o) => {
+      if (o.order_status === 'pending' || o.order_status === 'accepted') {
+        this.silentRefresh(o)
+      }
+    })
   },
 
   loadStoreNames() {
@@ -41,14 +41,19 @@ Page({
     return this.data.storeNames[storeId] || `门店 #${storeId}`
   },
 
+  renderOrders() {
+    const orders = recentOrders.list().map((o) =>
+      Object.assign({}, o, { storeName: this.storeNameOf(o.store_id) })
+    )
+    this.setData({ orders })
+  },
+
   applyOrder(order) {
-    this.setData({
-      order: Object.assign({}, order, { storeName: this.storeNameOf(order.store_id) }),
-    })
+    recentOrders.upsert(order)
+    this.renderOrders()
   },
 
   silentRefresh(order) {
-    // 静默刷新最新状态；失败保持快照，不打扰用户
     queryOrder(order.customer_phone, order.order_no)
       .then((fresh) => this.applyOrder(fresh))
       .catch(() => {})
@@ -81,16 +86,33 @@ Page({
       .finally(() => this.setData({ querying: false }))
   },
 
-  onCancel() {
-    const { order } = this.data
+  onCancel(e) {
+    const { order_no: orderNo, customer_phone: phone } = e.detail.order
     wx.showModal({
       title: '取消订单',
       content: '确定取消该订单？未制作的取消将回补限库存商品。',
       success: (res) => {
         if (!res.confirm) return
-        cancelOrder(order.order_no, order.customer_phone)
+        cancelOrder(orderNo, phone)
           .then((fresh) => {
             wx.showToast({ title: '已取消', icon: 'success' })
+            this.applyOrder(fresh)
+          })
+          .catch(() => {})
+      },
+    })
+  },
+
+  onPickup(e) {
+    const { order_no: orderNo, customer_phone: phone } = e.detail.order
+    wx.showModal({
+      title: '确认取单',
+      content: '确认已取到该订单的餐品？',
+      success: (res) => {
+        if (!res.confirm) return
+        pickupOrder(orderNo, phone)
+          .then((fresh) => {
+            wx.showToast({ title: '已取单', icon: 'success' })
             this.applyOrder(fresh)
           })
           .catch(() => {})

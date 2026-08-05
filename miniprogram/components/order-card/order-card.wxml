@@ -19,6 +19,12 @@
     <price cents="{{order.total_cents}}" />
   </view>
   <button
+    wx:if="{{order.order_status === 'accepted'}}"
+    class="pickup"
+    size="mini"
+    bindtap="onPickup"
+  >已取单</button>
+  <button
     wx:if="{{order.order_status === 'pending'}}"
     class="cancel"
     size="mini"

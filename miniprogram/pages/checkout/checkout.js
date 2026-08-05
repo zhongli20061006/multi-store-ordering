@@ -1,6 +1,7 @@
 const { createOrder } = require('../../utils/api/orders')
 const { generateKey } = require('../../utils/idempotency')
 const cart = require('../../store/cart')
+const recentOrders = require('../../store/recent-orders')
 
 Page({
   data: {
@@ -76,8 +77,7 @@ Page({
     })
       .then((order) => {
         cart.clearCart()
-        // 暂存完整订单对象，我的订单页 onShow 直接渲染（switchTab 无法带参数）
-        wx.setStorageSync('pending_order_display', order)
+        recentOrders.upsert(order)
         wx.redirectTo({
           url: `/pages/order-success/order-success?order_no=${order.order_no}&total_cents=${order.total_cents}&store_name=${encodeURIComponent(this.data.storeName)}`,
         })

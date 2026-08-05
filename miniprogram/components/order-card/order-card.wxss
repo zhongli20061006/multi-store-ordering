@@ -62,3 +62,9 @@
   border: 1rpx solid #f56c6c;
   border-radius: var(--radius-sm);
 }
+.pickup {
+  margin-top: 20rpx;
+  background: var(--brand-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+}

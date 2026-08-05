@@ -16,7 +16,10 @@ Component({
   },
   methods: {
     onCancel() {
-      this.triggerEvent('cancel')
+      this.triggerEvent('cancel', { order: this.properties.order })
+    },
+    onPickup() {
+      this.triggerEvent('pickup', { order: this.properties.order })
     },
   },
 })

@@ -1,12 +1,6 @@
 .page {
   padding: 24rpx;
 }
-.hint {
-  text-align: center;
-  font-size: 24rpx;
-  color: var(--text-disabled);
-  margin-bottom: 24rpx;
-}
 .finder {
   margin-top: 32rpx;
   border-top: 1rpx solid var(--border-color);

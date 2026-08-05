@@ -1,7 +1,12 @@
 <view class="page">
-  <block wx:if="{{order}}">
-    <order-card order="{{order}}" bind:cancel="onCancel" />
-    <view class="hint">商家接单后，重新打开或刷新可看到最新状态</view>
+  <block wx:if="{{orders.length}}">
+    <order-card
+      wx:for="{{orders}}"
+      wx:key="order_no"
+      order="{{item}}"
+      bind:cancel="onCancel"
+      bind:pickup="onPickup"
+    />
   </block>
   <empty-state
     wx:else
