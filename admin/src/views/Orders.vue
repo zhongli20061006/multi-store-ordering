@@ -43,9 +43,9 @@ async function accept(order: Order) {
   load()
 }
 
-async function complete(order: Order) {
-  await ordersApi.updateStatus(order.id, 'completed')
-  ElMessage.success('已完成')
+async function serve(order: Order) {
+  await ordersApi.updateStatus(order.id, 'served')
+  ElMessage.success('已出单')
   load()
 }
 
@@ -124,6 +124,7 @@ const stats = computed(() => {
           <el-select v-model="filter.order_status" placeholder="全部状态" clearable style="width: 140px" @change="load">
             <el-option label="待接单" value="pending" />
             <el-option label="已接单" value="accepted" />
+            <el-option label="已出单" value="served" />
             <el-option label="已完成" value="completed" />
             <el-option label="已取消" value="cancelled" />
           </el-select>
@@ -161,7 +162,7 @@ const stats = computed(() => {
           <template #default="{ row }">
             <el-button link type="primary" @click="showDetail(row)">详情</el-button>
             <el-button v-if="row.order_status === 'pending'" link type="primary" @click="accept(row)">接单</el-button>
-            <el-button v-if="row.order_status === 'accepted'" link type="success" @click="complete(row)">完成</el-button>
+            <el-button v-if="row.order_status === 'accepted'" link type="success" @click="serve(row)">出单</el-button>
             <el-button v-if="row.order_status === 'pending' || row.order_status === 'accepted'" link type="danger" @click="openCancel(row)">
               取消
             </el-button>
