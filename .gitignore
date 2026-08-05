@@ -20,6 +20,7 @@ admin/dist/
 
 # 小程序构建产物
 miniprogram/miniprogram_npm/
+project.private.config.json
 
 # IDE 与系统文件
 .idea/
