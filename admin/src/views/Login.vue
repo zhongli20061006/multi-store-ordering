@@ -47,8 +47,14 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--brand-gradient);
 }
 .login-card {
   width: 360px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.login-card h2 {
+  color: var(--brand-primary);
 }
 </style>

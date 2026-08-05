@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { ordersApi, type Order, type OrderDetail } from '@/api/orders'
 import { useAsync } from '@/composables/useAsync'
@@ -69,10 +69,54 @@ onUnmounted(() => {
   if (timer) window.clearInterval(timer)
 })
 watch(() => store.id, load)
+
+const todayStart = new Date()
+todayStart.setHours(0, 0, 0, 0)
+
+const stats = computed(() => {
+  const today = orders.value.filter((order) => {
+    const d = new Date(order.created_at.replace(' ', 'T') + 'Z')
+    return d >= todayStart
+  })
+  const completedToday = today.filter((order) => order.order_status === 'completed')
+  return {
+    today: today.length,
+    pending: orders.value.filter((order) => order.order_status === 'pending').length,
+    completed: orders.value.filter((order) => order.order_status === 'completed').length,
+    revenueToday: completedToday.reduce((sum, order) => sum + order.total_cents, 0),
+  }
+})
 </script>
 
 <template>
   <div v-loading="loading">
+    <el-row :gutter="16" style="margin-bottom: 16px">
+      <el-col :span="6">
+        <el-card>
+          <div class="stat-num" style="color: var(--brand-primary)">{{ stats.today }}</div>
+          <div class="stat-label">今日订单</div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card>
+          <div class="stat-num" style="color: #e6a23c">{{ stats.pending }}</div>
+          <div class="stat-label">待接单</div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card>
+          <div class="stat-num" style="color: #67c23a">{{ stats.completed }}</div>
+          <div class="stat-label">已完成</div>
+        </el-card>
+      </el-col>
+      <el-col :span="6">
+        <el-card>
+          <div class="stat-num" style="color: var(--brand-primary)">¥{{ centsToYuan(stats.revenueToday) }}</div>
+          <div class="stat-label">今日营业额</div>
+        </el-card>
+      </el-col>
+    </el-row>
+
     <el-card>
       <div style="display: flex; justify-content: space-between; margin-bottom: 12px">
         <h3 style="margin: 0">订单管理：{{ store.name }}</h3>
@@ -165,3 +209,15 @@ watch(() => store.id, load)
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.stat-num {
+  font-size: 24px;
+  font-weight: 600;
+}
+.stat-label {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+</style>

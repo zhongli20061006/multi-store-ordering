@@ -1,5 +1,6 @@
 :root {
   --brand-primary: #FF6B35;
+  --brand-gradient: linear-gradient(135deg, #FF6B35 0%, #ff9a5a 100%);
   --el-color-primary: #FF6B35;
   --text-main: #303133;
   --text-secondary: #909399;

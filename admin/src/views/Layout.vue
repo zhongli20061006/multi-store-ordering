@@ -34,6 +34,10 @@ const menuIndex = computed(() => (current.hasStore ? `/stores/${current.id}/menu
 <template>
   <el-container style="min-height: 100vh">
     <el-aside width="200px" style="background: #fff; border-right: 1px solid var(--border-color)">
+      <div style="height: 56px; display: flex; align-items: center; gap: 8px; padding: 0 16px; border-bottom: 1px solid var(--border-color)">
+        <span style="width: 4px; height: 20px; border-radius: 2px; background: var(--brand-primary); display: inline-block"></span>
+        <strong>多门店点单</strong>
+      </div>
       <el-menu router>
         <el-menu-item index="/stores">门店管理</el-menu-item>
         <el-menu-item :index="menuIndex" :disabled="!current.hasStore">菜单管理</el-menu-item>
