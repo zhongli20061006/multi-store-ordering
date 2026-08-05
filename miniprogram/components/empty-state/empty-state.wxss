@@ -1,0 +1,22 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 40rpx;
+  color: var(--text-secondary);
+}
+.title {
+  margin-top: 24rpx;
+  font-size: 30rpx;
+  color: var(--text-main);
+}
+.desc {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+}
+.action {
+  margin-top: 32rpx;
+  background: var(--brand-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+}

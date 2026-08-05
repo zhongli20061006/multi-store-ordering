@@ -1,0 +1,6 @@
+<view class="empty-state">
+  <icon type="info" size="64" />
+  <text class="title">{{title}}</text>
+  <text wx:if="{{desc}}" class="desc">{{desc}}</text>
+  <button wx:if="{{actionText}}" class="action" size="mini" bindtap="onAction">{{actionText}}</button>
+</view>

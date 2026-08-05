@@ -1,1 +1,36 @@
-/* 待 Task 4 实现 */
+.page {
+  padding: 16rpx 24rpx;
+}
+.loading {
+  padding: 120rpx 0;
+  text-align: center;
+  color: var(--text-secondary);
+}
+.store-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1rpx solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+}
+.store-main {
+  display: flex;
+  flex-direction: column;
+}
+.store-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.store-address {
+  margin-top: 8rpx;
+  font-size: 26rpx;
+  color: var(--text-secondary);
+}
+.store-status {
+  font-size: 24rpx;
+  color: #67c23a;
+}

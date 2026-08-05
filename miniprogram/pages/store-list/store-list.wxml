@@ -1,2 +1,31 @@
-<!-- 待 Task 4 实现 -->
-<view>门店列表</view>
+<view class="page">
+  <view wx:if="{{loading}}" class="loading">加载中…</view>
+  <empty-state
+    wx:elif="{{error}}"
+    title="加载失败"
+    desc="请确认后端服务已启动后重试"
+    action-text="重试"
+    bind:action="retry"
+  />
+  <empty-state
+    wx:elif="{{stores.length === 0}}"
+    title="暂无营业中门店"
+    desc="所有门店当前均已打烊"
+  />
+  <view wx:else class="store-list">
+    <view
+      class="store-card"
+      wx:for="{{stores}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      data-name="{{item.name}}"
+      bindtap="goMenu"
+    >
+      <view class="store-main">
+        <text class="store-name">{{item.name}}</text>
+        <text class="store-address">{{item.address}}</text>
+      </view>
+      <text class="store-status">营业中</text>
+    </view>
+  </view>
+</view>
