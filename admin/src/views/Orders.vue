@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { ordersApi, type Order, type OrderDetail } from '@/api/orders'
 import { useAsync } from '@/composables/useAsync'
@@ -14,31 +14,56 @@ import { buildExportFilename, downloadBlob } from '@/utils/csv-download'
 
 const store = useCurrentStore()
 const orders = ref<Order[]>([])
-const filter = reactive({ order_status: '', keyword: '' })
+const total = ref(0)
+const page = ref(1)
+const pageSize = ref(20)
+const stats = ref({ today: 0, pending: 0, completed: 0, revenueToday: 0 })
+const filter = reactive({ order_status: '', keyword: '', dateRange: null as [string, string] | null })
 const lastIds = ref<number[]>([])
 const baselineSet = ref(false)
 const alertEnabled = ref(localStorage.getItem('admin_alert_enabled') === '1')
 const { loading, run: load } = useAsync(async () => {
   if (!store.hasStore) return
-  const fetched = await ordersApi.list({
+  const data = await ordersApi.list({
     store_id: store.id,
     order_status: filter.order_status || undefined,
     keyword: filter.keyword || undefined,
+    date_from: filter.dateRange?.[0] || undefined,
+    date_to: filter.dateRange?.[1] || undefined,
+    page: page.value,
+    page_size: pageSize.value,
   })
-  orders.value = fetched
+  orders.value = data.items
+  total.value = data.total
+  stats.value = {
+    today: data.stats.today,
+    pending: data.stats.pending,
+    completed: data.stats.completed,
+    revenueToday: data.stats.revenue_today,
+  }
   if (!baselineSet.value) {
     baselineSet.value = true
-  } else if (alertEnabled.value && !filter.order_status && !filter.keyword) {
-    const fresh = detectNewPending(lastIds.value, fetched)
+  } else if (alertEnabled.value && !filter.order_status && !filter.keyword && !filter.dateRange) {
+    const fresh = detectNewPending(lastIds.value, data.items)
     if (fresh.length > 0) {
-      const names = fetched.filter((o) => fresh.includes(o.id)).map((o) => o.order_no).join('、')
+      const names = data.items.filter((o) => fresh.includes(o.id)).map((o) => o.order_no).join('、')
       playAlertSound()
       notifyOrder('新订单待接单', `订单 ${names}`)
       ElMessage.success(`新订单：${names}`)
     }
   }
-  lastIds.value = fetched.map((o) => o.id)
+  lastIds.value = data.items.map((o) => o.id)
 })
+
+function onFilterChange() {
+  page.value = 1
+  load()
+}
+
+function onSizeChange() {
+  page.value = 1
+  load()
+}
 
 const cancelDialog = ref(false)
 const cancelOrderId = ref<number | null>(null)
@@ -56,6 +81,8 @@ async function exportCsv() {
       store_id: store.id,
       order_status: filter.order_status || undefined,
       keyword: filter.keyword || undefined,
+      date_from: filter.dateRange?.[0] || undefined,
+      date_to: filter.dateRange?.[1] || undefined,
     })
     downloadBlob(blob, buildExportFilename(store.name))
   } finally {
@@ -151,23 +178,9 @@ onMounted(() => {
 onUnmounted(() => {
   if (timer) window.clearInterval(timer)
 })
-watch(() => store.id, load)
-
-const todayStart = new Date()
-todayStart.setHours(0, 0, 0, 0)
-
-const stats = computed(() => {
-  const today = orders.value.filter((order) => {
-    const d = new Date(order.created_at.replace(' ', 'T') + 'Z')
-    return d >= todayStart
-  })
-  const completedToday = today.filter((order) => order.order_status === 'completed')
-  return {
-    today: today.length,
-    pending: orders.value.filter((order) => order.order_status === 'pending').length,
-    completed: orders.value.filter((order) => order.order_status === 'completed').length,
-    revenueToday: completedToday.reduce((sum, order) => sum + order.total_cents, 0),
-  }
+watch(() => store.id, () => {
+  page.value = 1
+  load()
 })
 </script>
 
@@ -209,11 +222,20 @@ const stats = computed(() => {
             placeholder="订单号/手机号/姓名"
             clearable
             style="width: 220px"
-            @keyup.enter="load"
-            @clear="load"
-            @change="load"
+            @keyup.enter="onFilterChange"
+            @clear="onFilterChange"
+            @change="onFilterChange"
           />
-          <el-select v-model="filter.order_status" placeholder="全部状态" clearable style="width: 140px" @change="load">
+          <el-date-picker
+            v-model="filter.dateRange"
+            type="daterange"
+            value-format="YYYY-MM-DD"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            style="width: 250px"
+            @change="onFilterChange"
+          />
+          <el-select v-model="filter.order_status" placeholder="全部状态" clearable style="width: 140px" @change="onFilterChange">
             <el-option label="待接单" value="pending" />
             <el-option label="已接单" value="accepted" />
             <el-option label="已出单" value="served" />
@@ -268,6 +290,17 @@ const stats = computed(() => {
         </el-table-column>
       </el-table>
       <el-empty v-if="orders.length === 0" description="暂无订单" />
+      <div style="display: flex; justify-content: flex-end; margin-top: 12px">
+        <el-pagination
+          v-model:current-page="page"
+          v-model:page-size="pageSize"
+          :total="total"
+          :page-sizes="[20, 50, 100]"
+          layout="total, sizes, prev, pager, next"
+          @current-change="load"
+          @size-change="onSizeChange"
+        />
+      </div>
     </el-card>
 
     <el-dialog v-model="cancelDialog" title="取消订单" width="420px">

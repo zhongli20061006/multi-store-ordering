@@ -27,10 +27,29 @@ export interface OrderDetail extends Order {
   items: OrderItem[]
 }
 
+export interface OrderListData {
+  items: Order[]
+  total: number
+  stats: { today: number; pending: number; completed: number; revenue_today: number }
+}
+
 export const ordersApi = {
-  list: (params: { store_id?: number; order_status?: string; keyword?: string }) =>
-    http.get('/admin/orders', { params }) as Promise<Order[]>,
-  exportCsv: (params: { store_id?: number; order_status?: string; keyword?: string }) =>
+  list: (params: {
+    store_id?: number
+    order_status?: string
+    keyword?: string
+    date_from?: string
+    date_to?: string
+    page?: number
+    page_size?: number
+  }) => http.get('/admin/orders', { params }) as Promise<OrderListData>,
+  exportCsv: (params: {
+    store_id?: number
+    order_status?: string
+    keyword?: string
+    date_from?: string
+    date_to?: string
+  }) =>
     http.get('/admin/orders/export', { params, responseType: 'blob' }) as Promise<Blob>,
   detail: (id: number) => http.get(`/admin/orders/${id}`) as Promise<OrderDetail>,
   updateStatus: (id: number, order_status: string) => http.patch(`/admin/orders/${id}/status`, { order_status }),
