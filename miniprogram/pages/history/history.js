@@ -11,6 +11,9 @@ Page({
     categories: [],
     category: 'all',
     storeNames: {},
+    selectMode: false,
+    selected: {},
+    selectedCount: 0,
   },
 
   onShow() {
@@ -66,21 +69,62 @@ Page({
     this.applyFilter()
   },
 
-  goDetail(e) {
+  onRowTap(e) {
     const { order_no: orderNo, phone } = e.currentTarget.dataset
-    wx.navigateTo({ url: `/pages/order-detail/order-detail?order_no=${orderNo}&phone=${phone}` })
+    if (this.data.selectMode) {
+      this.toggleSelect(orderNo)
+    } else {
+      wx.navigateTo({ url: `/pages/order-detail/order-detail?order_no=${orderNo}&phone=${phone}` })
+    }
   },
 
-  onDelete(e) {
-    const orderNo = e.currentTarget.dataset.order_no
+  onManage() {
+    this.setData({ selectMode: true, selected: {}, selectedCount: 0 })
+  },
+
+  onCancelSelect() {
+    this.setData({ selectMode: false, selected: {}, selectedCount: 0 })
+  },
+
+  toggleSelect(orderNo) {
+    const selected = Object.assign({}, this.data.selected)
+    if (selected[orderNo]) {
+      delete selected[orderNo]
+    } else {
+      selected[orderNo] = true
+    }
+    this.setData({ selected, selectedCount: Object.keys(selected).length })
+  },
+
+  onConfirmDelete() {
+    const count = this.data.selectedCount
+    if (count === 0) {
+      wx.showToast({ title: '请先选择记录', icon: 'none' })
+      return
+    }
     wx.showModal({
-      title: '删除记录',
-      content: `确定删除订单 ${orderNo} 的本地记录？`,
+      title: '批量删除',
+      content: `确定删除选中的 ${count} 条本地记录？`,
       success: (res) => {
         if (!res.confirm) return
-        recentOrders.remove(orderNo)
+        Object.keys(this.data.selected).forEach((orderNo) => recentOrders.remove(orderNo))
         this.refresh()
+        this.onCancelSelect()
         wx.showToast({ title: '已删除', icon: 'success' })
+      },
+    })
+  },
+
+  onClearAll() {
+    wx.showModal({
+      title: '清空记录',
+      content: '确定清空全部本地历史记录？',
+      success: (res) => {
+        if (!res.confirm) return
+        recentOrders.clear()
+        this.refresh()
+        this.onCancelSelect()
+        wx.showToast({ title: '已清空', icon: 'success' })
       },
     })
   },

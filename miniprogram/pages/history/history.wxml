@@ -1,4 +1,13 @@
 <view class="page">
+  <view class="top-bar">
+    <text class="top-title">历史记录</text>
+    <view class="top-actions">
+      <text wx:if="{{selectMode}}" class="action" bindtap="onCancelSelect">取消</text>
+      <text wx:if="{{selectMode}}" class="action danger" bindtap="onClearAll">清空</text>
+      <text wx:if="{{!selectMode}}" class="action primary" bindtap="onManage">管理</text>
+      <text wx:else class="action primary" bindtap="onConfirmDelete">确认删除({{selectedCount}})</text>
+    </view>
+  </view>
   <view class="search-box">
     <input class="search-input" placeholder="按订单号搜索" value="{{keyword}}" bindinput="onSearchInput" />
   </view>
@@ -20,8 +29,9 @@
       wx:key="order_no"
       data-order_no="{{item.order_no}}"
       data-phone="{{item.customer_phone}}"
-      bindtap="goDetail"
+      bindtap="onRowTap"
     >
+      <view wx:if="{{selectMode}}" class="check {{selected[item.order_no] ? 'checked' : ''}}"></view>
       <view class="row-main">
         <text class="no">{{item.order_no}}</text>
         <text class="meta">{{item.storeName}} · {{item.displayTime}}</text>
@@ -29,7 +39,6 @@
       <view class="row-right">
         <text class="status">{{item.statusLabel}}</text>
         <text class="total">¥{{item.totalYuan}}</text>
-        <text class="del" data-order_no="{{item.order_no}}" catchtap="onDelete">删除</text>
       </view>
     </view>
   </block>
