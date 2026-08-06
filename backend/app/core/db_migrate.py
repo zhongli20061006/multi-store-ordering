@@ -12,5 +12,9 @@ def ensure_additive_columns(engine) -> None:
             conn.execute(text("ALTER TABLE stores ADD COLUMN open_time VARCHAR(5)"))
         if "close_time" not in store_cols:
             conn.execute(text("ALTER TABLE stores ADD COLUMN close_time VARCHAR(5)"))
+        if "latitude" not in store_cols:
+            conn.execute(text("ALTER TABLE stores ADD COLUMN latitude REAL"))
+        if "longitude" not in store_cols:
+            conn.execute(text("ALTER TABLE stores ADD COLUMN longitude REAL"))
         if "category_name" not in item_cols:
             conn.execute(text("ALTER TABLE order_items ADD COLUMN category_name VARCHAR(40)"))

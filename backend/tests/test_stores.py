@@ -104,3 +104,59 @@ def test_create_store_rejects_invalid_hours_range(client, seed):
         headers=headers,
     )
     assert resp.status_code == 400
+
+
+def test_create_store_with_coordinates_ok(client, seed):
+    headers = login(client, "admin1")
+    resp = client.post(
+        "/api/v1/admin/stores",
+        json={
+            "name": "坐标店",
+            "address": "某处",
+            "phone": "13800000013",
+            "sort_order": 7,
+            "latitude": 30.2741,
+            "longitude": 120.1551,
+        },
+        headers=headers,
+    )
+    assert resp.status_code == 201
+    data = resp.json()["data"]
+    assert data["latitude"] == 30.2741
+    assert data["longitude"] == 120.1551
+
+
+def test_create_store_rejects_partial_coordinates(client, seed):
+    headers = login(client, "admin1")
+    resp = client.post(
+        "/api/v1/admin/stores",
+        json={"name": "半坐标", "address": "某处", "phone": "13800000014", "sort_order": 8, "latitude": 30.1},
+        headers=headers,
+    )
+    assert resp.status_code == 400
+    assert "经纬度" in resp.json()["message"]
+
+
+def test_create_store_rejects_out_of_range_coordinates(client, seed):
+    headers = login(client, "admin1")
+    resp = client.post(
+        "/api/v1/admin/stores",
+        json={"name": "越界", "address": "某处", "phone": "13800000015", "sort_order": 9, "latitude": 91.0, "longitude": 120.0},
+        headers=headers,
+    )
+    assert resp.status_code == 422
+
+
+def test_update_store_coordinates_and_public_list_returns_them(client, seed):
+    headers = login(client, "admin1")
+    store_id = seed["store1_id"]
+    resp = client.put(
+        f"/api/v1/admin/stores/{store_id}",
+        json={"latitude": 30.25, "longitude": 120.16},
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    public = client.get("/api/v1/stores").json()["data"]
+    target = next(store for store in public if store["id"] == store_id)
+    assert target["latitude"] == 30.25
+    assert target["longitude"] == 120.16

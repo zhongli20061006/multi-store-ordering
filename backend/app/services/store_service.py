@@ -32,8 +32,14 @@ def _validate_hours(data) -> None:
         raise BusinessError(400, "营业时间范围无效（开始需早于结束）")
 
 
+def _validate_coords(data) -> None:
+    if (data.latitude is None) != (data.longitude is None):
+        raise BusinessError(400, "经纬度需同时填写")
+
+
 def create_store(db: Session, data: StoreCreate, user: User) -> Store:
     _validate_hours(data)
+    _validate_coords(data)
     store = Store(**data.model_dump())
     db.add(store)
     db.flush()
@@ -45,6 +51,7 @@ def create_store(db: Session, data: StoreCreate, user: User) -> Store:
 
 def update_store(db: Session, store: Store, data: StoreUpdate) -> Store:
     _validate_hours(data)
+    _validate_coords(data)
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(store, field, value)
     db.commit()

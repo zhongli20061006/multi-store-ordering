@@ -21,8 +21,26 @@ def main() -> None:
         db.add_all([admin1, admin2])
         db.flush()
 
-        store1 = Store(name="中山路店", address="中山路 88 号", phone="0571-88880001", sort_order=1, open_time="09:00", close_time="22:00")
-        store2 = Store(name="万达店", address="万达广场 B1 层", phone="0571-88880002", sort_order=2, open_time="09:00", close_time="22:00")
+        store1 = Store(
+            name="中山路店",
+            address="中山路 88 号",
+            phone="0571-88880001",
+            sort_order=1,
+            open_time="09:00",
+            close_time="22:00",
+            latitude=30.2491,
+            longitude=120.1771,
+        )
+        store2 = Store(
+            name="万达店",
+            address="万达广场 B1 层",
+            phone="0571-88880002",
+            sort_order=2,
+            open_time="09:00",
+            close_time="22:00",
+            latitude=30.3299,
+            longitude=120.1599,
+        )
         db.add_all([store1, store2])
         db.flush()
 
