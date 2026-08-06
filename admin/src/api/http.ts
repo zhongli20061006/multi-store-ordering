@@ -16,7 +16,7 @@ http.interceptors.request.use((config) => {
 })
 
 http.interceptors.response.use(
-  (resp) => resp.data.data,
+  (resp) => (resp.config.responseType === 'blob' ? resp.data : resp.data.data),
   (error) => {
     const status = error.response?.status
     const message = error.response?.data?.message || '请求失败'

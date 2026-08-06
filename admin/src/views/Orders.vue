@@ -10,6 +10,7 @@ import { centsToYuan } from '@/utils/format'
 import { detectNewPending } from '@/utils/order-alert'
 import { playAlertSound } from '@/utils/sound'
 import { ensureNotifyPermission, notifyOrder } from '@/utils/desktop-notify'
+import { buildExportFilename, downloadBlob } from '@/utils/csv-download'
 
 const store = useCurrentStore()
 const orders = ref<Order[]>([])
@@ -45,6 +46,22 @@ const cancelReason = ref<'merchant_cancel_not_made' | 'merchant_cancel_made'>('m
 
 const detailDialog = ref(false)
 const detail = ref<OrderDetail | null>(null)
+const exporting = ref(false)
+
+async function exportCsv() {
+  if (!store.hasStore || exporting.value) return
+  exporting.value = true
+  try {
+    const blob = await ordersApi.exportCsv({
+      store_id: store.id,
+      order_status: filter.order_status || undefined,
+      keyword: filter.keyword || undefined,
+    })
+    downloadBlob(blob, buildExportFilename(store.name))
+  } finally {
+    exporting.value = false
+  }
+}
 
 async function enableAlert() {
   const ok = await ensureNotifyPermission()
@@ -204,6 +221,7 @@ const stats = computed(() => {
             <el-option label="已取消" value="cancelled" />
           </el-select>
           <el-button @click="load">刷新</el-button>
+          <el-button type="primary" plain :loading="exporting" @click="exportCsv">导出 CSV</el-button>
           <el-button v-if="!alertEnabled" type="warning" plain @click="enableAlert">开启提醒</el-button>
           <el-button v-else type="success" plain disabled>提醒已开启</el-button>
         </div>

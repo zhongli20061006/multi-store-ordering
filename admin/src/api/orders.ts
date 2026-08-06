@@ -30,6 +30,8 @@ export interface OrderDetail extends Order {
 export const ordersApi = {
   list: (params: { store_id?: number; order_status?: string; keyword?: string }) =>
     http.get('/admin/orders', { params }) as Promise<Order[]>,
+  exportCsv: (params: { store_id?: number; order_status?: string; keyword?: string }) =>
+    http.get('/admin/orders/export', { params, responseType: 'blob' }) as Promise<Blob>,
   detail: (id: number) => http.get(`/admin/orders/${id}`) as Promise<OrderDetail>,
   updateStatus: (id: number, order_status: string) => http.patch(`/admin/orders/${id}/status`, { order_status }),
   cancel: (id: number, cancel_reason: 'merchant_cancel_not_made' | 'merchant_cancel_made') =>
