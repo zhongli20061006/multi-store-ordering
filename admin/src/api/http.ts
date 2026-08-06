@@ -2,6 +2,8 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
 
+export const apiOrigin = import.meta.env.VITE_API_BASE.replace(/\/api\/v1$/, '')
+
 export const http = axios.create({
   baseURL: import.meta.env.VITE_API_BASE,
   timeout: 10000,

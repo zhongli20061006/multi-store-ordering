@@ -3,6 +3,7 @@ import { onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { menusApi, type Category, type Item } from '@/api/menus'
 import { useAsync } from '@/composables/useAsync'
+import { apiOrigin } from '@/api/http'
 import { useCurrentStore } from '@/stores/store'
 import { centsToYuan } from '@/utils/format'
 
@@ -21,11 +22,13 @@ const categoryForm = reactive({ name: '', sort_order: 0 })
 
 const itemDialog = ref(false)
 const itemId = ref<number | null>(null)
+const uploading = ref(false)
 const itemForm = reactive({
   name: '',
   description: '',
   price_yuan: 0,
   stock: '',
+  image_url: null as string | null,
   category_id: null as number | null,
   sort_order: 0,
   is_active: true,
@@ -72,6 +75,7 @@ function openItemCreate() {
   itemForm.description = ''
   itemForm.price_yuan = 0
   itemForm.stock = ''
+  itemForm.image_url = null
   itemForm.category_id = categories.value[0]?.id ?? null
   itemForm.sort_order = 0
   itemForm.is_active = true
@@ -84,6 +88,7 @@ function openItemEdit(item: Item) {
   itemForm.description = item.description || ''
   itemForm.price_yuan = item.price_cents / 100
   itemForm.stock = item.stock === null || item.stock === undefined ? '' : String(item.stock)
+  itemForm.image_url = item.image_url ?? null
   itemForm.category_id = item.category_id ?? null
   itemForm.sort_order = item.sort_order
   itemForm.is_active = item.is_active
@@ -115,6 +120,25 @@ async function submitItem() {
   }
   itemDialog.value = false
   loadAll()
+}
+
+async function onUploadImage(options: { file: File }) {
+  if (itemId.value === null) return
+  uploading.value = true
+  try {
+    const updated = await menusApi.uploadItemImage(store.id, itemId.value, options.file)
+    itemForm.image_url = updated.image_url ?? null
+    ElMessage.success('图片已上传')
+  } finally {
+    uploading.value = false
+  }
+}
+
+async function onClearImage() {
+  if (itemId.value === null || !itemForm.image_url) return
+  const updated = await menusApi.clearItemImage(store.id, itemId.value)
+  itemForm.image_url = updated.image_url ?? null
+  ElMessage.success('图片已清除')
 }
 
 async function toggleItem(item: Item) {
@@ -161,6 +185,18 @@ onMounted(loadAll)
             <el-button type="primary" plain @click="openItemCreate">新增商品</el-button>
           </div>
           <el-table :data="items">
+            <el-table-column label="图片" width="80">
+              <template #default="{ row }">
+                <el-image
+                  v-if="row.image_url"
+                  :src="apiOrigin + row.image_url"
+                  :preview-src-list="[apiOrigin + row.image_url]"
+                  style="width: 40px; height: 40px; border-radius: 4px"
+                  fit="cover"
+                />
+                <span v-else style="color: var(--text-secondary)">-</span>
+              </template>
+            </el-table-column>
             <el-table-column prop="name" label="名称" />
             <el-table-column label="分类" width="140">
               <template #default="{ row }">
@@ -213,6 +249,26 @@ onMounted(loadAll)
         </el-form-item>
         <el-form-item label="库存">
           <el-input v-model="itemForm.stock" placeholder="留空=不限量" />
+        </el-form-item>
+        <el-form-item label="图片">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <el-image
+              v-if="itemForm.image_url"
+              :src="apiOrigin + itemForm.image_url"
+              :preview-src-list="[apiOrigin + itemForm.image_url]"
+              style="width: 64px; height: 64px; border-radius: 6px"
+              fit="cover"
+            />
+            <span v-else style="color: var(--text-secondary)">未上传</span>
+            <el-upload
+              :show-file-list="false"
+              :http-request="onUploadImage"
+              accept="image/jpeg,image/png,image/webp"
+            >
+              <el-button size="small" :disabled="itemId === null" :loading="uploading">上传</el-button>
+            </el-upload>
+            <el-button v-if="itemForm.image_url" size="small" type="danger" plain @click="onClearImage">清除</el-button>
+          </div>
         </el-form-item>
         <el-form-item label="排序"><el-input-number v-model="itemForm.sort_order" :min="0" /></el-form-item>
         <el-form-item label="上架"><el-switch v-model="itemForm.is_active" /></el-form-item>

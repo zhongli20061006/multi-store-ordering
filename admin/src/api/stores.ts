@@ -7,6 +7,8 @@ export interface Store {
   phone: string
   status: 'open' | 'closed'
   sort_order: number
+  open_time: string | null
+  close_time: string | null
 }
 
 export const storesApi = {

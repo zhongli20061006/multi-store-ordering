@@ -12,7 +12,14 @@ const { loading, run: load } = useAsync(async () => {
 
 const dialogVisible = ref(false)
 const editingId = ref<number | null>(null)
-const form = reactive({ name: '', address: '', phone: '', sort_order: 0 })
+const form = reactive({
+  name: '',
+  address: '',
+  phone: '',
+  sort_order: 0,
+  open_time: null as string | null,
+  close_time: null as string | null,
+})
 
 function openCreate() {
   editingId.value = null
@@ -20,6 +27,8 @@ function openCreate() {
   form.address = ''
   form.phone = ''
   form.sort_order = 0
+  form.open_time = null
+  form.close_time = null
   dialogVisible.value = true
 }
 
@@ -29,6 +38,8 @@ function openEdit(store: Store) {
   form.address = store.address
   form.phone = store.phone
   form.sort_order = store.sort_order
+  form.open_time = store.open_time ?? null
+  form.close_time = store.close_time ?? null
   dialogVisible.value = true
 }
 
@@ -72,6 +83,9 @@ onMounted(load)
         <el-table-column prop="name" label="名称" />
         <el-table-column prop="address" label="地址" />
         <el-table-column prop="phone" label="电话" />
+        <el-table-column label="营业时间" width="150">
+          <template #default="{ row }">{{ row.open_time ? `${row.open_time} - ${row.close_time}` : '全天' }}</template>
+        </el-table-column>
         <el-table-column label="状态" width="110">
           <template #default="{ row }">
             <StatusBadge :status="row.status" />
@@ -99,6 +113,11 @@ onMounted(load)
         </el-form-item>
         <el-form-item label="电话">
           <el-input v-model="form.phone" />
+        </el-form-item>
+        <el-form-item label="营业时间">
+          <el-time-picker v-model="form.open_time" format="HH:mm" value-format="HH:mm" placeholder="开始" style="width: 120px" />
+          <span style="margin: 0 8px">至</span>
+          <el-time-picker v-model="form.close_time" format="HH:mm" value-format="HH:mm" placeholder="结束" style="width: 120px" />
         </el-form-item>
         <el-form-item label="排序">
           <el-input-number v-model="form.sort_order" :min="0" />
