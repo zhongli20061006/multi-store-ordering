@@ -20,6 +20,15 @@ def list_stores(db: Session = Depends(get_db)):
     return ok([StoreOut.model_validate(store).model_dump() for store in stores])
 
 
+@router.get("/stores/{store_id}")
+def get_store_detail(store_id: int, db: Session = Depends(get_db)):
+    """公开单店信息：任意营业状态均返回（历史订单门店可能已打烊，导航仍可用）。"""
+    store = get_store(db, store_id)
+    if store is None:
+        raise BusinessError(404, "门店不存在")
+    return ok(StoreOut.model_validate(store).model_dump())
+
+
 @router.get("/stores/{store_id}/banners")
 def store_banners(store_id: int, db: Session = Depends(get_db)):
     if get_store(db, store_id) is None:

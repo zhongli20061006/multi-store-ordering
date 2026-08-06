@@ -7,6 +7,35 @@ def test_public_stores_lists_open_stores(client, seed):
     assert len(resp.json()["data"]) == 2
 
 
+def test_public_store_detail_returns_fields(client, seed):
+    resp = client.get(f"/api/v1/stores/{seed['store1_id']}")
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data["id"] == seed["store1_id"]
+    assert data["name"] == "中山路店"
+    assert data["address"] == "中山路1号"
+    assert data["phone"] == "13800000001"
+    assert data["latitude"] is None
+    assert data["longitude"] is None
+
+
+def test_public_store_detail_not_found(client, seed):
+    resp = client.get("/api/v1/stores/99999")
+    assert resp.status_code == 404
+
+
+def test_public_store_detail_returns_closed_store(client, seed):
+    headers = login(client, "admin2")
+    client.patch(
+        f"/api/v1/admin/stores/{seed['store2_id']}/status",
+        json={"status": "closed"},
+        headers=headers,
+    )
+    resp = client.get(f"/api/v1/stores/{seed['store2_id']}")
+    assert resp.status_code == 200
+    assert resp.json()["data"]["status"] == "closed"
+
+
 def test_closed_store_hidden_from_public(client, seed):
     headers = login(client, "admin2")
     resp = client.patch(
