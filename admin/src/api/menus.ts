@@ -31,7 +31,7 @@ export const menusApi = {
   updateItem: (storeId: number, id: number, payload: Partial<Item>) => http.put(`/admin/stores/${storeId}/items/${id}`, payload),
   deleteItem: (storeId: number, id: number) => http.delete(`/admin/stores/${storeId}/items/${id}`),
   uploadItemImage: (storeId: number, itemId: number, file: File) =>
-    http.put(`/admin/stores/${storeId}/items/${itemId}/image`, file, { headers: { 'Content-Type': file.type } }) as Promise<Item>,
+    http.post(`/admin/stores/${storeId}/items/${itemId}/image`, file, { headers: { 'Content-Type': file.type } }) as Promise<Item>,
   clearItemImage: (storeId: number, itemId: number) =>
     http.delete(`/admin/stores/${storeId}/items/${itemId}/image`) as Promise<Item>,
 }
