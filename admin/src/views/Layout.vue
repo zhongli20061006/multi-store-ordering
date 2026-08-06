@@ -41,6 +41,7 @@ const menuIndex = computed(() => (current.hasStore ? `/stores/${current.id}/menu
       <el-menu router>
         <el-menu-item index="/stores">门店管理</el-menu-item>
         <el-menu-item :index="menuIndex" :disabled="!current.hasStore">菜单管理</el-menu-item>
+        <el-menu-item index="/dashboard">数据看板</el-menu-item>
         <el-menu-item index="/orders">订单管理</el-menu-item>
         <el-menu-item index="/profile">个人中心</el-menu-item>
       </el-menu>
