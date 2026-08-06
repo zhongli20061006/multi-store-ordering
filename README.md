@@ -14,12 +14,14 @@
 - 完整订单状态机：待接单 → 已接单 → 已出单 → 顾客确认取单 → 已完成
 - 待接单可取消（限库存商品自动回补）；查单需「手机号 + 订单号」
 - 扫码直达菜单（编译模式模拟；真机小程序码需正式 AppID）
+- 菜单搜索（按商品名即时过滤）与商品图片展示
+- 门店营业时间展示（打烊时段后端拒绝下单）
 
 ### 商家端（网页后台 `admin/`）
 
 - 登录鉴权（JWT）、门店切换、个人中心（改密码/退出）
-- 门店管理（开/关店、编辑、删除保护）
-- 菜单管理（分类与商品，删除商品转下架，支持限库存）
+- 门店管理（开/关店、编辑、删除保护、营业时间维护）
+- 菜单管理（分类与商品，删除商品转下架，支持限库存、商品图片上传）
 - 订单管理：按门店/状态筛选、8 秒轮询、单按钮状态推进（接单 → 出单）、取消（未制作回补/已制作不回补）、标记到店付款、详情查看（手机号脱敏列表 / 详情完整）
 
 ### 后端（FastAPI `backend/`）
@@ -106,9 +108,9 @@ npm run dev
 ## 测试
 
 ```powershell
-cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 57 passed
+cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 69 passed
 cd admin && npm run test && npm run build                 # vitest 7 passed + 构建通过
-cd miniprogram && node --test tests/                      # 20 passed
+cd miniprogram && node --test tests/                      # 24 passed
 ```
 
 > 沙箱受限环境下 node:test 需加 `--experimental-test-isolation=none` 并显式列出测试文件。
@@ -119,6 +121,7 @@ cd miniprogram && node --test tests/                      # 20 passed
 - 4 位订单号隔天复用未做自然日实测（代码与测试覆盖；上线前换正式单号方案）
 - 无在线支付、微信登录、美团/抖音核销、外卖配送、会员营销（二期）
 - 本地开发数据库 `backend/data/ordering.db` 不入库，删除后重新执行 seed 即可
+- 商品图片存本地 `backend/uploads/`（不入库），上线前评估切换对象存储
 
 ## 路线图
 
