@@ -13,6 +13,7 @@ const router = createRouter({
         { path: 'stores', component: () => import('@/views/Stores.vue') },
         { path: 'dashboard', component: () => import('@/views/Dashboard.vue') },
         { path: 'stores/:id/menu', component: () => import('@/views/MenuManage.vue') },
+        { path: 'stores/:id/banners', component: () => import('@/views/BannerManage.vue') },
         { path: 'orders', component: () => import('@/views/Orders.vue') },
         { path: 'profile', component: () => import('@/views/Profile.vue') },
       ],

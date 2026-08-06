@@ -29,6 +29,7 @@ function onLogout() {
 }
 
 const menuIndex = computed(() => (current.hasStore ? `/stores/${current.id}/menu` : '/stores'))
+const bannerIndex = computed(() => (current.hasStore ? `/stores/${current.id}/banners` : '/stores'))
 </script>
 
 <template>
@@ -41,6 +42,7 @@ const menuIndex = computed(() => (current.hasStore ? `/stores/${current.id}/menu
       <el-menu router>
         <el-menu-item index="/stores">门店管理</el-menu-item>
         <el-menu-item :index="menuIndex" :disabled="!current.hasStore">菜单管理</el-menu-item>
+        <el-menu-item :index="bannerIndex" :disabled="!current.hasStore">轮播图</el-menu-item>
         <el-menu-item index="/dashboard">数据看板</el-menu-item>
         <el-menu-item index="/orders">订单管理</el-menu-item>
         <el-menu-item index="/profile">个人中心</el-menu-item>
