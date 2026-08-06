@@ -5,6 +5,7 @@
     "pages/checkout/checkout",
     "pages/order-success/order-success",
     "pages/order-detail/order-detail",
+    "pages/profile/profile",
     "pages/my-orders/my-orders"
   ],
   "window": {
@@ -20,7 +21,8 @@
     "borderStyle": "black",
     "list": [
       { "pagePath": "pages/store-list/store-list", "text": "首页" },
-      { "pagePath": "pages/my-orders/my-orders", "text": "我的订单" }
+      { "pagePath": "pages/my-orders/my-orders", "text": "我的订单" },
+      { "pagePath": "pages/profile/profile", "text": "我的" }
     ]
   },
   "style": "v2",

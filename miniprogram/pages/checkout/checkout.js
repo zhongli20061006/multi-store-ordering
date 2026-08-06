@@ -2,6 +2,7 @@ const { createOrder } = require('../../utils/api/orders')
 const { generateKey } = require('../../utils/idempotency')
 const cart = require('../../store/cart')
 const recentOrders = require('../../store/recent-orders')
+const profileStore = require('../../utils/profile-store')
 
 Page({
   data: {
@@ -28,6 +29,7 @@ Page({
       setTimeout(() => wx.navigateBack(), 600)
       return
     }
+    const profile = profileStore.read()
     this.setData({
       storeId,
       storeName,
@@ -35,6 +37,8 @@ Page({
       items: current.items,
       totalCount: cart.getTotalCount(),
       totalCents: cart.getTotalCents(),
+      customerPhone: profile.phone,
+      customerName: profile.nickname === '微信用户' ? '' : profile.nickname,
     })
   },
 

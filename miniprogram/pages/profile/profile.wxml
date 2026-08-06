@@ -1,0 +1,41 @@
+<view class="page">
+  <view class="header">
+    <view class="avatar">👤</view>
+    <view class="header-info">
+      <text class="nickname">{{nickname}}</text>
+      <text class="sub">本地资料，无登录</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">个人资料</view>
+    <view class="form-row">
+      <text class="label">昵称</text>
+      <input class="input" placeholder="昵称" data-field="nickname" value="{{nickname}}" bindinput="onInput" />
+    </view>
+    <view class="form-row">
+      <text class="label">常用手机号</text>
+      <input class="input" type="number" maxlength="11" placeholder="下单自动预填" data-field="phone" value="{{phone}}" bindinput="onInput" />
+    </view>
+    <button class="save" size="mini" bindtap="onSave">保存</button>
+  </view>
+
+  <view class="card">
+    <view class="cell" bindtap="goOrders">
+      <text>我的订单</text>
+      <text class="arrow">›</text>
+    </view>
+    <view class="cell" bindtap="goManage">
+      <text>订单管理</text>
+      <text class="arrow">›</text>
+    </view>
+    <view class="cell" bindtap="goHistory">
+      <text>历史记录</text>
+      <text class="arrow">›</text>
+    </view>
+    <view class="cell" bindtap="goNotify">
+      <text>通知</text>
+      <text class="arrow">›</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,85 @@
+.page {
+  padding: 24rpx;
+}
+.header {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1rpx solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 32rpx 24rpx;
+  margin-bottom: 24rpx;
+}
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: #fff;
+  font-size: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-info {
+  margin-left: 24rpx;
+  display: flex;
+  flex-direction: column;
+}
+.nickname {
+  font-size: 34rpx;
+  font-weight: 600;
+}
+.sub {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+.card {
+  background: var(--surface);
+  border: 1rpx solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+}
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  margin-bottom: 12rpx;
+}
+.form-row {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid var(--border-color);
+}
+.label {
+  width: 160rpx;
+  color: var(--text-secondary);
+  font-size: 28rpx;
+}
+.input {
+  flex: 1;
+  font-size: 28rpx;
+}
+.save {
+  margin-top: 20rpx;
+  background: var(--brand-primary);
+  color: #fff;
+  border-radius: var(--radius-sm);
+}
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26rpx 8rpx;
+  border-bottom: 1rpx solid var(--border-color);
+  font-size: 30rpx;
+}
+.cell:last-child {
+  border-bottom: none;
+}
+.arrow {
+  color: var(--text-disabled);
+  font-size: 34rpx;
+}
