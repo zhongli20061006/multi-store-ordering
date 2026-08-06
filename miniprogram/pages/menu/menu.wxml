@@ -8,6 +8,27 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
     <text wx:if="{{hours}}" class="store-hours">{{hours}}</text>
   </view>
 
+  <swiper class="banner" indicator-dots autoplay circular interval="3500">
+    <swiper-item>
+      <view class="banner-slide slide-1">
+        <text class="banner-title">新品推荐</text>
+        <text class="banner-desc">每日限量奶昔 · 新品尝鲜</text>
+      </view>
+    </swiper-item>
+    <swiper-item>
+      <view class="banner-slide slide-2">
+        <text class="banner-title">限时优惠</text>
+        <text class="banner-desc">到店点单享会员价</text>
+      </view>
+    </swiper-item>
+    <swiper-item>
+      <view class="banner-slide slide-3">
+        <text class="banner-title">到店点单</text>
+        <text class="banner-desc">扫码直达，免排队</text>
+      </view>
+    </swiper-item>
+  </swiper>
+
   <view class="search-box">
     <input class="search-input" placeholder="搜索商品" value="{{keyword}}" bindinput="onSearchInput" />
   </view>

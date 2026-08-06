@@ -29,6 +29,39 @@
   font-size: 22rpx;
   color: var(--text-secondary);
 }
+.banner {
+  height: 240rpx;
+  margin: 16rpx 24rpx 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.banner-slide {
+  height: 100%;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 32rpx;
+}
+.slide-1 {
+  background: linear-gradient(135deg, #ff6b35, #ffa26b);
+}
+.slide-2 {
+  background: linear-gradient(135deg, #409eff, #79bbff);
+}
+.slide-3 {
+  background: linear-gradient(135deg, #67c23a, #95d475);
+}
+.banner-title {
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: 600;
+}
+.banner-desc {
+  margin-top: 8rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 24rpx;
+}
 .search-box {
   padding: 16rpx 24rpx;
   background: var(--surface);
