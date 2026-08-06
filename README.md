@@ -28,6 +28,7 @@
 - 订单管理：按门店/状态筛选、8 秒轮询、单按钮状态推进（接单 → 出单）、取消（未制作回补/已制作不回补）、标记到店付款、详情查看（手机号脱敏列表 / 详情完整）、小票打印
 - 数据看板：近 7 天营业额趋势与今日统计
 - 轮播图管理：上传/排序/上下架，小程序菜单页展示
+- 订单搜索（订单号/手机号/姓名）、新订单声音+桌面提醒、低库存高亮
 
 ### 后端（FastAPI `backend/`）
 
@@ -113,7 +114,7 @@ npm run dev
 ## 测试
 
 ```powershell
-cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 77 passed
+cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 78 passed
 cd admin && npm run test && npm run build                 # vitest 7 passed + 构建通过
 cd miniprogram && node --test tests/                      # 45 passed
 ```
