@@ -1,4 +1,13 @@
 <view class="page">
+  <view class="filter-bar">
+    <view
+      class="filter-tab {{filterGroup === item.group ? 'active' : ''}}"
+      wx:for="{{filterTabs}}"
+      wx:key="group"
+      data-group="{{item.group}}"
+      bindtap="onFilter"
+    >{{item.label}}</view>
+  </view>
   <block wx:if="{{orders.length}}">
     <order-card
       wx:for="{{orders}}"

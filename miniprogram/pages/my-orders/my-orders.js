@@ -1,6 +1,7 @@
 const { queryOrder, cancelOrder, pickupOrder } = require('../../utils/api/orders')
 const { getStores } = require('../../utils/api/stores')
 const recentOrders = require('../../store/recent-orders')
+const { filterOrders } = require('../../utils/order-filter')
 
 Page({
   data: {
@@ -10,6 +11,14 @@ Page({
     querying: false,
     showFinder: false,
     storeNames: {},
+    filterGroup: 'all',
+    filterTabs: [
+      { group: 'all', label: '全部' },
+      { group: 'pending', label: '待接单' },
+      { group: 'active', label: '进行中' },
+      { group: 'completed', label: '已完成' },
+      { group: 'cancelled', label: '已取消' },
+    ],
   },
 
   onLoad() {
@@ -17,6 +26,11 @@ Page({
   },
 
   onShow() {
+    const entry = wx.getStorageSync('profile_entry')
+    if (entry) {
+      wx.removeStorageSync('profile_entry')
+      if (entry === 'history') this.setData({ showFinder: true })
+    }
     this.renderOrders()
     this.refreshActive()
     if (!this._refreshTimer) {
@@ -39,7 +53,7 @@ Page({
   },
 
   refreshActive() {
-    this.data.orders.forEach((o) => {
+    recentOrders.list().forEach((o) => {
       if (o.order_status === 'pending' || o.order_status === 'accepted' || o.order_status === 'served') {
         this.silentRefresh(o)
       }
@@ -63,10 +77,15 @@ Page({
   },
 
   renderOrders() {
-    const orders = recentOrders.list().map((o) =>
+    const orders = filterOrders(recentOrders.list(), this.data.filterGroup).map((o) =>
       Object.assign({}, o, { storeName: this.storeNameOf(o.store_id) })
     )
     this.setData({ orders })
+  },
+
+  onFilter(e) {
+    this.setData({ filterGroup: e.currentTarget.dataset.group })
+    this.renderOrders()
   },
 
   applyOrder(order) {
