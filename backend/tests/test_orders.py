@@ -92,6 +92,20 @@ def test_limited_stock_prevents_oversell(client, seed):
     assert "库存不足" in second.json()["message"]
 
 
+def test_create_order_insufficient_stock_returns_structured_detail(client, seed):
+    payload = _order_payload(
+        seed,
+        idempotency_key="detail-key-001",
+        items=[{"menu_item_id": seed["item2_id"], "quantity": 3}],
+    )
+    resp = client.post("/api/v1/orders", json=payload)
+    assert resp.status_code == 409
+    body = resp.json()
+    assert body["detail"]["insufficient_items"] == [
+        {"menu_item_id": seed["item2_id"], "name": "限量奶昔", "available_stock": 1}
+    ]
+
+
 def test_invalid_phone_rejected(client, seed):
     resp = client.post("/api/v1/orders", json=_order_payload(seed, customer_phone="12345"))
     assert resp.status_code == 422

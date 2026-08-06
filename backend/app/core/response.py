@@ -13,9 +13,12 @@ def ok(data=None) -> dict:
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(BusinessError)
     async def business_exception_handler(request: Request, exc: BusinessError):
+        content = {"code": exc.status_code, "message": exc.message}
+        if exc.detail is not None:
+            content["detail"] = exc.detail
         return JSONResponse(
             status_code=exc.status_code,
-            content={"code": exc.status_code, "message": exc.message},
+            content=content,
         )
 
     @app.exception_handler(StarletteHTTPException)

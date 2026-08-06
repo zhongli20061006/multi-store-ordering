@@ -87,6 +87,17 @@ def create_order(db: Session, payload: OrderCreate) -> tuple[Order, bool]:
     if missing:
         raise BusinessError(400, "部分商品不存在或已下架")
 
+    # 库存预检：一次返回全部不足商品及当前可售量，便于前端自动修正
+    insufficient = []
+    for line in payload.items:
+        item = item_map[line.menu_item_id]
+        if item.stock is not None and line.quantity > item.stock:
+            insufficient.append(
+                {"menu_item_id": item.id, "name": item.name, "available_stock": item.stock}
+            )
+    if insufficient:
+        raise BusinessError(409, "部分商品库存不足，请调整数量", detail={"insufficient_items": insufficient})
+
     total_cents = 0
     item_count = 0
     order_items: list[OrderItem] = []
