@@ -1,6 +1,7 @@
 const { getStoreMenu, getStores, getStoreBanners } = require('../../utils/api/stores')
 const { API_ORIGIN } = require('../../config')
 const { filterMenu } = require('../../utils/menu-filter')
+const { buildLocationPayload } = require('../../utils/store-location')
 const cart = require('../../store/cart')
 
 Page({
@@ -16,6 +17,10 @@ Page({
     keyword: '',
     allGroups: [],
     hours: '',
+    phone: '',
+    address: '',
+    latitude: null,
+    longitude: null,
     banners: [],
     imgBase: API_ORIGIN,
     cartVisible: false,
@@ -49,7 +54,13 @@ Page({
       .then((stores) => {
         const found = stores.find((s) => s.id === storeId)
         if (!found) return
-        const patch = { hours: found.open_time ? `${found.open_time} - ${found.close_time}` : '' }
+        const patch = {
+          hours: found.open_time ? `${found.open_time} - ${found.close_time}` : '',
+          phone: found.phone || '',
+          address: found.address || '',
+          latitude: found.latitude ?? null,
+          longitude: found.longitude ?? null,
+        }
         if (!this.data.storeName) {
           patch.storeName = found.name
           cart.ensureStore(storeId, found.name)
@@ -130,6 +141,23 @@ Page({
   },
 
   noop() {},
+
+  onNavigate() {
+    const payload = buildLocationPayload({
+      latitude: this.data.latitude,
+      longitude: this.data.longitude,
+      name: this.data.storeName,
+      address: this.data.address,
+    })
+    if (!payload) {
+      wx.showToast({ title: '该门店暂未配置导航位置', icon: 'none' })
+      return
+    }
+    wx.openLocation({
+      ...payload,
+      fail: () => wx.showToast({ title: '打开地图失败', icon: 'none' }),
+    })
+  },
 
   goCheckout() {
     if (this.data.cartCount === 0) return

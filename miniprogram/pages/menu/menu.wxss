@@ -16,6 +16,15 @@
   font-size: 34rpx;
   font-weight: 600;
 }
+.header-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.header-line {
+  display: flex;
+  align-items: center;
+}
 .entry-tag {
   margin-left: 16rpx;
   font-size: 22rpx;
@@ -24,10 +33,29 @@
   border-radius: var(--radius-sm);
   padding: 4rpx 12rpx;
 }
-.store-hours {
-  margin-left: auto;
+.store-phone {
+  margin-top: 6rpx;
   font-size: 22rpx;
   color: var(--text-secondary);
+}
+.header-side {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.store-hours {
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+.nav-btn {
+  margin-top: 8rpx;
+  background: var(--surface);
+  color: var(--brand-primary);
+  border: 1rpx solid var(--brand-primary);
+  border-radius: var(--radius-sm);
+  font-size: 24rpx;
+  line-height: 1.6;
 }
 .banner {
   height: 240rpx;

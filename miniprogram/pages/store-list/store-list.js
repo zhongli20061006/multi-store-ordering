@@ -1,5 +1,6 @@
 const { getStores } = require('../../utils/api/stores')
 const { filterStores } = require('../../utils/store-filter')
+const { buildLocationPayload } = require('../../utils/store-location')
 const notifyStore = require('../../utils/notify-store')
 
 Page({
@@ -52,6 +53,19 @@ Page({
     const { id, name } = e.currentTarget.dataset
     wx.navigateTo({
       url: `/pages/menu/menu?store_id=${id}&store_name=${encodeURIComponent(name)}&entry_type=preorder`,
+    })
+  },
+
+  onNavigate(e) {
+    const store = e.currentTarget.dataset.item
+    const payload = buildLocationPayload(store)
+    if (!payload) {
+      wx.showToast({ title: '该门店暂未配置导航位置', icon: 'none' })
+      return
+    }
+    wx.openLocation({
+      ...payload,
+      fail: () => wx.showToast({ title: '打开地图失败', icon: 'none' }),
     })
   },
 

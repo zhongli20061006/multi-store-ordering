@@ -34,9 +34,13 @@
       <view class="store-main">
         <text class="store-name">{{item.name}}</text>
         <text class="store-address">{{item.address}}</text>
+        <text class="store-phone">{{item.phone}}</text>
         <text wx:if="{{item.open_time}}" class="store-hours">营业时间 {{item.open_time}} - {{item.close_time}}</text>
       </view>
-      <text class="store-status">营业中</text>
+      <view class="store-side">
+        <text class="store-status">营业中</text>
+        <button class="nav-btn" size="mini" catchtap="onNavigate" data-item="{{item}}">导航</button>
+      </view>
     </view>
   </view>
 </view>

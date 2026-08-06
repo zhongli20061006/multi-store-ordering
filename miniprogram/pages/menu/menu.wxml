@@ -3,9 +3,17 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
 </wxs>
 <view class="page">
   <view class="header">
-    <text class="store-name">{{storeName}}</text>
-    <text class="entry-tag">{{entryType === 'dinein' ? '到店点单' : '提前点单'}}</text>
-    <text wx:if="{{hours}}" class="store-hours">{{hours}}</text>
+    <view class="header-main">
+      <view class="header-line">
+        <text class="store-name">{{storeName}}</text>
+        <text class="entry-tag">{{entryType === 'dinein' ? '到店点单' : '提前点单'}}</text>
+      </view>
+      <text wx:if="{{phone}}" class="store-phone">{{phone}}</text>
+    </view>
+    <view class="header-side">
+      <text wx:if="{{hours}}" class="store-hours">{{hours}}</text>
+      <button wx:if="{{phone}}" class="nav-btn" size="mini" catchtap="onNavigate">导航</button>
+    </view>
   </view>
 
   <swiper wx:if="{{banners.length}}" class="banner" indicator-dots autoplay circular interval="3500">
