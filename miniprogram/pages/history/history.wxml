@@ -29,6 +29,7 @@
       <view class="row-right">
         <text class="status">{{item.statusLabel}}</text>
         <text class="total">¥{{item.totalYuan}}</text>
+        <text class="del" data-order_no="{{item.order_no}}" catchtap="onDelete">删除</text>
       </view>
     </view>
   </block>

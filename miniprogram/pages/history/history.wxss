@@ -68,3 +68,8 @@
   color: var(--brand-primary);
   font-weight: 600;
 }
+.del {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #f56c6c;
+}

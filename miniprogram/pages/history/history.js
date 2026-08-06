@@ -70,4 +70,18 @@ Page({
     const { order_no: orderNo, phone } = e.currentTarget.dataset
     wx.navigateTo({ url: `/pages/order-detail/order-detail?order_no=${orderNo}&phone=${phone}` })
   },
+
+  onDelete(e) {
+    const orderNo = e.currentTarget.dataset.order_no
+    wx.showModal({
+      title: '删除记录',
+      content: `确定删除订单 ${orderNo} 的本地记录？`,
+      success: (res) => {
+        if (!res.confirm) return
+        recentOrders.remove(orderNo)
+        this.refresh()
+        wx.showToast({ title: '已删除', icon: 'success' })
+      },
+    })
+  },
 })
