@@ -1,10 +1,13 @@
 const { getStores } = require('../../utils/api/stores')
+const { filterStores } = require('../../utils/store-filter')
 
 Page({
   data: {
     loading: true,
     error: false,
     stores: [],
+    allStores: [],
+    keyword: '',
   },
 
   onLoad() {
@@ -18,9 +21,21 @@ Page({
   load() {
     this.setData({ loading: true, error: false })
     return getStores()
-      .then((stores) => this.setData({ stores }))
-      .catch(() => this.setData({ error: true, stores: [] }))
+      .then((stores) => {
+        this.setData({ allStores: stores })
+        this.applyFilter()
+      })
+      .catch(() => this.setData({ error: true, allStores: [], stores: [] }))
       .finally(() => this.setData({ loading: false }))
+  },
+
+  applyFilter() {
+    this.setData({ stores: filterStores(this.data.allStores, this.data.keyword) })
+  },
+
+  onSearchInput(e) {
+    this.setData({ keyword: e.detail.value })
+    this.applyFilter()
   },
 
   goMenu(e) {

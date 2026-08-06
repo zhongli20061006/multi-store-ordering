@@ -1,6 +1,16 @@
 .page {
   padding: 16rpx 24rpx;
 }
+.search-box {
+  padding-bottom: 16rpx;
+}
+.search-input {
+  background: var(--surface);
+  border: 1rpx solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14rpx 20rpx;
+  font-size: 26rpx;
+}
 .loading {
   padding: 120rpx 0;
   text-align: center;

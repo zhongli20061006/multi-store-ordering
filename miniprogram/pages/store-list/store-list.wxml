@@ -1,4 +1,7 @@
 <view class="page">
+  <view class="search-box">
+    <input class="search-input" placeholder="搜索门店" value="{{keyword}}" bindinput="onSearchInput" />
+  </view>
   <view wx:if="{{loading}}" class="loading">加载中…</view>
   <empty-state
     wx:elif="{{error}}"
