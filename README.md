@@ -17,9 +17,11 @@
 - 菜单搜索（按商品名即时过滤）与商品图片展示
 - 门店营业时间展示（打烊时段后端拒绝下单）
 - 门店电话 + 一键导航（wx.openLocation，未配坐标提示）
+- 订单详情/下单成功页门店信息卡（地址/电话/导航/拨号）
 - 门店搜索（按店名过滤）、订单详情页（本地秒开+静默刷新）、再来一单
 - 「我的」个人主页（本地资料、订单状态筛选、全局订单监控通知）、菜单页轮播图
 - 下单联系人预填（个人资料优先、最近一单兜底）
+- 结算页可直接改数量/删除商品，库存不足自动调整
 - 历史记录（按类别筛选/订单号搜索/单条删除）、首页通知入口（未读角标）
 
 ### 商家端（网页后台 `admin/`）
@@ -32,6 +34,8 @@
 - 轮播图管理：上传/排序/上下架，小程序菜单页展示
 - 订单搜索（订单号/手机号/姓名）、新订单声音+桌面提醒、低库存高亮
 - 订单导出 CSV（按当前筛选；手机号脱敏）
+- 订单日期范围筛选 + 分页；统计卡独立全量口径；订单详情含操作记录（审计）
+- 门店营业时间支持跨天（22:00-02:00）
 
 ### 后端（FastAPI `backend/`）
 
@@ -117,9 +121,9 @@ npm run dev
 ## 测试
 
 ```powershell
-cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 87 passed
-cd admin && npm run test && npm run build                 # vitest 11 passed + 构建通过
-cd miniprogram && npm test                                # 58 passed
+cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 104 passed
+cd admin && npm run test && npm run build                 # vitest 13 passed + 构建通过
+cd miniprogram && npm test                                # 68 passed
 ```
 
 ## 已知限制与未验证项
