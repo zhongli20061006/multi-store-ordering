@@ -60,6 +60,40 @@ async function showDetail(order: Order) {
   detailDialog.value = true
 }
 
+function maskPhone(phone: string) {
+  return phone.replace(/^(\d{3})\d{4}(\d{4})$/, '$1****$2')
+}
+
+function printReceipt(order: OrderDetail) {
+  const win = window.open('', '_blank', 'width=340,height=520')
+  if (!win) return
+  const lines = order.items
+    .map(
+      (i) =>
+        `<tr><td>${i.item_name} ×${i.quantity}</td><td style="text-align:right">¥${centsToYuan(i.subtotal_cents)}</td></tr>`,
+    )
+    .join('')
+  win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>订单小票</title><style>
+    body{font-family:monospace;width:280px;margin:0 auto;padding:16px}
+    h2{font-size:16px;text-align:center;margin:0 0 8px}
+    .meta{font-size:12px;line-height:1.7}
+    table{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}
+    td{padding:3px 0}
+    .total{font-weight:bold;border-top:1px dashed #000;margin-top:4px;padding-top:6px}
+    .remark{font-size:12px;margin-top:8px}
+    .foot{font-size:11px;text-align:center;margin-top:12px;color:#666}
+  </style></head><body>
+    <h2>${store.name}</h2>
+    <div class="meta">单号：${order.order_no}<br>时间：${order.created_at.replace('T', ' ')}<br>类型：${order.entry_type === 'dinein' ? '到店点单' : '提前点单'}<br>顾客：${order.customer_name}</div>
+    <table><tbody>${lines}</tbody></table>
+    <div class="total">合计：¥${centsToYuan(order.total_cents)}（共 ${order.item_count} 件）</div>
+    ${order.remark ? `<div class="remark">备注：${order.remark}</div>` : ''}
+    <div class="foot">${maskPhone(order.customer_phone)}</div>
+  </body></html>`)
+  win.document.close()
+  win.print()
+}
+
 let timer: number | undefined
 onMounted(() => {
   load()
@@ -206,6 +240,10 @@ const stats = computed(() => {
             <template #default="{ row }">¥{{ centsToYuan(row.subtotal_cents) }}</template>
           </el-table-column>
         </el-table>
+      </template>
+      <template #footer>
+        <el-button @click="detailDialog = false">关闭</el-button>
+        <el-button v-if="detail" type="primary" plain @click="printReceipt(detail)">打印小票</el-button>
       </template>
     </el-dialog>
   </div>
