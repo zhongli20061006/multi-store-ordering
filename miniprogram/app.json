@@ -6,6 +6,7 @@
     "pages/order-success/order-success",
     "pages/order-detail/order-detail",
     "pages/profile/profile",
+    "pages/notify/notify",
     "pages/my-orders/my-orders"
   ],
   "window": {

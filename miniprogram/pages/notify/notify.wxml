@@ -1,0 +1,10 @@
+<view class="page">
+  <block wx:if="{{list.length}}">
+    <view class="notify-card" wx:for="{{list}}" wx:key="id">
+      <view class="text">{{item.text}}</view>
+      <view class="time">{{item.time}}</view>
+    </view>
+    <button class="clear" size="mini" bindtap="onClear">清空通知</button>
+  </block>
+  <empty-state wx:else title="暂无通知" desc="订单状态变化时会在这里提醒你" />
+</view>
