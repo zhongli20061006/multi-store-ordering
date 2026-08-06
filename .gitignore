@@ -17,6 +17,7 @@ uploads/
 node_modules/
 dist/
 admin/dist/
+admin/.vite/
 .npm/
 
 # 小程序构建产物
