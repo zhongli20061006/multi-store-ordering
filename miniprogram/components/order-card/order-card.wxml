@@ -1,4 +1,4 @@
-<view class="order-card" wx:if="{{order}}">
+<view class="order-card" wx:if="{{order}}" bindtap="onDetail" hover-class="card-hover">
   <view class="head">
     <text class="no">{{order.order_no}}</text>
     <status-badge status="{{order.order_status}}" type="order" />
@@ -22,12 +22,12 @@
     wx:if="{{order.order_status === 'served'}}"
     class="pickup"
     size="mini"
-    bindtap="onPickup"
+    catchtap="onPickup"
   >已取单</button>
   <button
     wx:if="{{order.order_status === 'pending'}}"
     class="cancel"
     size="mini"
-    bindtap="onCancel"
+    catchtap="onCancel"
   >取消订单</button>
 </view>

@@ -4,6 +4,7 @@
       wx:for="{{orders}}"
       wx:key="order_no"
       order="{{item}}"
+      bind:detail="onDetail"
       bind:cancel="onCancel"
       bind:pickup="onPickup"
     />

@@ -4,6 +4,7 @@
     "pages/menu/menu",
     "pages/checkout/checkout",
     "pages/order-success/order-success",
+    "pages/order-detail/order-detail",
     "pages/my-orders/my-orders"
   ],
   "window": {

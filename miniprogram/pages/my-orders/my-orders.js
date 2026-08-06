@@ -107,6 +107,13 @@ Page({
       .finally(() => this.setData({ querying: false }))
   },
 
+  onDetail(e) {
+    const { order_no: orderNo, customer_phone: phone } = e.detail.order
+    wx.navigateTo({
+      url: `/pages/order-detail/order-detail?order_no=${orderNo}&phone=${phone}`,
+    })
+  },
+
   onCancel(e) {
     const { order_no: orderNo, customer_phone: phone } = e.detail.order
     wx.showModal({

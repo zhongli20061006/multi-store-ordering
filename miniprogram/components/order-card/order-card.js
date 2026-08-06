@@ -15,6 +15,9 @@ Component({
     },
   },
   methods: {
+    onDetail() {
+      this.triggerEvent('detail', { order: this.properties.order })
+    },
     onCancel() {
       this.triggerEvent('cancel', { order: this.properties.order })
     },
