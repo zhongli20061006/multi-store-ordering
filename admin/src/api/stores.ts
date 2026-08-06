@@ -5,6 +5,8 @@ export interface Store {
   name: string
   address: string
   phone: string
+  latitude: number | null
+  longitude: number | null
   status: 'open' | 'closed'
   sort_order: number
   open_time: string | null
