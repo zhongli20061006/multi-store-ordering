@@ -1,6 +1,7 @@
 import csv
 import io
 import re
+from datetime import datetime
 
 from tests.conftest import login
 from sqlalchemy import inspect, update
@@ -170,7 +171,7 @@ def test_lookup_requires_phone_and_order_no(client, seed):
 def test_admin_order_list_masks_phone_detail_full(client, seed):
     order = _create_order(client, seed, "mask-key-001").json()["data"]
     headers = login(client, "admin1")
-    listing = client.get("/api/v1/admin/orders", headers=headers).json()["data"]
+    listing = client.get("/api/v1/admin/orders", headers=headers).json()["data"]["items"]
     assert listing[0]["customer_phone"] == "139****0001"
     detail = client.get(f"/api/v1/admin/orders/{order['id']}", headers=headers).json()["data"]
     assert detail["customer_phone"] == "13900000001"
@@ -192,7 +193,7 @@ def test_admin_order_scope_and_cross_store_blocked(client, seed):
     order2_id = order2.json()["data"]["id"]
 
     headers1 = login(client, "admin1")
-    mine = client.get("/api/v1/admin/orders", headers=headers1).json()["data"]
+    mine = client.get("/api/v1/admin/orders", headers=headers1).json()["data"]["items"]
     assert [order["id"] for order in mine] == [order1_id]
 
     detail = client.get(f"/api/v1/admin/orders/{order2_id}", headers=headers1)
@@ -354,13 +355,13 @@ def test_admin_order_list_keyword_search(client, seed):
         },
     ).json()["data"]
     headers = login(client, "admin1")
-    by_no = client.get("/api/v1/admin/orders", params={"keyword": order1["order_no"][:3]}, headers=headers).json()["data"]
+    by_no = client.get("/api/v1/admin/orders", params={"keyword": order1["order_no"][:3]}, headers=headers).json()["data"]["items"]
     assert [o["id"] for o in by_no] == [order1["id"]]
-    by_phone = client.get("/api/v1/admin/orders", params={"keyword": "13900000001"}, headers=headers).json()["data"]
+    by_phone = client.get("/api/v1/admin/orders", params={"keyword": "13900000001"}, headers=headers).json()["data"]["items"]
     assert [o["id"] for o in by_phone] == [order1["id"]]
-    by_name = client.get("/api/v1/admin/orders", params={"keyword": "测试顾客"}, headers=headers).json()["data"]
+    by_name = client.get("/api/v1/admin/orders", params={"keyword": "测试顾客"}, headers=headers).json()["data"]["items"]
     assert [o["id"] for o in by_name] == [order1["id"]]
-    none = client.get("/api/v1/admin/orders", params={"keyword": "不存在的关键词"}, headers=headers).json()["data"]
+    none = client.get("/api/v1/admin/orders", params={"keyword": "不存在的关键词"}, headers=headers).json()["data"]["items"]
     assert none == []
     assert order2["id"] not in [o["id"] for o in by_name]
 
@@ -448,7 +449,7 @@ def test_admin_order_status_served_filter_and_export(client, seed):
     )
     listing = client.get("/api/v1/admin/orders", params={"order_status": "served"}, headers=headers)
     assert listing.status_code == 200
-    assert [o["id"] for o in listing.json()["data"]] == [order["id"]]
+    assert [o["id"] for o in listing.json()["data"]["items"]] == [order["id"]]
     rows = _csv_rows(_export_csv(client, headers, order_status="served"))
     assert rows[1][8] == "已出单"
 
@@ -470,3 +471,103 @@ def test_admin_export_escapes_formula_injection(client, seed):
     rows = _csv_rows(_export_csv(client, headers))
     assert rows[1][4] == "'=HYPERLINK(1,1)"
     assert rows[1][10] == "'+123"
+
+
+def test_admin_order_list_pagination(client, seed):
+    for i in range(5):
+        _create_order(client, seed, f"page-key-00{i}")
+    headers = login(client, "admin1")
+    page1 = client.get("/api/v1/admin/orders", params={"page": 1, "page_size": 2}, headers=headers).json()["data"]
+    assert page1["total"] == 5
+    assert len(page1["items"]) == 2
+    ids_page1 = [o["id"] for o in page1["items"]]
+    page2 = client.get("/api/v1/admin/orders", params={"page": 2, "page_size": 2}, headers=headers).json()["data"]
+    ids_page2 = [o["id"] for o in page2["items"]]
+    assert len(set(ids_page1) & set(ids_page2)) == 0
+    assert page2["total"] == 5
+    beyond = client.get("/api/v1/admin/orders", params={"page": 99, "page_size": 2}, headers=headers).json()["data"]
+    assert beyond["items"] == []
+    assert beyond["total"] == 5
+
+
+def test_admin_order_list_date_filter_uses_local_day(client, seed, db_session_factory):
+    from app.models import Order
+    from sqlalchemy import update
+
+    order1 = _create_order(client, seed, "date-key-001").json()["data"]
+    order2 = _create_order(client, seed, "date-key-002").json()["data"]
+    # 存储为无时区 UTC：2026-08-05 00:00:00+08 = 2026-08-04 16:00 UTC
+    start = datetime(2026, 8, 4, 16, 0, 0)
+    after = datetime(2026, 8, 5, 16, 0, 0)
+    db = db_session_factory()
+    db.execute(update(Order).where(Order.id == order1["id"]).values(created_at=start))
+    db.execute(update(Order).where(Order.id == order2["id"]).values(created_at=after))
+    db.commit()
+    db.close()
+    headers = login(client, "admin1")
+    day = client.get(
+        "/api/v1/admin/orders",
+        params={"date_from": "2026-08-05", "date_to": "2026-08-05"},
+        headers=headers,
+    ).json()["data"]
+    assert [o["id"] for o in day["items"]] == [order1["id"]]
+    wide = client.get(
+        "/api/v1/admin/orders",
+        params={"date_from": "2026-08-04", "date_to": "2026-08-06"},
+        headers=headers,
+    ).json()["data"]
+    assert wide["total"] == 2
+    before = client.get(
+        "/api/v1/admin/orders",
+        params={"date_from": "2026-08-04", "date_to": "2026-08-04"},
+        headers=headers,
+    ).json()["data"]
+    assert before["total"] == 0
+
+
+def test_admin_order_list_rejects_inverted_date_range(client, seed):
+    headers = login(client, "admin1")
+    resp = client.get(
+        "/api/v1/admin/orders",
+        params={"date_from": "2026-08-06", "date_to": "2026-08-05"},
+        headers=headers,
+    )
+    assert resp.status_code == 422
+
+
+def test_admin_order_list_rejects_bad_date_format(client, seed):
+    headers = login(client, "admin1")
+    resp = client.get("/api/v1/admin/orders", params={"date_from": "2026/08/05"}, headers=headers)
+    assert resp.status_code == 422
+
+
+def test_admin_order_list_stats_independent_of_filters(client, seed):
+    _create_order(client, seed, "stats-key-001")
+    headers = login(client, "admin1")
+    data = client.get("/api/v1/admin/orders", headers=headers).json()["data"]
+    stats = data["stats"]
+    assert stats["pending"] >= 1
+    assert stats["today"] >= 1
+    filtered = client.get(
+        "/api/v1/admin/orders",
+        params={"keyword": "不存在的关键词"},
+        headers=headers,
+    ).json()["data"]
+    assert filtered["items"] == []
+    assert filtered["stats"] == stats
+
+
+def test_admin_export_respects_date_filter(client, seed, db_session_factory):
+    from app.models import Order
+    from sqlalchemy import update
+
+    order = _create_order(client, seed, "exp-date-001").json()["data"]
+    db = db_session_factory()
+    db.execute(update(Order).where(Order.id == order["id"]).values(created_at=datetime(2026, 8, 4, 16, 0, 0)))
+    db.commit()
+    db.close()
+    headers = login(client, "admin1")
+    same_day = _csv_rows(_export_csv(client, headers, date_from="2026-08-05", date_to="2026-08-05"))
+    assert len(same_day) == 2
+    prev_day = _csv_rows(_export_csv(client, headers, date_from="2026-08-04", date_to="2026-08-04"))
+    assert len(prev_day) == 1

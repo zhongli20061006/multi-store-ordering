@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import or_, select, update
+from sqlalchemy import func, or_, select, update
 from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessError
@@ -145,9 +145,45 @@ def list_admin_orders(
     store_id: int | None = None,
     order_status: str | None = None,
     keyword: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    page: int | None = None,
+    page_size: int | None = None,
 ) -> list[Order]:
-    """商家订单查询共用：列表与 CSV 导出同口径（门店归属由调用方校验）。"""
-    query = select(Order).where(Order.store_id.in_(store_ids))
+    """商家订单列表（分页可选）：列表与 CSV 导出同口径（门店归属由调用方校验）。"""
+    query = _apply_admin_order_filters(
+        select(Order), store_ids, store_id, order_status, keyword, date_from, date_to
+    )
+    if page is not None and page_size is not None:
+        query = query.offset((page - 1) * page_size).limit(page_size)
+    return list(db.scalars(query.order_by(Order.created_at.desc(), Order.id.desc())))
+
+
+def count_admin_orders(
+    db: Session,
+    store_ids: list[int],
+    store_id: int | None = None,
+    order_status: str | None = None,
+    keyword: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+) -> int:
+    query = _apply_admin_order_filters(
+        select(func.count(Order.id)), store_ids, store_id, order_status, keyword, date_from, date_to
+    )
+    return db.scalar(query) or 0
+
+
+def _apply_admin_order_filters(
+    query,
+    store_ids: list[int],
+    store_id: int | None,
+    order_status: str | None,
+    keyword: str | None,
+    date_from: str | None,
+    date_to: str | None,
+):
+    query = query.where(Order.store_id.in_(store_ids))
     if store_id is not None:
         query = query.where(Order.store_id == store_id)
     if order_status is not None:
@@ -157,7 +193,61 @@ def list_admin_orders(
         query = query.where(
             or_(Order.order_no.like(kw), Order.customer_phone.like(kw), Order.customer_name.like(kw))
         )
-    return list(db.scalars(query.order_by(Order.created_at.desc(), Order.id.desc())))
+    start_utc, end_utc = _date_range_utc(date_from, date_to)
+    if start_utc is not None:
+        query = query.where(Order.created_at >= start_utc)
+    if end_utc is not None:
+        query = query.where(Order.created_at < end_utc)
+    return query
+
+
+def _date_range_utc(date_from: str | None, date_to: str | None) -> tuple[datetime | None, datetime | None]:
+    """YYYY-MM-DD（UTC+8 自然日，含边界）→ UTC 无时区区间 [start, end)。"""
+    if date_from is None and date_to is None:
+        return None, None
+    from_dt = _parse_date(date_from) if date_from else None
+    to_dt = _parse_date(date_to) if date_to else None
+    if from_dt is not None and to_dt is not None and from_dt > to_dt:
+        raise BusinessError(422, "日期范围无效（开始不能晚于结束）")
+    start_utc = (from_dt - timedelta(hours=8)) if from_dt is not None else None
+    end_utc = (to_dt + timedelta(days=1) - timedelta(hours=8)) if to_dt is not None else None
+    return start_utc, end_utc
+
+
+def _parse_date(value: str) -> datetime:
+    try:
+        return datetime.strptime(value, "%Y-%m-%d")
+    except ValueError:
+        raise BusinessError(422, "日期格式无效（应为 YYYY-MM-DD）")
+
+
+def get_store_order_stats(
+    db: Session,
+    store_ids: list[int],
+    store_id: int | None = None,
+) -> dict:
+    """统计卡全量口径（不受列表筛选/分页影响）：
+    today=今日下单数（含取消）；pending/completed=全量计数；revenue_today=今日已完成总额。"""
+    scope = [store_id] if store_id is not None else store_ids
+    today_start = _local_day_start_utc()
+    today_rows = db.execute(
+        select(Order.order_status, Order.total_cents).where(
+            Order.store_id.in_(scope),
+            Order.created_at >= today_start,
+        )
+    ).all()
+    pending = db.scalar(
+        select(func.count(Order.id)).where(Order.store_id.in_(scope), Order.order_status == "pending")
+    )
+    completed = db.scalar(
+        select(func.count(Order.id)).where(Order.store_id.in_(scope), Order.order_status == "completed")
+    )
+    return {
+        "today": len(today_rows),
+        "pending": pending or 0,
+        "completed": completed or 0,
+        "revenue_today": sum(total for status, total in today_rows if status == "completed"),
+    }
 
 
 def update_order_status(db: Session, order: Order, new_status: OrderStatus) -> Order:

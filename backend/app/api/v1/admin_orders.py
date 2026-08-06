@@ -14,7 +14,9 @@ from app.schemas.order import MerchantCancelRequest, OrderOut, OrderStatusUpdate
 from app.services.order_service import (
     CN_TZ,
     cancel_order,
+    count_admin_orders,
     get_order,
+    get_store_order_stats,
     list_admin_orders,
     mark_order_paid,
     update_order_status,
@@ -62,19 +64,25 @@ def list_orders(
     store_id: int | None = None,
     order_status: str | None = Query(default=None, pattern=ORDER_STATUS_PATTERN),
     keyword: str | None = Query(default=None, max_length=60),
+    date_from: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
+    date_to: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
     store_ids = get_user_store_ids(user)
     if store_id is not None:
         ensure_store_access(user, store_id)
-    orders = list_admin_orders(db, store_ids, store_id, order_status, keyword)
+    orders = list_admin_orders(db, store_ids, store_id, order_status, keyword, date_from, date_to, page, page_size)
+    total = count_admin_orders(db, store_ids, store_id, order_status, keyword, date_from, date_to)
+    stats = get_store_order_stats(db, store_ids, store_id)
     payload = []
     for order in orders:
         data = OrderOut.model_validate(order).model_dump()
         data["customer_phone"] = mask_phone(data["customer_phone"])
         payload.append(data)
-    return ok(payload)
+    return ok({"items": payload, "total": total, "stats": stats})
 
 
 @router.get("/export")
@@ -82,13 +90,15 @@ def export_admin_orders(
     store_id: int | None = None,
     order_status: str | None = Query(default=None, pattern=ORDER_STATUS_PATTERN),
     keyword: str | None = Query(default=None, max_length=60),
+    date_from: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
+    date_to: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
     store_ids = get_user_store_ids(user)
     if store_id is not None:
         ensure_store_access(user, store_id)
-    orders = list_admin_orders(db, store_ids, store_id, order_status, keyword)
+    orders = list_admin_orders(db, store_ids, store_id, order_status, keyword, date_from, date_to)
     store_names = {s.id: s.name for s in db.scalars(select(Store).where(Store.id.in_(store_ids)))}
     buffer = io.StringIO()
     writer = csv.writer(buffer, lineterminator="\r\n")
