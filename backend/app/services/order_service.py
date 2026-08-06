@@ -107,6 +107,7 @@ def create_order(db: Session, payload: OrderCreate) -> tuple[Order, bool]:
             OrderItem(
                 menu_item_id=item.id,
                 item_name=item.name,
+                category_name=item.category.name if item.category else None,
                 unit_price_cents=item.price_cents,
                 quantity=line.quantity,
                 subtotal_cents=subtotal,

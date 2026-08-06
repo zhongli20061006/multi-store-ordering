@@ -205,6 +205,11 @@ def test_orders_composite_index_exists(client, seed, db_session_factory):
     assert sorted(target["column_names"]) == ["created_at", "order_status", "store_id"]
 
 
+def test_order_item_snapshots_category_name(client, seed):
+    order = _create_order(client, seed, "cat-snap-001").json()["data"]
+    assert order["items"][0]["category_name"] == "招牌饮品"
+
+
 def test_order_no_is_4_digit_and_unique_in_store_today(client, seed):
     first = _create_order(client, seed, "no4-key-001").json()["data"]
     second = _create_order(client, seed, "no4-key-002").json()["data"]

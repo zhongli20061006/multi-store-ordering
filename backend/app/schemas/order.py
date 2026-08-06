@@ -56,6 +56,7 @@ class OrderItemOut(BaseModel):
     id: int
     menu_item_id: int | None
     item_name: str
+    category_name: str | None
     unit_price_cents: int
     quantity: int
     subtotal_cents: int

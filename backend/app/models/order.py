@@ -41,6 +41,7 @@ class OrderItem(Base):
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"), index=True)
     menu_item_id: Mapped[int | None] = mapped_column(ForeignKey("menu_items.id"), nullable=True)
     item_name: Mapped[str] = mapped_column(String(60))
+    category_name: Mapped[str | None] = mapped_column(String(40), nullable=True)
     unit_price_cents: Mapped[int] = mapped_column(Integer)
     quantity: Mapped[int] = mapped_column(Integer)
     subtotal_cents: Mapped[int] = mapped_column(Integer)
