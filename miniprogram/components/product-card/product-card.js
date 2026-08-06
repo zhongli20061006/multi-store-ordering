@@ -1,11 +1,11 @@
-const { BASE_URL } = require('../../config')
+const { API_ORIGIN } = require('../../config')
 
 Component({
   properties: {
     item: { type: Object, value: null },
   },
   data: {
-    imgBase: BASE_URL,
+    imgBase: API_ORIGIN,
   },
   methods: {
     onAdd() {
