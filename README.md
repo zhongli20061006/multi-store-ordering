@@ -18,6 +18,7 @@
 - 门店营业时间展示（打烊时段后端拒绝下单）
 - 门店搜索（按店名过滤）、订单详情页（本地秒开+静默刷新）、再来一单
 - 「我的」个人主页（本地资料、订单状态筛选、本地通知）、菜单页轮播图
+- 历史记录（按类别筛选/订单号搜索）、首页通知入口（未读角标）
 
 ### 商家端（网页后台 `admin/`）
 
@@ -111,9 +112,9 @@ npm run dev
 ## 测试
 
 ```powershell
-cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 71 passed
+cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 72 passed
 cd admin && npm run test && npm run build                 # vitest 7 passed + 构建通过
-cd miniprogram && node --test tests/                      # 40 passed
+cd miniprogram && node --test tests/                      # 45 passed
 ```
 
 > 沙箱受限环境下 node:test 需加 `--experimental-test-isolation=none` 并显式列出测试文件。
