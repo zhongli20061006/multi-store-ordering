@@ -103,6 +103,19 @@ def test_delete_store_with_orders_rejected(client, seed):
     assert resp.status_code == 409
 
 
+def test_delete_store_without_orders_removes_admin_link(client, seed):
+    headers = login(client, "admin1")
+    created = client.post(
+        "/api/v1/admin/stores",
+        json={"name": "待删店", "address": "某处", "phone": "13800000016", "sort_order": 10},
+        headers=headers,
+    ).json()["data"]
+    resp = client.delete(f"/api/v1/admin/stores/{created['id']}", headers=headers)
+    assert resp.status_code == 200
+    mine = client.get("/api/v1/admin/stores", headers=headers).json()["data"]
+    assert created["id"] not in [store["id"] for store in mine]
+
+
 def test_create_store_with_hours_ok(client, seed):
     headers = login(client, "admin1")
     resp = client.post(

@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessError
@@ -70,5 +70,6 @@ def delete_store(db: Session, store: Store) -> None:
     has_orders = db.scalar(select(Order.id).where(Order.store_id == store.id).limit(1))
     if has_orders is not None:
         raise BusinessError(409, "该门店已有订单，不能删除")
+    db.execute(delete(StoreAdmin).where(StoreAdmin.store_id == store.id))
     db.delete(store)
     db.commit()
