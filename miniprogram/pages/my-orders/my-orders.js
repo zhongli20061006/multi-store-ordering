@@ -98,7 +98,7 @@ Page({
     queryOrder(order.customer_phone, order.order_no)
       .then((fresh) => {
         if (order.order_status !== fresh.order_status) {
-          const text = notifyStore.textForStatus(fresh.order_status)
+          const text = notifyStore.textForStatus(fresh.order_status, fresh.order_no)
           if (text) notifyStore.add(text)
         }
         this.applyOrder(fresh)

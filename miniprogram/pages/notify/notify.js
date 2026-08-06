@@ -6,6 +6,7 @@ Page({
   },
 
   onShow() {
+    notifyStore.markAllRead()
     this.setData({ list: notifyStore.read() })
   },
 

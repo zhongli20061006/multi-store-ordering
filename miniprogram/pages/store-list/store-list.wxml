@@ -1,4 +1,11 @@
 <view class="page">
+  <view class="top-bar">
+    <text class="top-title">多门店点单</text>
+    <view class="bell" bindtap="goNotify">
+      <text class="bell-icon">🔔</text>
+      <view wx:if="{{unreadCount > 0}}" class="badge">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
+    </view>
+  </view>
   <view class="search-box">
     <input class="search-input" placeholder="搜索门店" value="{{keyword}}" bindinput="onSearchInput" />
   </view>

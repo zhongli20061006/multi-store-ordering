@@ -1,5 +1,6 @@
 const { getStores } = require('../../utils/api/stores')
 const { filterStores } = require('../../utils/store-filter')
+const notifyStore = require('../../utils/notify-store')
 
 Page({
   data: {
@@ -8,10 +9,19 @@ Page({
     stores: [],
     allStores: [],
     keyword: '',
+    unreadCount: 0,
   },
 
   onLoad() {
     this.load()
+  },
+
+  onShow() {
+    this.setData({ unreadCount: notifyStore.unreadCount() })
+  },
+
+  goNotify() {
+    wx.navigateTo({ url: '/pages/notify/notify' })
   },
 
   onPullDownRefresh() {

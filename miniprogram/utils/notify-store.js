@@ -2,11 +2,14 @@
 const NOTIFY_KEY = 'notify:v1'
 const MAX = 20
 
-const STATUS_TEXT = {
-  accepted: '订单已接单',
-  served: '订单已出单，请取餐',
-  completed: '订单已完成',
-  cancelled: '订单已取消',
+function statusText(status, orderNo) {
+  const map = {
+    accepted: '订单 ' + orderNo + ' 已接单',
+    served: '订单 ' + orderNo + ' 已出单，请取餐',
+    completed: '订单 ' + orderNo + ' 已完成',
+    cancelled: '订单 ' + orderNo + ' 已取消',
+  }
+  return map[status] || ''
 }
 
 function localNow() {
@@ -26,16 +29,20 @@ function write(list) {
 
 function add(text) {
   const list = read()
-  list.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, text, time: localNow() })
+  list.unshift({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, text, time: localNow(), read: false })
   write(list)
+}
+
+function unreadCount() {
+  return read().filter((n) => !n.read).length
+}
+
+function markAllRead() {
+  write(read().map((n) => Object.assign({}, n, { read: true })))
 }
 
 function clear() {
   wx.removeStorageSync(NOTIFY_KEY)
 }
 
-function textForStatus(status) {
-  return STATUS_TEXT[status] || ''
-}
-
-module.exports = { add, clear, read, textForStatus }
+module.exports = { add, clear, read, unreadCount, markAllRead, textForStatus: statusText }
