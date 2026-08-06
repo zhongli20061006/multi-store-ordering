@@ -137,6 +137,7 @@ onMounted(load)
           <el-time-picker v-model="form.open_time" format="HH:mm" value-format="HH:mm" placeholder="开始" style="width: 120px" />
           <span style="margin: 0 8px">至</span>
           <el-time-picker v-model="form.close_time" format="HH:mm" value-format="HH:mm" placeholder="结束" style="width: 120px" />
+          <div style="width: 100%; font-size: 12px; color: var(--text-secondary)">支持跨天，如 22:00-02:00</div>
         </el-form-item>
         <el-form-item label="排序">
           <el-input-number v-model="form.sort_order" :min="0" />
