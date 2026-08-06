@@ -52,6 +52,29 @@ test('updateQuantity 小于等于 0 移除', () => {
   assert.strictEqual(cart.getTotalCount(), 0)
 })
 
+test('updateQuantity 限库存商品钳制到库存上限', () => {
+  cart.addItem(1, '中山路店', { menu_item_id: 1, name: '限量', unit_price_cents: 500, stock: 5, quantity: 2 })
+  cart.updateQuantity(1, 1, 6)
+  const c = cart.getCart()
+  assert.strictEqual(c.items[0].quantity, 5)
+  assert.strictEqual(cart.getTotalCount(), 5)
+})
+
+test('updateQuantity 不限库存商品不钳制', () => {
+  cart.addItem(1, '中山路店', { menu_item_id: 1, name: '奶茶', unit_price_cents: 500, quantity: 2 })
+  cart.updateQuantity(1, 1, 9)
+  assert.strictEqual(cart.getCart().items[0].quantity, 9)
+})
+
+test('removeItem 删除商品', () => {
+  cart.addItem(1, '中山路店', { menu_item_id: 1, name: '奶茶', unit_price_cents: 500, quantity: 2 })
+  cart.addItem(1, '中山路店', { menu_item_id: 2, name: '果茶', unit_price_cents: 500, quantity: 1 })
+  cart.removeItem(1, 1)
+  const c = cart.getCart()
+  assert.strictEqual(c.items.length, 1)
+  assert.strictEqual(c.items[0].menu_item_id, 2)
+})
+
 test('clearCart 清空', () => {
   cart.addItem(1, '中山路店', { menu_item_id: 1, name: '奶茶', unit_price_cents: 500, quantity: 1 })
   cart.clearCart()

@@ -23,6 +23,25 @@
 .line-name {
   color: var(--text-main);
 }
+.line-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.line-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.remove {
+  margin-top: 8rpx;
+  background: var(--surface);
+  color: #f56c6c;
+  border: 1rpx solid #f56c6c;
+  border-radius: var(--radius-sm);
+  font-size: 24rpx;
+  line-height: 1.6;
+}
 .line.total {
   border-top: 1rpx solid var(--border-color);
   margin-top: 8rpx;

@@ -1,6 +1,7 @@
 {
   "navigationBarTitleText": "确认下单",
   "usingComponents": {
-    "price": "/components/price/price"
+    "price": "/components/price/price",
+    "quantity-stepper": "/components/quantity-stepper/quantity-stepper"
   }
 }

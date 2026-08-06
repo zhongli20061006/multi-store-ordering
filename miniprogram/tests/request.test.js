@@ -23,6 +23,25 @@ test('业务失败 reject 并携带 message', async () => {
   await assert.rejects(() => request({ url: '/orders' }), /订单不存在/)
 })
 
+test('业务失败 Error 携带 detail', async () => {
+  mockWx((opts) =>
+    opts.success({
+      statusCode: 409,
+      data: {
+        code: 409,
+        message: '部分商品库存不足',
+        detail: { insufficient_items: [{ menu_item_id: 1, available_stock: 2 }] },
+      },
+    }),
+  )
+  const { request } = require('../utils/request')
+  await assert.rejects(() => request({ url: '/orders' }), (err) => {
+    assert.strictEqual(err.message, '部分商品库存不足')
+    assert.deepStrictEqual(err.detail.insufficient_items, [{ menu_item_id: 1, available_stock: 2 }])
+    return true
+  })
+})
+
 test('网络失败 reject 网络异常', async () => {
   mockWx((opts) => opts.fail({ errMsg: 'request:fail' }))
   const { request } = require('../utils/request')

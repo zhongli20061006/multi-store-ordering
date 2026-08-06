@@ -5,8 +5,14 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
   <view class="card">
     <view class="card-title">{{storeName}} · {{entryType === 'dinein' ? '到店点单' : '提前点单'}}</view>
     <view class="line" wx:for="{{items}}" wx:key="menu_item_id">
-      <text class="line-name">{{item.name}} × {{item.quantity}}</text>
-      <price cents="{{item.unit_price_cents * item.quantity}}" />
+      <view class="line-main">
+        <text class="line-name">{{item.name}}</text>
+        <quantity-stepper item="{{item}}" bind:change="onChangeQuantity" />
+      </view>
+      <view class="line-side">
+        <price cents="{{item.unit_price_cents * item.quantity}}" />
+        <button class="remove" size="mini" catchtap="onRemoveItem" data-id="{{item.menu_item_id}}" data-name="{{item.name}}">删除</button>
+      </view>
     </view>
     <view class="line total">
       <text>共 {{totalCount}} 件</text>

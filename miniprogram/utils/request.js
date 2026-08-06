@@ -20,7 +20,9 @@ function request({ url, method = 'GET', data, loading = false, loadingText = '�
         const msg = (body && body.message) || '请求失败'
         if (loading) wx.hideLoading()
         wx.showToast({ title: msg, icon: 'none' })
-        reject(new Error(msg))
+        const err = new Error(msg)
+        if (body && body.detail) err.detail = body.detail
+        reject(err)
       },
       fail() {
         if (loading) wx.hideLoading()

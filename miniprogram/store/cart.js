@@ -61,7 +61,9 @@ function updateQuantity(storeId, itemId, quantity) {
   if (quantity <= 0) {
     cart.items.splice(index, 1)
   } else {
-    cart.items[index].quantity = quantity
+    const item = cart.items[index]
+    // 限库存商品钳制到库存上限；数量真校验仍以后端为准
+    cart.items[index].quantity = item.stock == null ? quantity : Math.min(quantity, item.stock)
   }
   write(cart)
 }
