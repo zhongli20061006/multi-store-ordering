@@ -1,5 +1,5 @@
 const { queryOrder, cancelOrder, pickupOrder } = require('../../utils/api/orders')
-const { getStores } = require('../../utils/api/stores')
+const { getStore } = require('../../utils/api/stores')
 const { itemsFromOrder } = require('../../utils/reorder')
 const { formatTime } = require('../../utils/format')
 const recentOrders = require('../../store/recent-orders')
@@ -10,33 +10,30 @@ Page({
     orderNo: '',
     phone: '',
     order: null,
-    storeNames: {},
+    store: null,
   },
 
   onLoad(options) {
     const orderNo = options.order_no || ''
     const phone = options.phone || ''
     this.setData({ orderNo, phone })
-    this.loadStoreNames()
     const found = recentOrders.list().find((o) => o.order_no === orderNo)
-    if (found) this.setData({ order: this.decorate(found) })
+    if (found) {
+      this.setData({ order: this.decorate(found) })
+      this.loadStoreInfo(found.store_id)
+    }
     this.refresh()
   },
 
-  loadStoreNames() {
-    getStores()
-      .then((stores) => {
-        const map = {}
-        stores.forEach((s) => {
-          map[s.id] = s.name
-        })
-        this.setData({ storeNames: map })
-      })
+  loadStoreInfo(storeId) {
+    if (!storeId) return
+    getStore(storeId)
+      .then((store) => this.setData({ store }))
       .catch(() => {})
   },
 
   storeNameOf(storeId) {
-    return this.data.storeNames[storeId] || `门店 #${storeId}`
+    return (this.data.store && this.data.store.name) || `门店 #${storeId}`
   },
 
   decorate(order) {
@@ -48,7 +45,10 @@ Page({
 
   refresh() {
     queryOrder(this.data.phone, this.data.orderNo)
-      .then((order) => this.setData({ order: this.decorate(order) }))
+      .then((order) => {
+        this.setData({ order: this.decorate(order) })
+        this.loadStoreInfo(order.store_id)
+      })
       .catch(() => {})
   },
 

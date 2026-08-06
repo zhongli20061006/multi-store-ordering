@@ -16,6 +16,7 @@
       <price cents="{{totalCents}}" />
     </view>
   </view>
+  <store-info wx:if="{{store}}" store="{{store}}" />
   <button class="primary" bindtap="viewOrder">查看订单</button>
   <button class="ghost" bindtap="goHome">返回首页</button>
 </view>

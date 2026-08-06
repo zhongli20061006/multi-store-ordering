@@ -1,16 +1,29 @@
+const { getStore } = require('../../utils/api/stores')
+
 Page({
   data: {
     orderNo: '',
     totalCents: 0,
+    storeId: 0,
     storeName: '',
+    store: null,
   },
 
   onLoad(options) {
+    const storeId = Number(options.store_id || 0)
     this.setData({
       orderNo: options.order_no || '',
       totalCents: Number(options.total_cents || 0),
+      storeId,
       storeName: decodeURIComponent(options.store_name || ''),
     })
+    if (storeId) this.loadStore(storeId)
+  },
+
+  loadStore(storeId) {
+    getStore(storeId)
+      .then((store) => this.setData({ store }))
+      .catch(() => {})
   },
 
   viewOrder() {

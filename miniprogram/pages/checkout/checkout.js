@@ -84,7 +84,7 @@ Page({
         cart.clearCart()
         recentOrders.upsert(order)
         wx.redirectTo({
-          url: `/pages/order-success/order-success?order_no=${order.order_no}&total_cents=${order.total_cents}&store_name=${encodeURIComponent(this.data.storeName)}`,
+          url: `/pages/order-success/order-success?order_no=${order.order_no}&total_cents=${order.total_cents}&store_id=${this.data.storeId}&store_name=${encodeURIComponent(this.data.storeName)}`,
         })
       })
       .catch(() => {

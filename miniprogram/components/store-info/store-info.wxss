@@ -1,0 +1,35 @@
+.store-info {
+  margin: 16rpx 24rpx;
+  padding: 20rpx 24rpx;
+  background: var(--surface);
+  border: 1rpx solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+.line {
+  display: flex;
+  padding: 6rpx 0;
+  font-size: 26rpx;
+}
+.label {
+  width: 80rpx;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.value {
+  color: var(--text-main);
+  word-break: break-all;
+}
+.actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 12rpx;
+}
+.action {
+  margin: 0;
+  background: var(--surface);
+  color: var(--brand-primary);
+  border: 1rpx solid var(--brand-primary);
+  border-radius: var(--radius-sm);
+  font-size: 24rpx;
+  line-height: 1.6;
+}

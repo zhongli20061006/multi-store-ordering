@@ -3,6 +3,7 @@
   "usingComponents": {
     "empty-state": "/components/empty-state/empty-state",
     "status-badge": "/components/status-badge/status-badge",
-    "price": "/components/price/price"
+    "price": "/components/price/price",
+    "store-info": "/components/store-info/store-info"
   }
 }

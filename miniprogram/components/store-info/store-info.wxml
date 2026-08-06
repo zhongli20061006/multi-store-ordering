@@ -1,0 +1,18 @@
+<view wx:if="{{store}}" class="store-info">
+  <view class="line">
+    <text class="label">地址</text>
+    <text class="value">{{store.address}}</text>
+  </view>
+  <view wx:if="{{store.phone}}" class="line">
+    <text class="label">电话</text>
+    <text class="value">{{store.phone}}</text>
+  </view>
+  <view wx:if="{{store.open_time}}" class="line">
+    <text class="label">营业</text>
+    <text class="value">{{store.open_time}} - {{store.close_time}}</text>
+  </view>
+  <view wx:if="{{navVisible || callVisible}}" class="actions">
+    <button wx:if="{{navVisible}}" class="action" size="mini" bindtap="onNavigate">导航</button>
+    <button wx:if="{{callVisible}}" class="action" size="mini" bindtap="onCall">电话</button>
+  </view>
+</view>
