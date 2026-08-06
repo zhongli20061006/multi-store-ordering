@@ -16,7 +16,7 @@ ALLOWED_TYPES = {
 MAX_SIZE = 2 * 1024 * 1024
 
 
-def save_item_image(data: bytes, store_id: int, item_id: int, content_type: str) -> str:
+def _validate_and_save(data: bytes, store_id: int, prefix: str, content_type: str) -> str:
     spec = ALLOWED_TYPES.get(content_type)
     if spec is None:
         raise BusinessError(400, "仅支持 jpg/png/webp 图片")
@@ -27,12 +27,20 @@ def save_item_image(data: bytes, store_id: int, item_id: int, content_type: str)
         raise BusinessError(400, "图片不能超过 2MB")
     folder = UPLOAD_DIR / str(store_id)
     folder.mkdir(parents=True, exist_ok=True)
-    filename = f"item_{item_id}_{int(time.time() * 1000)}{ext}"
+    filename = f"{prefix}_{int(time.time() * 1000)}{ext}"
     (folder / filename).write_bytes(data)
     return f"/uploads/{store_id}/{filename}"
 
 
-def delete_item_image(relative_path: str | None) -> None:
+def save_item_image(data: bytes, store_id: int, item_id: int, content_type: str) -> str:
+    return _validate_and_save(data, store_id, f"item_{item_id}", content_type)
+
+
+def save_banner_image(data: bytes, store_id: int, content_type: str) -> str:
+    return _validate_and_save(data, store_id, "banner", content_type)
+
+
+def delete_image(relative_path: str | None) -> None:
     if not relative_path or not relative_path.startswith("/uploads/"):
         return
     try:

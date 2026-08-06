@@ -24,6 +24,7 @@ class Store(Base):
     categories: Mapped[list["MenuCategory"]] = relationship(back_populates="store")  # noqa: F821
     items: Mapped[list["MenuItem"]] = relationship(back_populates="store")  # noqa: F821
     orders: Mapped[list["Order"]] = relationship(back_populates="store")  # noqa: F821
+    banners: Mapped[list["StoreBanner"]] = relationship(back_populates="store")  # noqa: F821
 
 
 class StoreAdmin(Base):

@@ -133,5 +133,5 @@ def clear_item_image_endpoint(
     item = db.get(MenuItem, item_id)
     if item is None or item.store_id != store_id:
         raise BusinessError(404, "商品不存在")
-    uploads.delete_item_image(item.image_url)
+    uploads.delete_image(item.image_url)
     return ok(ItemOut.model_validate(clear_item_image(db, item)).model_dump())
