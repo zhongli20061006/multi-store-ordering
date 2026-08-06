@@ -6,6 +6,7 @@ class Settings(BaseSettings):
 
     app_name: str = "多门店点单后端"
     database_url: str = "sqlite:///./data/ordering.db"
+    upload_dir: str = "uploads"
     jwt_secret: str = "dev-only-secret-please-override-in-env-0123456789"
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60 * 24

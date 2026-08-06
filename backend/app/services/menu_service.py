@@ -106,6 +106,20 @@ def update_item(db: Session, store_id: int, item: MenuItem, data: ItemUpdate) ->
     return item
 
 
+def set_item_image(db: Session, item: MenuItem, url: str) -> MenuItem:
+    item.image_url = url
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+def clear_item_image(db: Session, item: MenuItem) -> MenuItem:
+    item.image_url = None
+    db.commit()
+    db.refresh(item)
+    return item
+
+
 def delete_item(db: Session, item: MenuItem) -> None:
     item.is_active = False
     db.commit()

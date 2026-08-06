@@ -11,6 +11,7 @@ env/
 *.db-wal
 *.db-shm
 data/
+uploads/
 
 # Node / 前端构建产物
 node_modules/
