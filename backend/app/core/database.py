@@ -54,6 +54,9 @@ def init_db() -> None:
     from app import models  # noqa: F401  确保模型已注册
 
     Base.metadata.create_all(bind=engine)
+    from app.core.db_migrate import ensure_additive_columns
+
+    ensure_additive_columns(engine)
 
 
 def get_db():

@@ -257,3 +257,78 @@ def test_status_machine_served_requires_pickup_to_complete(client, seed):
         headers=headers,
     )
     assert bad.status_code == 409
+
+from datetime import datetime
+
+from app.services.order_service import CN_TZ, is_within_business_hours
+
+
+def test_business_hours_boundaries():
+    assert is_within_business_hours("09:00", "22:00", datetime(2026, 8, 6, 9, 0, tzinfo=CN_TZ)) is True
+    assert is_within_business_hours("09:00", "22:00", datetime(2026, 8, 6, 21, 59, tzinfo=CN_TZ)) is True
+    assert is_within_business_hours("09:00", "22:00", datetime(2026, 8, 6, 8, 59, tzinfo=CN_TZ)) is False
+    assert is_within_business_hours("09:00", "22:00", datetime(2026, 8, 6, 22, 0, tzinfo=CN_TZ)) is False
+
+
+def _hours_store_with_item(client, seed, open_time, close_time, key):
+    headers = login(client, "admin1")
+    store = client.post(
+        "/api/v1/admin/stores",
+        json={"name": f"时段店-{key}", "address": "某处", "phone": "13800000020", "sort_order": 7, "open_time": open_time, "close_time": close_time},
+        headers=headers,
+    ).json()["data"]
+    cat = client.post(
+        f"/api/v1/admin/stores/{store['id']}/categories",
+        json={"name": "分类", "sort_order": 1, "is_active": True},
+        headers=headers,
+    ).json()["data"]
+    item = client.post(
+        f"/api/v1/admin/stores/{store['id']}/items",
+        json={"name": "时段商品", "price_cents": 100, "sort_order": 1},
+        headers=headers,
+    ).json()["data"]
+    return store, item
+
+
+def test_order_rejected_when_store_closed_hours(client, seed):
+    now = datetime.now(CN_TZ)
+    if now.hour >= 12:
+        open_time, close_time = "00:00", "01:00"
+    else:
+        open_time, close_time = "13:00", "14:00"
+    store, item = _hours_store_with_item(client, seed, open_time, close_time, "closed")
+    resp = client.post(
+        "/api/v1/orders",
+        json={
+            "store_id": store["id"],
+            "customer_name": "测试顾客",
+            "customer_phone": "13900000001",
+            "idempotency_key": "closed-hours-key-001",
+            "items": [{"menu_item_id": item["id"], "quantity": 1}],
+        },
+    )
+    assert resp.status_code == 409
+    assert "营业时间" in resp.json()["message"]
+
+
+def test_order_accepted_when_store_open_hours(client, seed):
+    now = datetime.now(CN_TZ)
+    h = now.hour
+    if h == 0:
+        open_time, close_time = "00:00", "01:59"
+    elif h == 23:
+        open_time, close_time = "22:00", "23:59"
+    else:
+        open_time, close_time = f"{h - 1:02d}:00", f"{h + 1:02d}:59"
+    store, item = _hours_store_with_item(client, seed, open_time, close_time, "open")
+    resp = client.post(
+        "/api/v1/orders",
+        json={
+            "store_id": store["id"],
+            "customer_name": "测试顾客",
+            "customer_phone": "13900000001",
+            "idempotency_key": "open-hours-key-001",
+            "items": [{"menu_item_id": item["id"], "quantity": 1}],
+        },
+    )
+    assert resp.status_code == 201

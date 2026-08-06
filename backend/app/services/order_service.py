@@ -29,6 +29,14 @@ def _local_day_start_utc() -> datetime:
     return local_midnight.astimezone(timezone.utc).replace(tzinfo=None)
 
 
+def is_within_business_hours(open_time: str, close_time: str, now: datetime) -> bool:
+    """营业区间 [open, close)，HH:MM，按本地自然日。"""
+    now_t = now.time()
+    open_t = datetime.strptime(open_time, "%H:%M").time()
+    close_t = datetime.strptime(close_time, "%H:%M").time()
+    return open_t <= now_t < close_t
+
+
 def generate_order_no(db: Session, store_id: int) -> str:
     """4 位随机订单号；同门店当天不重复，隔天可复用。"""
     since = _local_day_start_utc()
@@ -53,6 +61,9 @@ def create_order(db: Session, payload: OrderCreate) -> tuple[Order, bool]:
         raise BusinessError(404, "门店不存在")
     if store.status != "open":
         raise BusinessError(409, "门店已打烊，暂不可下单")
+    if store.open_time and store.close_time:
+        if not is_within_business_hours(store.open_time, store.close_time, datetime.now(CN_TZ)):
+            raise BusinessError(409, f"门店当前未营业（营业时间 {store.open_time}-{store.close_time}）")
 
     existing = db.scalar(select(Order).where(Order.idempotency_key == payload.idempotency_key))
     if existing is not None:

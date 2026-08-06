@@ -72,3 +72,35 @@ def test_delete_store_with_orders_rejected(client, seed):
     headers = login(client, "admin1")
     resp = client.delete(f"/api/v1/admin/stores/{seed['store1_id']}", headers=headers)
     assert resp.status_code == 409
+
+
+def test_create_store_with_hours_ok(client, seed):
+    headers = login(client, "admin1")
+    resp = client.post(
+        "/api/v1/admin/stores",
+        json={"name": "小时店", "address": "某处", "phone": "13800000010", "sort_order": 4, "open_time": "09:00", "close_time": "22:00"},
+        headers=headers,
+    )
+    assert resp.status_code == 201
+    assert resp.json()["data"]["open_time"] == "09:00"
+    assert resp.json()["data"]["close_time"] == "22:00"
+
+
+def test_create_store_rejects_invalid_hours_format(client, seed):
+    headers = login(client, "admin1")
+    resp = client.post(
+        "/api/v1/admin/stores",
+        json={"name": "坏小时", "address": "某处", "phone": "13800000011", "sort_order": 5, "open_time": "25:00", "close_time": "22:00"},
+        headers=headers,
+    )
+    assert resp.status_code == 422
+
+
+def test_create_store_rejects_invalid_hours_range(client, seed):
+    headers = login(client, "admin1")
+    resp = client.post(
+        "/api/v1/admin/stores",
+        json={"name": "倒挂", "address": "某处", "phone": "13800000012", "sort_order": 6, "open_time": "22:00", "close_time": "09:00"},
+        headers=headers,
+    )
+    assert resp.status_code == 400

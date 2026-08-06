@@ -27,7 +27,13 @@ def list_admin_stores(db: Session, user: User) -> list[Store]:
     return list(db.scalars(select(Store).where(Store.id.in_(store_ids)).order_by(Store.sort_order, Store.id)))
 
 
+def _validate_hours(data) -> None:
+    if data.open_time and data.close_time and data.open_time >= data.close_time:
+        raise BusinessError(400, "营业时间范围无效（开始需早于结束）")
+
+
 def create_store(db: Session, data: StoreCreate, user: User) -> Store:
+    _validate_hours(data)
     store = Store(**data.model_dump())
     db.add(store)
     db.flush()
@@ -38,6 +44,7 @@ def create_store(db: Session, data: StoreCreate, user: User) -> Store:
 
 
 def update_store(db: Session, store: Store, data: StoreUpdate) -> Store:
+    _validate_hours(data)
     for field, value in data.model_dump(exclude_unset=True).items():
         setattr(store, field, value)
     db.commit()

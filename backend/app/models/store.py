@@ -14,6 +14,8 @@ class Store(Base):
     address: Mapped[str] = mapped_column(String(200))
     phone: Mapped[str] = mapped_column(String(20))
     status: Mapped[str] = mapped_column(String(16), default="open", index=True)
+    open_time: Mapped[str | None] = mapped_column(String(5), nullable=True)
+    close_time: Mapped[str | None] = mapped_column(String(5), nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(default=utcnow, onupdate=utcnow)
