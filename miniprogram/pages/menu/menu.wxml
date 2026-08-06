@@ -8,7 +8,12 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
     <text wx:if="{{hours}}" class="store-hours">{{hours}}</text>
   </view>
 
-  <swiper class="banner" indicator-dots autoplay circular interval="3500">
+  <swiper wx:if="{{banners.length}}" class="banner" indicator-dots autoplay circular interval="3500">
+    <swiper-item wx:for="{{banners}}" wx:key="id">
+      <image class="banner-img" src="{{imgBase + item.image_url}}" mode="aspectFill" />
+    </swiper-item>
+  </swiper>
+  <swiper wx:else class="banner" indicator-dots autoplay circular interval="3500">
     <swiper-item>
       <view class="banner-slide slide-1">
         <text class="banner-title">新品推荐</text>

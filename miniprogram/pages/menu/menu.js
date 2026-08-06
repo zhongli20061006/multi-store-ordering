@@ -1,4 +1,5 @@
-const { getStoreMenu, getStores } = require('../../utils/api/stores')
+const { getStoreMenu, getStores, getStoreBanners } = require('../../utils/api/stores')
+const { API_ORIGIN } = require('../../config')
 const { filterMenu } = require('../../utils/menu-filter')
 const cart = require('../../store/cart')
 
@@ -15,6 +16,8 @@ Page({
     keyword: '',
     allGroups: [],
     hours: '',
+    banners: [],
+    imgBase: API_ORIGIN,
     cartVisible: false,
     cartOpen: false,
     cartItems: [],
@@ -30,8 +33,15 @@ Page({
     this.setData({ storeId, storeName, entryType })
     cart.ensureStore(storeId, storeName)
     this.loadMenu()
+    this.loadBanners(storeId)
     // 营业时间从门店列表补全；扫码直达（URL 只有 store_id）时同时补门店名（真源约定）
     this.fetchStoreInfo(storeId)
+  },
+
+  loadBanners(storeId) {
+    getStoreBanners(storeId)
+      .then((banners) => this.setData({ banners }))
+      .catch(() => {})
   },
 
   fetchStoreInfo(storeId) {
