@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -22,6 +22,7 @@ def mask_phone(phone: str) -> str:
 def list_admin_orders(
     store_id: int | None = None,
     order_status: str | None = Query(default=None, pattern="^(pending|accepted|completed|cancelled)$"),
+    keyword: str | None = Query(default=None, max_length=60),
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
@@ -32,6 +33,11 @@ def list_admin_orders(
         query = query.where(Order.store_id == store_id)
     if order_status is not None:
         query = query.where(Order.order_status == order_status)
+    if keyword and keyword.strip():
+        kw = f"%{keyword.strip()}%"
+        query = query.where(
+            or_(Order.order_no.like(kw), Order.customer_phone.like(kw), Order.customer_name.like(kw))
+        )
     orders = list(db.scalars(query.order_by(Order.created_at.desc(), Order.id.desc())))
     payload = []
     for order in orders:

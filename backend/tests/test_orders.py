@@ -337,3 +337,27 @@ def test_order_accepted_when_store_open_hours(client, seed):
         },
     )
     assert resp.status_code == 201
+
+
+def test_admin_order_list_keyword_search(client, seed):
+    order1 = _create_order(client, seed, "kw-key-001").json()["data"]
+    order2 = client.post(
+        "/api/v1/orders",
+        json={
+            "store_id": seed["store2_id"],
+            "customer_name": "万达顾客",
+            "customer_phone": "13900000002",
+            "idempotency_key": "kw-key-002",
+            "items": [{"menu_item_id": seed["item3_id"], "quantity": 1}],
+        },
+    ).json()["data"]
+    headers = login(client, "admin1")
+    by_no = client.get("/api/v1/admin/orders", params={"keyword": order1["order_no"][:3]}, headers=headers).json()["data"]
+    assert [o["id"] for o in by_no] == [order1["id"]]
+    by_phone = client.get("/api/v1/admin/orders", params={"keyword": "13900000001"}, headers=headers).json()["data"]
+    assert [o["id"] for o in by_phone] == [order1["id"]]
+    by_name = client.get("/api/v1/admin/orders", params={"keyword": "测试顾客"}, headers=headers).json()["data"]
+    assert [o["id"] for o in by_name] == [order1["id"]]
+    none = client.get("/api/v1/admin/orders", params={"keyword": "不存在的关键词"}, headers=headers).json()["data"]
+    assert none == []
+    assert order2["id"] not in [o["id"] for o in by_name]
