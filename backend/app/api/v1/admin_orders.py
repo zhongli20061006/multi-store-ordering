@@ -1,13 +1,24 @@
+import csv
+import io
+
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
+from starlette.responses import StreamingResponse
 
 from app.core.database import get_db
 from app.core.errors import BusinessError
 from app.core.response import ok
-from app.models import Order
+from app.models import Order, Store
 from app.schemas.order import MerchantCancelRequest, OrderOut, OrderStatusUpdate, PaymentUpdate
-from app.services.order_service import cancel_order, get_order, mark_order_paid, update_order_status
+from app.services.order_service import (
+    CN_TZ,
+    cancel_order,
+    get_order,
+    list_admin_orders,
+    mark_order_paid,
+    update_order_status,
+)
 from app.api.v1.deps import ensure_store_access, get_current_user, get_user_store_ids
 
 
@@ -18,33 +29,94 @@ def mask_phone(phone: str) -> str:
     return f"{phone[:3]}****{phone[-4:]}" if len(phone) == 11 else phone
 
 
+ORDER_STATUS_PATTERN = "^(pending|accepted|served|completed|cancelled)$"
+STATUS_TEXT = {
+    "pending": "待接单",
+    "accepted": "已接单",
+    "served": "已出单",
+    "completed": "已完成",
+    "cancelled": "已取消",
+}
+PAYMENT_TEXT = {"unpaid": "未付款", "paid": "已付款"}
+ENTRY_TEXT = {"preorder": "提前点单", "dinein": "到店点单"}
+
+
+def _csv_safe(value) -> str:
+    """CSV 公式注入防护：以 = + - @ 或 Tab/CR 开头的单元格前置单引号。"""
+    if value is None:
+        return ""
+    text = str(value)
+    if text[:1] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + text
+    return text
+
+
+def _format_local(dt) -> str:
+    """落库时间为无时区 UTC，转 UTC+8 后格式化。"""
+    offset = CN_TZ.utcoffset(None)
+    return (dt + offset).strftime("%Y-%m-%d %H:%M:%S")
+
+
 @router.get("")
-def list_admin_orders(
+def list_orders(
     store_id: int | None = None,
-    order_status: str | None = Query(default=None, pattern="^(pending|accepted|completed|cancelled)$"),
+    order_status: str | None = Query(default=None, pattern=ORDER_STATUS_PATTERN),
     keyword: str | None = Query(default=None, max_length=60),
     db: Session = Depends(get_db),
     user=Depends(get_current_user),
 ):
     store_ids = get_user_store_ids(user)
-    query = select(Order).where(Order.store_id.in_(store_ids))
     if store_id is not None:
         ensure_store_access(user, store_id)
-        query = query.where(Order.store_id == store_id)
-    if order_status is not None:
-        query = query.where(Order.order_status == order_status)
-    if keyword and keyword.strip():
-        kw = f"%{keyword.strip()}%"
-        query = query.where(
-            or_(Order.order_no.like(kw), Order.customer_phone.like(kw), Order.customer_name.like(kw))
-        )
-    orders = list(db.scalars(query.order_by(Order.created_at.desc(), Order.id.desc())))
+    orders = list_admin_orders(db, store_ids, store_id, order_status, keyword)
     payload = []
     for order in orders:
         data = OrderOut.model_validate(order).model_dump()
         data["customer_phone"] = mask_phone(data["customer_phone"])
         payload.append(data)
     return ok(payload)
+
+
+@router.get("/export")
+def export_admin_orders(
+    store_id: int | None = None,
+    order_status: str | None = Query(default=None, pattern=ORDER_STATUS_PATTERN),
+    keyword: str | None = Query(default=None, max_length=60),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    store_ids = get_user_store_ids(user)
+    if store_id is not None:
+        ensure_store_access(user, store_id)
+    orders = list_admin_orders(db, store_ids, store_id, order_status, keyword)
+    store_names = {s.id: s.name for s in db.scalars(select(Store).where(Store.id.in_(store_ids)))}
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, lineterminator="\r\n")
+    writer.writerow(
+        ["订单号", "下单时间", "门店", "入口类型", "顾客姓名", "联系电话", "件数", "金额(元)", "订单状态", "支付状态", "备注"]
+    )
+    for order in orders:
+        writer.writerow(
+            [
+                order.order_no,
+                _format_local(order.created_at),
+                store_names.get(order.store_id, ""),
+                ENTRY_TEXT.get(order.entry_type, order.entry_type),
+                _csv_safe(order.customer_name),
+                mask_phone(order.customer_phone),
+                order.item_count,
+                f"{order.total_cents / 100:.2f}",
+                STATUS_TEXT.get(order.order_status, order.order_status),
+                PAYMENT_TEXT.get(order.payment_status, order.payment_status),
+                _csv_safe(order.remark),
+            ]
+        )
+    content = "\ufeff" + buffer.getvalue()
+    return StreamingResponse(
+        iter([content.encode("utf-8")]),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="orders.csv"'},
+    )
 
 
 @router.get("/{order_id}")

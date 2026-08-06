@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select, update
+from sqlalchemy import or_, select, update
 from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessError
@@ -137,6 +137,27 @@ def create_order(db: Session, payload: OrderCreate) -> tuple[Order, bool]:
 
 def get_order(db: Session, order_id: int) -> Order | None:
     return db.get(Order, order_id)
+
+
+def list_admin_orders(
+    db: Session,
+    store_ids: list[int],
+    store_id: int | None = None,
+    order_status: str | None = None,
+    keyword: str | None = None,
+) -> list[Order]:
+    """商家订单查询共用：列表与 CSV 导出同口径（门店归属由调用方校验）。"""
+    query = select(Order).where(Order.store_id.in_(store_ids))
+    if store_id is not None:
+        query = query.where(Order.store_id == store_id)
+    if order_status is not None:
+        query = query.where(Order.order_status == order_status)
+    if keyword and keyword.strip():
+        kw = f"%{keyword.strip()}%"
+        query = query.where(
+            or_(Order.order_no.like(kw), Order.customer_phone.like(kw), Order.customer_name.like(kw))
+        )
+    return list(db.scalars(query.order_by(Order.created_at.desc(), Order.id.desc())))
 
 
 def update_order_status(db: Session, order: Order, new_status: OrderStatus) -> Order:

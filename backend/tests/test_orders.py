@@ -1,3 +1,5 @@
+import csv
+import io
 import re
 
 from tests.conftest import login
@@ -361,3 +363,110 @@ def test_admin_order_list_keyword_search(client, seed):
     none = client.get("/api/v1/admin/orders", params={"keyword": "不存在的关键词"}, headers=headers).json()["data"]
     assert none == []
     assert order2["id"] not in [o["id"] for o in by_name]
+
+
+def _export_csv(client, headers, **params):
+    return client.get("/api/v1/admin/orders/export", params=params, headers=headers)
+
+
+def _csv_rows(resp):
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/csv")
+    text = resp.content.decode("utf-8")
+    assert text.startswith("\ufeff")
+    return [r for r in csv.reader(io.StringIO(text.lstrip("\ufeff"))) if r]
+
+
+def test_admin_export_csv_masks_phone_and_formats(client, seed):
+    order = _create_order(client, seed, "export-key-001").json()["data"]
+    headers = login(client, "admin1")
+    rows = _csv_rows(_export_csv(client, headers))
+    assert rows[0] == [
+        "订单号",
+        "下单时间",
+        "门店",
+        "入口类型",
+        "顾客姓名",
+        "联系电话",
+        "件数",
+        "金额(元)",
+        "订单状态",
+        "支付状态",
+        "备注",
+    ]
+    assert len(rows) == 2
+    body = rows[1]
+    assert body[0] == order["order_no"]
+    assert re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}", body[1])
+    assert body[2] == "中山路店"
+    assert body[3] == "提前点单"
+    assert body[4] == "测试顾客"
+    assert body[5] == "139****0001"
+    assert body[6] == "2"
+    assert body[7] == "24.00"
+    assert body[8] == "待接单"
+    assert body[9] == "未付款"
+    assert body[10] == ""
+
+
+def test_admin_export_respects_filters_and_scope(client, seed):
+    _create_order(client, seed, "exp-filter-001")
+    client.post(
+        "/api/v1/orders",
+        json={
+            "store_id": seed["store2_id"],
+            "customer_name": "万达顾客",
+            "customer_phone": "13900000002",
+            "idempotency_key": "exp-filter-002",
+            "items": [{"menu_item_id": seed["item3_id"], "quantity": 1}],
+        },
+    ).json()["data"]
+    headers = login(client, "admin1")
+    by_keyword = _csv_rows(_export_csv(client, headers, keyword="测试顾客"))
+    assert len(by_keyword) == 2
+    assert by_keyword[1][4] == "测试顾客"
+    none = _csv_rows(_export_csv(client, headers, keyword="不存在的关键词"))
+    assert len(none) == 1
+    cross = _export_csv(client, headers, store_id=seed["store2_id"])
+    assert cross.status_code == 403
+    mine_store = _csv_rows(_export_csv(client, headers, store_id=seed["store1_id"]))
+    assert len(mine_store) == 2
+
+
+def test_admin_order_status_served_filter_and_export(client, seed):
+    order = _create_order(client, seed, "served-key-001").json()["data"]
+    headers = login(client, "admin1")
+    client.patch(
+        f"/api/v1/admin/orders/{order['id']}/status",
+        json={"order_status": "accepted"},
+        headers=headers,
+    )
+    client.patch(
+        f"/api/v1/admin/orders/{order['id']}/status",
+        json={"order_status": "served"},
+        headers=headers,
+    )
+    listing = client.get("/api/v1/admin/orders", params={"order_status": "served"}, headers=headers)
+    assert listing.status_code == 200
+    assert [o["id"] for o in listing.json()["data"]] == [order["id"]]
+    rows = _csv_rows(_export_csv(client, headers, order_status="served"))
+    assert rows[1][8] == "已出单"
+
+
+def test_admin_export_escapes_formula_injection(client, seed):
+    resp = client.post(
+        "/api/v1/orders",
+        json={
+            "store_id": seed["store1_id"],
+            "customer_name": "=HYPERLINK(1,1)",
+            "customer_phone": "13900000001",
+            "remark": "+123",
+            "idempotency_key": "exp-inject-001",
+            "items": [{"menu_item_id": seed["item1_id"], "quantity": 1}],
+        },
+    )
+    assert resp.status_code == 201
+    headers = login(client, "admin1")
+    rows = _csv_rows(_export_csv(client, headers))
+    assert rows[1][4] == "'=HYPERLINK(1,1)"
+    assert rows[1][10] == "'+123"
