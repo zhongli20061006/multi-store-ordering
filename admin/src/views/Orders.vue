@@ -7,13 +7,36 @@ import { useCurrentStore } from '@/stores/store'
 import PriceText from '@/components/PriceText.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
 import { centsToYuan } from '@/utils/format'
+import { detectNewPending } from '@/utils/order-alert'
+import { playAlertSound } from '@/utils/sound'
+import { ensureNotifyPermission, notifyOrder } from '@/utils/desktop-notify'
 
 const store = useCurrentStore()
 const orders = ref<Order[]>([])
-const filter = reactive({ order_status: '' })
+const filter = reactive({ order_status: '', keyword: '' })
+const lastIds = ref<number[]>([])
+const baselineSet = ref(false)
+const alertEnabled = ref(localStorage.getItem('admin_alert_enabled') === '1')
 const { loading, run: load } = useAsync(async () => {
   if (!store.hasStore) return
-  orders.value = await ordersApi.list({ store_id: store.id, order_status: filter.order_status || undefined })
+  const fetched = await ordersApi.list({
+    store_id: store.id,
+    order_status: filter.order_status || undefined,
+    keyword: filter.keyword || undefined,
+  })
+  orders.value = fetched
+  if (!baselineSet.value) {
+    baselineSet.value = true
+  } else if (alertEnabled.value && !filter.order_status && !filter.keyword) {
+    const fresh = detectNewPending(lastIds.value, fetched)
+    if (fresh.length > 0) {
+      const names = fetched.filter((o) => fresh.includes(o.id)).map((o) => o.order_no).join('、')
+      playAlertSound()
+      notifyOrder('新订单待接单', `订单 ${names}`)
+      ElMessage.success(`新订单：${names}`)
+    }
+  }
+  lastIds.value = fetched.map((o) => o.id)
 })
 
 const cancelDialog = ref(false)
@@ -22,6 +45,15 @@ const cancelReason = ref<'merchant_cancel_not_made' | 'merchant_cancel_made'>('m
 
 const detailDialog = ref(false)
 const detail = ref<OrderDetail | null>(null)
+
+async function enableAlert() {
+  const ok = await ensureNotifyPermission()
+  if (!ok) ElMessage.warning('桌面通知未授权，声音提醒仍可用')
+  playAlertSound()
+  alertEnabled.value = true
+  localStorage.setItem('admin_alert_enabled', '1')
+  ElMessage.success('新订单提醒已开启')
+}
 
 function openCancel(order: Order) {
   cancelOrderId.value = order.id
@@ -154,7 +186,16 @@ const stats = computed(() => {
     <el-card>
       <div style="display: flex; justify-content: space-between; margin-bottom: 12px">
         <h3 style="margin: 0">订单管理：{{ store.name }}</h3>
-        <div style="display: flex; gap: 8px">
+        <div style="display: flex; gap: 8px; align-items: center">
+          <el-input
+            v-model="filter.keyword"
+            placeholder="订单号/手机号/姓名"
+            clearable
+            style="width: 220px"
+            @keyup.enter="load"
+            @clear="load"
+            @change="load"
+          />
           <el-select v-model="filter.order_status" placeholder="全部状态" clearable style="width: 140px" @change="load">
             <el-option label="待接单" value="pending" />
             <el-option label="已接单" value="accepted" />
@@ -163,6 +204,8 @@ const stats = computed(() => {
             <el-option label="已取消" value="cancelled" />
           </el-select>
           <el-button @click="load">刷新</el-button>
+          <el-button v-if="!alertEnabled" type="warning" plain @click="enableAlert">开启提醒</el-button>
+          <el-button v-else type="success" plain disabled>提醒已开启</el-button>
         </div>
       </div>
 

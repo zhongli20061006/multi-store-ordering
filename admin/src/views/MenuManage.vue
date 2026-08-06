@@ -206,8 +206,14 @@ onMounted(loadAll)
             <el-table-column label="价格" width="110">
               <template #default="{ row }">¥{{ centsToYuan(row.price_cents) }}</template>
             </el-table-column>
-            <el-table-column label="库存" width="90">
-              <template #default="{ row }">{{ row.stock === null || row.stock === undefined ? '不限' : row.stock }}</template>
+            <el-table-column label="库存" width="130">
+              <template #default="{ row }">
+                <template v-if="row.stock !== null && row.stock !== undefined && row.stock <= 5">
+                  <el-tag type="danger" size="small">{{ row.stock }}</el-tag>
+                  <span style="color: #f56c6c; margin-left: 4px; font-size: 12px">低库存</span>
+                </template>
+                <template v-else>{{ row.stock === null || row.stock === undefined ? '不限' : row.stock }}</template>
+              </template>
             </el-table-column>
             <el-table-column label="状态" width="100">
               <template #default="{ row }">

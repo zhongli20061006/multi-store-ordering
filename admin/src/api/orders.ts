@@ -28,7 +28,7 @@ export interface OrderDetail extends Order {
 }
 
 export const ordersApi = {
-  list: (params: { store_id?: number; order_status?: string }) =>
+  list: (params: { store_id?: number; order_status?: string; keyword?: string }) =>
     http.get('/admin/orders', { params }) as Promise<Order[]>,
   detail: (id: number) => http.get(`/admin/orders/${id}`) as Promise<OrderDetail>,
   updateStatus: (id: number, order_status: string) => http.patch(`/admin/orders/${id}/status`, { order_status }),
