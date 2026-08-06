@@ -28,8 +28,8 @@ def list_admin_stores(db: Session, user: User) -> list[Store]:
 
 
 def _validate_hours(data) -> None:
-    if data.open_time and data.close_time and data.open_time >= data.close_time:
-        raise BusinessError(400, "营业时间范围无效（开始需早于结束）")
+    if data.open_time and data.close_time and data.open_time == data.close_time:
+        raise BusinessError(400, "营业时间范围无效（开始与结束不能相同）")
 
 
 def _validate_coords(data) -> None:

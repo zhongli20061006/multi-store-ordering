@@ -125,14 +125,28 @@ def test_create_store_rejects_invalid_hours_format(client, seed):
     assert resp.status_code == 422
 
 
-def test_create_store_rejects_invalid_hours_range(client, seed):
+def test_create_store_allows_cross_day_hours(client, seed):
     headers = login(client, "admin1")
     resp = client.post(
         "/api/v1/admin/stores",
-        json={"name": "倒挂", "address": "某处", "phone": "13800000012", "sort_order": 6, "open_time": "22:00", "close_time": "09:00"},
+        json={"name": "跨天店", "address": "某处", "phone": "13800000012", "sort_order": 6, "open_time": "22:00", "close_time": "09:00"},
+        headers=headers,
+    )
+    assert resp.status_code == 201
+    data = resp.json()["data"]
+    assert data["open_time"] == "22:00"
+    assert data["close_time"] == "09:00"
+
+
+def test_create_store_rejects_equal_hours(client, seed):
+    headers = login(client, "admin1")
+    resp = client.post(
+        "/api/v1/admin/stores",
+        json={"name": "全天歧义", "address": "某处", "phone": "13800000013", "sort_order": 7, "open_time": "09:00", "close_time": "09:00"},
         headers=headers,
     )
     assert resp.status_code == 400
+    assert "不能相同" in resp.json()["message"]
 
 
 def test_create_store_with_coordinates_ok(client, seed):

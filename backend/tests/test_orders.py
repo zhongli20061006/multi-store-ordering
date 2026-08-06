@@ -292,6 +292,15 @@ def test_business_hours_boundaries():
     assert is_within_business_hours("09:00", "22:00", datetime(2026, 8, 6, 22, 0, tzinfo=CN_TZ)) is False
 
 
+def test_business_hours_cross_day_boundaries():
+    assert is_within_business_hours("22:00", "02:00", datetime(2026, 8, 6, 21, 59, tzinfo=CN_TZ)) is False
+    assert is_within_business_hours("22:00", "02:00", datetime(2026, 8, 6, 22, 0, tzinfo=CN_TZ)) is True
+    assert is_within_business_hours("22:00", "02:00", datetime(2026, 8, 6, 23, 59, tzinfo=CN_TZ)) is True
+    assert is_within_business_hours("22:00", "02:00", datetime(2026, 8, 7, 0, 0, tzinfo=CN_TZ)) is True
+    assert is_within_business_hours("22:00", "02:00", datetime(2026, 8, 7, 1, 59, tzinfo=CN_TZ)) is True
+    assert is_within_business_hours("22:00", "02:00", datetime(2026, 8, 7, 2, 0, tzinfo=CN_TZ)) is False
+
+
 def _hours_store_with_item(client, seed, open_time, close_time, key):
     headers = login(client, "admin1")
     store = client.post(

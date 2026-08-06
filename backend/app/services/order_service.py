@@ -31,11 +31,19 @@ def _local_day_start_utc() -> datetime:
 
 
 def is_within_business_hours(open_time: str, close_time: str, now: datetime) -> bool:
-    """营业区间 [open, close)，HH:MM，按本地自然日。"""
-    now_t = now.time()
-    open_t = datetime.strptime(open_time, "%H:%M").time()
-    close_t = datetime.strptime(close_time, "%H:%M").time()
-    return open_t <= now_t < close_t
+    """营业区间（HH:MM，转距午夜分钟数比较）：
+    open < close 同日；open > close 跨天（如 22:00-02:00）；open == close 为无效配置（创建/更新已拒绝）。"""
+    now_min = now.hour * 60 + now.minute
+    open_min = _to_minutes(open_time)
+    close_min = _to_minutes(close_time)
+    if open_min < close_min:
+        return open_min <= now_min < close_min
+    return now_min >= open_min or now_min < close_min
+
+
+def _to_minutes(hhmm: str) -> int:
+    hours, minutes = hhmm.split(":")
+    return int(hours) * 60 + int(minutes)
 
 
 def generate_order_no(db: Session, store_id: int) -> str:
