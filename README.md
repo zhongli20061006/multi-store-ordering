@@ -16,8 +16,10 @@
 - 扫码直达菜单（编译模式模拟；真机小程序码需正式 AppID）
 - 菜单搜索（按商品名即时过滤）与商品图片展示
 - 门店营业时间展示（打烊时段后端拒绝下单）
+- 门店电话 + 一键导航（wx.openLocation，未配坐标提示）
 - 门店搜索（按店名过滤）、订单详情页（本地秒开+静默刷新）、再来一单
 - 「我的」个人主页（本地资料、订单状态筛选、全局订单监控通知）、菜单页轮播图
+- 下单联系人预填（个人资料优先、最近一单兜底）
 - 历史记录（按类别筛选/订单号搜索/单条删除）、首页通知入口（未读角标）
 
 ### 商家端（网页后台 `admin/`）
@@ -29,6 +31,7 @@
 - 数据看板：近 7 天营业额趋势与今日统计
 - 轮播图管理：上传/排序/上下架，小程序菜单页展示
 - 订单搜索（订单号/手机号/姓名）、新订单声音+桌面提醒、低库存高亮
+- 订单导出 CSV（按当前筛选；手机号脱敏）
 
 ### 后端（FastAPI `backend/`）
 
@@ -114,12 +117,10 @@ npm run dev
 ## 测试
 
 ```powershell
-cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 78 passed
-cd admin && npm run test && npm run build                 # vitest 7 passed + 构建通过
-cd miniprogram && node --test tests/                      # 45 passed
+cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 87 passed
+cd admin && npm run test && npm run build                 # vitest 11 passed + 构建通过
+cd miniprogram && npm test                                # 58 passed
 ```
-
-> 沙箱受限环境下 node:test 需加 `--experimental-test-isolation=none` 并显式列出测试文件。
 
 ## 已知限制与未验证项
 
