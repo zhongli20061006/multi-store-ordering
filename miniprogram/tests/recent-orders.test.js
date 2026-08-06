@@ -37,12 +37,12 @@ test('upsert 同单去重并置顶', () => {
   assert.strictEqual(list[0].total_cents, 300)
 })
 
-test('最多保留 5 条', () => {
-  for (let i = 1; i <= 6; i++) recent.upsert(order(String(1000 + i), i))
+test('最多保留 50 条', () => {
+  for (let i = 1; i <= 51; i++) recent.upsert(order(String(1000 + i), i))
   const list = recent.list()
-  assert.strictEqual(list.length, 5)
-  assert.strictEqual(list[0].order_no, '1006')
-  assert.strictEqual(list[4].order_no, '1002')
+  assert.strictEqual(list.length, 50)
+  assert.strictEqual(list[0].order_no, '1051')
+  assert.strictEqual(list[49].order_no, '1002')
 })
 
 test('remove 按订单号删除', () => {

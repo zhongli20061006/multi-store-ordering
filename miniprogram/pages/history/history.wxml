@@ -1,0 +1,37 @@
+<view class="page">
+  <view class="search-box">
+    <input class="search-input" placeholder="按订单号搜索" value="{{keyword}}" bindinput="onSearchInput" />
+  </view>
+  <scroll-view class="cats" scroll-x>
+    <view class="cat {{category === 'all' ? 'active' : ''}}" data-category="all" bindtap="onCategory">全部</view>
+    <view
+      class="cat {{category === item ? 'active' : ''}}"
+      wx:for="{{categories}}"
+      wx:key="*this"
+      data-category="{{item}}"
+      bindtap="onCategory"
+    >{{item}}</view>
+  </scroll-view>
+
+  <block wx:if="{{orders.length}}">
+    <view
+      class="row"
+      wx:for="{{orders}}"
+      wx:key="order_no"
+      data-order_no="{{item.order_no}}"
+      data-phone="{{item.customer_phone}}"
+      bindtap="goDetail"
+    >
+      <view class="row-main">
+        <text class="no">{{item.order_no}}</text>
+        <text class="meta">{{item.storeName}} · {{item.displayTime}}</text>
+      </view>
+      <view class="row-right">
+        <text class="status">{{item.statusLabel}}</text>
+        <text class="total">¥{{item.totalYuan}}</text>
+      </view>
+    </view>
+  </block>
+  <empty-state wx:elif="{{categories.length === 0}}" title="暂无历史记录" desc="下单后记录会保存在这里" />
+  <empty-state wx:else title="没有匹配的记录" desc="换个关键词或分类试试" />
+</view>

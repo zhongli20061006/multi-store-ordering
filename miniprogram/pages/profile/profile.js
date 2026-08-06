@@ -38,8 +38,7 @@ Page({
   },
 
   goHistory() {
-    wx.setStorageSync('profile_entry', 'history')
-    wx.switchTab({ url: '/pages/my-orders/my-orders' })
+    wx.navigateTo({ url: '/pages/history/history' })
   },
 
   goNotify() {
