@@ -5,6 +5,11 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
   <view class="header">
     <text class="store-name">{{storeName}}</text>
     <text class="entry-tag">{{entryType === 'dinein' ? '到店点单' : '提前点单'}}</text>
+    <text wx:if="{{hours}}" class="store-hours">{{hours}}</text>
+  </view>
+
+  <view class="search-box">
+    <input class="search-input" placeholder="搜索商品" value="{{keyword}}" bindinput="onSearchInput" />
   </view>
 
   <view wx:if="{{loading}}" class="loading">加载中…</view>

@@ -30,6 +30,11 @@
   font-size: 26rpx;
   color: var(--text-secondary);
 }
+.store-hours {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: var(--text-disabled);
+}
 .store-status {
   font-size: 24rpx;
   color: #67c23a;

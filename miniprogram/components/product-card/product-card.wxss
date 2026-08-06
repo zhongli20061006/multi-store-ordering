@@ -8,6 +8,21 @@
   padding: 24rpx;
   margin-bottom: 20rpx;
 }
+.thumb {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  margin-right: 20rpx;
+}
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-page);
+  color: var(--text-disabled);
+  font-size: 22rpx;
+}
 .info {
   display: flex;
   flex-direction: column;

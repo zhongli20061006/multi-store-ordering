@@ -24,6 +24,22 @@
   border-radius: var(--radius-sm);
   padding: 4rpx 12rpx;
 }
+.store-hours {
+  margin-left: auto;
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
+.search-box {
+  padding: 16rpx 24rpx;
+  background: var(--surface);
+  border-bottom: 1rpx solid var(--border-color);
+}
+.search-input {
+  background: var(--bg-page);
+  border-radius: var(--radius-sm);
+  padding: 12rpx 20rpx;
+  font-size: 26rpx;
+}
 .loading {
   padding: 120rpx 0;
   text-align: center;

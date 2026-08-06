@@ -24,6 +24,7 @@
       <view class="store-main">
         <text class="store-name">{{item.name}}</text>
         <text class="store-address">{{item.address}}</text>
+        <text wx:if="{{item.open_time}}" class="store-hours">营业时间 {{item.open_time}} - {{item.close_time}}</text>
       </view>
       <text class="store-status">营业中</text>
     </view>
