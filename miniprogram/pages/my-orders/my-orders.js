@@ -2,7 +2,7 @@ const { queryOrder, cancelOrder, pickupOrder } = require('../../utils/api/orders
 const { getStores } = require('../../utils/api/stores')
 const recentOrders = require('../../store/recent-orders')
 const { filterOrders } = require('../../utils/order-filter')
-const notifyStore = require('../../utils/notify-store')
+const { checkActiveOrders } = require('../../utils/order-watcher')
 
 Page({
   data: {
@@ -33,32 +33,7 @@ Page({
       if (entry === 'history') this.setData({ showFinder: true })
     }
     this.renderOrders()
-    this.refreshActive()
-    if (!this._refreshTimer) {
-      this._refreshTimer = setInterval(() => this.refreshActive(), 8000)
-    }
-  },
-
-  onHide() {
-    if (this._refreshTimer) {
-      clearInterval(this._refreshTimer)
-      this._refreshTimer = null
-    }
-  },
-
-  onUnload() {
-    if (this._refreshTimer) {
-      clearInterval(this._refreshTimer)
-      this._refreshTimer = null
-    }
-  },
-
-  refreshActive() {
-    recentOrders.list().forEach((o) => {
-      if (o.order_status === 'pending' || o.order_status === 'accepted' || o.order_status === 'served') {
-        this.silentRefresh(o)
-      }
-    })
+    checkActiveOrders()
   },
 
   loadStoreNames() {
@@ -96,13 +71,7 @@ Page({
 
   silentRefresh(order) {
     queryOrder(order.customer_phone, order.order_no)
-      .then((fresh) => {
-        if (order.order_status !== fresh.order_status) {
-          const text = notifyStore.textForStatus(fresh.order_status, fresh.order_no)
-          if (text) notifyStore.add(text)
-        }
-        this.applyOrder(fresh)
-      })
+      .then((fresh) => this.applyOrder(fresh))
       .catch(() => {})
   },
 
