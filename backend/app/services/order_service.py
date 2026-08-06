@@ -1,3 +1,4 @@
+import json
 import secrets
 from datetime import datetime, timedelta, timezone
 
@@ -5,7 +6,7 @@ from sqlalchemy import func, or_, select, update
 from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessError
-from app.models import MenuItem, Order, OrderItem, Store
+from app.models import AuditLog, MenuItem, Order, OrderItem, Store
 from app.schemas.order import CancelReason, OrderCreate, OrderEntryType, OrderStatus, PaymentStatus
 
 
@@ -170,6 +171,19 @@ def list_admin_orders(
     return list(db.scalars(query.order_by(Order.created_at.desc(), Order.id.desc())))
 
 
+def _write_audit(db: Session, order: Order, actor_type: str, actor_id: int | None, action: str, detail: dict | None = None) -> None:
+    db.add(
+        AuditLog(
+            order_id=order.id,
+            store_id=order.store_id,
+            actor_type=actor_type,
+            actor_id=actor_id,
+            action=action,
+            detail=json.dumps(detail, ensure_ascii=False) if detail else None,
+        )
+    )
+
+
 def count_admin_orders(
     db: Session,
     store_ids: list[int],
@@ -261,20 +275,22 @@ def get_store_order_stats(
     }
 
 
-def update_order_status(db: Session, order: Order, new_status: OrderStatus) -> Order:
+def update_order_status(db: Session, order: Order, new_status: OrderStatus, actor_id: int | None = None) -> Order:
     current = OrderStatus(order.order_status)
     if new_status not in ALLOWED_TRANSITIONS[current]:
         raise BusinessError(409, f"订单状态不允许从 {current.value} 变更为 {new_status.value}")
     order.order_status = new_status.value
+    _write_audit(db, order, "merchant", actor_id, new_status.value, {"prev_status": current.value})
     db.commit()
     db.refresh(order)
     return order
 
 
-def mark_order_paid(db: Session, order: Order) -> Order:
+def mark_order_paid(db: Session, order: Order, actor_id: int | None = None) -> Order:
     if order.order_status == OrderStatus.CANCELLED.value:
         raise BusinessError(409, "已取消的订单不能标记付款")
     order.payment_status = PaymentStatus.PAID.value
+    _write_audit(db, order, "merchant", actor_id, "paid", {"prev_status": order.payment_status})
     db.commit()
     db.refresh(order)
     return order
@@ -294,6 +310,15 @@ def cancel_order(db: Session, order: Order, reason: CancelReason, actor_id: int 
     order.order_status = OrderStatus.CANCELLED.value
     order.cancel_reason = reason.value
     order.cancel_by = actor_id
+    is_customer = reason == CancelReason.CUSTOMER_CANCEL
+    _write_audit(
+        db,
+        order,
+        "customer" if is_customer else "merchant",
+        None if is_customer else actor_id,
+        "customer_cancelled" if is_customer else "cancelled",
+        {"cancel_reason": reason.value, "prev_status": current.value},
+    )
     if reason != CancelReason.MERCHANT_CANCEL_MADE:
         _restock_items(db, order)
     db.commit()
@@ -310,6 +335,7 @@ def pickup_order(db: Session, order: Order) -> Order:
     if current != OrderStatus.SERVED:
         raise BusinessError(409, "出单后才能确认取单")
     order.order_status = OrderStatus.COMPLETED.value
+    _write_audit(db, order, "customer", None, "customer_pickup", {"prev_status": OrderStatus.SERVED.value})
     db.commit()
     db.refresh(order)
     return order

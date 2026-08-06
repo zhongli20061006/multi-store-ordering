@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
@@ -9,7 +10,7 @@ from starlette.responses import StreamingResponse
 from app.core.database import get_db
 from app.core.errors import BusinessError
 from app.core.response import ok
-from app.models import Order, Store
+from app.models import AuditLog, Order, Store
 from app.schemas.order import MerchantCancelRequest, OrderOut, OrderStatusUpdate, PaymentUpdate
 from app.services.order_service import (
     CN_TZ,
@@ -146,7 +147,7 @@ def admin_update_order_status(
     if order is None:
         raise BusinessError(404, "订单不存在")
     ensure_store_access(user, order.store_id)
-    return ok(OrderOut.model_validate(update_order_status(db, order, payload.order_status)).model_dump())
+    return ok(OrderOut.model_validate(update_order_status(db, order, payload.order_status, actor_id=user.id)).model_dump())
 
 
 @router.post("/{order_id}/cancel")
@@ -170,4 +171,28 @@ def admin_mark_paid(
     ensure_store_access(user, order.store_id)
     if payload.payment_status.value != "paid":
         raise BusinessError(400, "本阶段仅支持标记为已付款")
-    return ok(OrderOut.model_validate(mark_order_paid(db, order)).model_dump())
+    return ok(OrderOut.model_validate(mark_order_paid(db, order, actor_id=user.id)).model_dump())
+
+
+@router.get("/{order_id}/audit")
+def admin_order_audit(order_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    order = get_order(db, order_id)
+    if order is None:
+        raise BusinessError(404, "订单不存在")
+    ensure_store_access(user, order.store_id)
+    logs = db.scalars(
+        select(AuditLog).where(AuditLog.order_id == order_id).order_by(AuditLog.created_at, AuditLog.id)
+    ).all()
+    return ok(
+        [
+            {
+                "id": log.id,
+                "action": log.action,
+                "actor_type": log.actor_type,
+                "actor_id": log.actor_id,
+                "detail": json.loads(log.detail) if log.detail else None,
+                "created_at": log.created_at,
+            }
+            for log in logs
+        ]
+    )
