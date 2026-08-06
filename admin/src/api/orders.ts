@@ -33,6 +33,15 @@ export interface OrderListData {
   stats: { today: number; pending: number; completed: number; revenue_today: number }
 }
 
+export interface AuditLog {
+  id: number
+  action: string
+  actor_type: 'merchant' | 'customer'
+  actor_id: number | null
+  detail: Record<string, unknown> | null
+  created_at: string
+}
+
 export const ordersApi = {
   list: (params: {
     store_id?: number
@@ -52,6 +61,7 @@ export const ordersApi = {
   }) =>
     http.get('/admin/orders/export', { params, responseType: 'blob' }) as Promise<Blob>,
   detail: (id: number) => http.get(`/admin/orders/${id}`) as Promise<OrderDetail>,
+  audit: (id: number) => http.get(`/admin/orders/${id}/audit`) as Promise<AuditLog[]>,
   updateStatus: (id: number, order_status: string) => http.patch(`/admin/orders/${id}/status`, { order_status }),
   cancel: (id: number, cancel_reason: 'merchant_cancel_not_made' | 'merchant_cancel_made') =>
     http.post(`/admin/orders/${id}/cancel`, { cancel_reason }),

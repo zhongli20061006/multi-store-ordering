@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { ordersApi, type Order, type OrderDetail } from '@/api/orders'
+import { ordersApi, type AuditLog, type Order, type OrderDetail } from '@/api/orders'
 import { useAsync } from '@/composables/useAsync'
 import { useCurrentStore } from '@/stores/store'
 import PriceText from '@/components/PriceText.vue'
@@ -11,6 +11,7 @@ import { detectNewPending } from '@/utils/order-alert'
 import { playAlertSound } from '@/utils/sound'
 import { ensureNotifyPermission, notifyOrder } from '@/utils/desktop-notify'
 import { buildExportFilename, downloadBlob } from '@/utils/csv-download'
+import { auditActionText } from '@/utils/order-audit'
 
 const store = useCurrentStore()
 const orders = ref<Order[]>([])
@@ -71,6 +72,7 @@ const cancelReason = ref<'merchant_cancel_not_made' | 'merchant_cancel_made'>('m
 
 const detailDialog = ref(false)
 const detail = ref<OrderDetail | null>(null)
+const auditLogs = ref<AuditLog[]>([])
 const exporting = ref(false)
 
 async function exportCsv() {
@@ -133,6 +135,7 @@ async function markPaid(order: Order) {
 
 async function showDetail(order: Order) {
   detail.value = await ordersApi.detail(order.id)
+  auditLogs.value = await ordersApi.audit(order.id)
   detailDialog.value = true
 }
 
@@ -332,6 +335,18 @@ watch(() => store.id, () => {
           <el-table-column prop="quantity" label="数量" width="70" />
           <el-table-column label="小计" width="110">
             <template #default="{ row }">¥{{ centsToYuan(row.subtotal_cents) }}</template>
+          </el-table-column>
+        </el-table>
+        <h4 style="margin: 16px 0 8px">操作记录</h4>
+        <el-table :data="auditLogs" size="small">
+          <el-table-column label="动作" width="120">
+            <template #default="{ row }">{{ auditActionText(row.action) }}</template>
+          </el-table-column>
+          <el-table-column label="操作方" width="90">
+            <template #default="{ row }">{{ row.actor_type === 'merchant' ? '商家' : '顾客' }}</template>
+          </el-table-column>
+          <el-table-column label="时间">
+            <template #default="{ row }">{{ row.created_at.replace('T', ' ') }}</template>
           </el-table-column>
         </el-table>
       </template>
