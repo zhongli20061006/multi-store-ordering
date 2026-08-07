@@ -64,3 +64,39 @@ def test_clear_item_image_removes_url_and_file(client, seed, tmp_path, monkeypat
     assert resp.status_code == 200
     assert resp.json()["data"]["image_url"] is None
     assert not saved_path.exists()
+
+
+def _upload_store(client, headers, store_id, data, content_type):
+    return client.post(
+        f"/api/v1/admin/stores/{store_id}/image",
+        content=data,
+        headers={**headers, "Content-Type": content_type},
+    )
+
+
+def test_upload_store_image_sets_url_and_clears(client, seed, tmp_path, monkeypatch):
+    import app.core.uploads as uploads
+
+    monkeypatch.setattr(uploads, "UPLOAD_DIR", tmp_path)
+    headers = login(client, "admin1")
+    resp = _upload_store(client, headers, seed["store1_id"], JPEG_BYTES, "image/jpeg")
+    assert resp.status_code == 200
+    url = resp.json()["data"]["image_url"]
+    assert url.startswith("/uploads/")
+    saved = tmp_path / url.removeprefix("/uploads/")
+    assert saved.exists()
+    cleared = client.delete(f"/api/v1/admin/stores/{seed['store1_id']}/image", headers=headers)
+    assert cleared.status_code == 200
+    assert cleared.json()["data"]["image_url"] is None
+    assert not saved.exists()
+
+
+def test_upload_store_image_cross_store_blocked(client, seed):
+    headers = login(client, "admin2")
+    resp = _upload_store(client, headers, seed["store1_id"], JPEG_BYTES, "image/jpeg")
+    assert resp.status_code == 403
+
+
+def test_public_stores_include_image_url(client, seed):
+    resp = client.get("/api/v1/stores").json()["data"]
+    assert "image_url" in resp[0]

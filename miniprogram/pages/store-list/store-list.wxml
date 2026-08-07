@@ -41,7 +41,11 @@
         <text wx:if="{{item.open_time}}" class="store-hours">营业时间 {{item.open_time}} - {{item.close_time}}</text>
       </view>
       <view class="store-side">
-        <text class="store-status">营业中</text>
+        <view class="cover-wrap">
+          <image wx:if="{{item.image_url}}" class="cover" src="{{imgBase + item.image_url}}" mode="aspectFill" />
+          <view wx:else class="cover placeholder">店</view>
+          <text class="store-status">营业中</text>
+        </view>
         <button class="nav-btn" size="mini" hover-class="nav-btn-hover" catchtap="onNavigate" data-item="{{item}}">导航</button>
       </view>
     </view>

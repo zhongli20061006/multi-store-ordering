@@ -66,6 +66,20 @@ def set_store_status(db: Session, store: Store, status: StoreStatus) -> Store:
     return store
 
 
+def set_store_image(db: Session, store: Store, url: str) -> Store:
+    store.image_url = url
+    db.commit()
+    db.refresh(store)
+    return store
+
+
+def clear_store_image(db: Session, store: Store) -> Store:
+    store.image_url = None
+    db.commit()
+    db.refresh(store)
+    return store
+
+
 def delete_store(db: Session, store: Store) -> None:
     has_orders = db.scalar(select(Order.id).where(Order.store_id == store.id).limit(1))
     if has_orders is not None:

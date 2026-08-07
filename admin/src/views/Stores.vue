@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { storesApi, type Store } from '@/api/stores'
 import { useAsync } from '@/composables/useAsync'
+import { apiOrigin } from '@/api/http'
 import StatusBadge from '@/components/StatusBadge.vue'
 
 const list = ref<Store[]>([])
@@ -12,12 +13,14 @@ const { loading, run: load } = useAsync(async () => {
 
 const dialogVisible = ref(false)
 const editingId = ref<number | null>(null)
+const uploading = ref(false)
 const form = reactive({
   name: '',
   address: '',
   phone: '',
   latitude: null as number | null,
   longitude: null as number | null,
+  image_url: null as string | null,
   sort_order: 0,
   open_time: null as string | null,
   close_time: null as string | null,
@@ -30,6 +33,7 @@ function openCreate() {
   form.phone = ''
   form.latitude = null
   form.longitude = null
+  form.image_url = null
   form.sort_order = 0
   form.open_time = null
   form.close_time = null
@@ -43,6 +47,7 @@ function openEdit(store: Store) {
   form.phone = store.phone
   form.latitude = store.latitude ?? null
   form.longitude = store.longitude ?? null
+  form.image_url = store.image_url ?? null
   form.sort_order = store.sort_order
   form.open_time = store.open_time ?? null
   form.close_time = store.close_time ?? null
@@ -76,6 +81,23 @@ async function onDelete(store: Store) {
   load()
 }
 
+async function onUploadImage(options: { file: File }) {
+  if (editingId.value === null) return
+  uploading.value = true
+  try {
+    const updated = await storesApi.uploadImage(editingId.value, options.file)
+    form.image_url = updated.image_url ?? null
+  } finally {
+    uploading.value = false
+  }
+}
+
+async function onClearImage() {
+  if (editingId.value === null) return
+  const updated = await storesApi.clearImage(editingId.value)
+  form.image_url = updated.image_url ?? null
+}
+
 onMounted(load)
 </script>
 
@@ -90,6 +112,18 @@ onMounted(load)
         <el-table-column prop="name" label="名称" />
         <el-table-column prop="address" label="地址" />
         <el-table-column prop="phone" label="电话" />
+        <el-table-column label="封面" width="80">
+          <template #default="{ row }">
+            <el-image
+              v-if="row.image_url"
+              :src="apiOrigin + row.image_url"
+              :preview-src-list="[apiOrigin + row.image_url]"
+              style="width: 48px; height: 48px; border-radius: 6px"
+              fit="cover"
+            />
+            <span v-else style="color: var(--text-secondary)">—</span>
+          </template>
+        </el-table-column>
         <el-table-column label="经纬度" width="170">
           <template #default="{ row }">{{ row.latitude != null ? `${row.latitude}, ${row.longitude}` : '—' }}</template>
         </el-table-column>
@@ -123,6 +157,26 @@ onMounted(load)
         </el-form-item>
         <el-form-item label="电话">
           <el-input v-model="form.phone" />
+        </el-form-item>
+        <el-form-item label="封面图">
+          <div style="display: flex; align-items: center; gap: 8px">
+            <el-image
+              v-if="form.image_url"
+              :src="apiOrigin + form.image_url"
+              :preview-src-list="[apiOrigin + form.image_url]"
+              style="width: 64px; height: 64px; border-radius: 8px"
+              fit="cover"
+            />
+            <span v-else style="color: var(--text-secondary)">未上传</span>
+            <el-upload
+              :show-file-list="false"
+              :http-request="onUploadImage"
+              accept="image/jpeg,image/png,image/webp"
+            >
+              <el-button size="small" :disabled="editingId === null" :loading="uploading">上传</el-button>
+            </el-upload>
+            <el-button v-if="form.image_url" size="small" type="danger" plain @click="onClearImage">清除</el-button>
+          </div>
         </el-form-item>
         <el-form-item label="纬度">
           <el-input-number v-model="form.latitude" :min="-90" :max="90" :precision="6" :step="0.000001" :controls="false" style="width: 180px" placeholder="如 30.2741" />

@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
+from app.core import uploads
 from app.core.database import get_db
 from app.core.errors import BusinessError
 from app.core.response import ok
@@ -10,7 +11,9 @@ from app.services.store_service import (
     delete_store,
     get_store,
     list_admin_stores,
+    clear_store_image,
     set_store_status,
+    set_store_image,
     update_store,
 )
 from app.api.v1.deps import ensure_store_access, get_current_user
@@ -51,6 +54,35 @@ def set_store_status_endpoint(
     if store is None:
         raise BusinessError(404, "门店不存在")
     return ok(StoreOut.model_validate(set_store_status(db, store, payload.status)).model_dump())
+
+
+@router.post("/{store_id}/image")
+async def upload_store_image(
+    store_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    ensure_store_access(user, store_id)
+    store = get_store(db, store_id)
+    if store is None:
+        raise BusinessError(404, "门店不存在")
+    content_type = request.headers.get("content-type", "")
+    data = await request.body()
+    url = uploads.save_store_image(data, store_id, content_type)
+    return ok(StoreOut.model_validate(set_store_image(db, store, url)).model_dump())
+
+
+@router.delete("/{store_id}/image")
+def clear_store_image_endpoint(
+    store_id: int, db: Session = Depends(get_db), user=Depends(get_current_user)
+):
+    ensure_store_access(user, store_id)
+    store = get_store(db, store_id)
+    if store is None:
+        raise BusinessError(404, "门店不存在")
+    uploads.delete_image(store.image_url)
+    return ok(StoreOut.model_validate(clear_store_image(db, store)).model_dump())
 
 
 @router.delete("/{store_id}")

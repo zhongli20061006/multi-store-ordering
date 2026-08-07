@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Float, ForeignKey, Integer, String
+from sqlalchemy import Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, utcnow
@@ -15,6 +15,7 @@ class Store(Base):
     phone: Mapped[str] = mapped_column(String(20))
     latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
+    image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     status: Mapped[str] = mapped_column(String(16), default="open", index=True)
     open_time: Mapped[str | None] = mapped_column(String(5), nullable=True)
     close_time: Mapped[str | None] = mapped_column(String(5), nullable=True)

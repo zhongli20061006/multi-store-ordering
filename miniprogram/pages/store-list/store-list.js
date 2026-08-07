@@ -2,6 +2,7 @@ const { getStores } = require('../../utils/api/stores')
 const { filterStores } = require('../../utils/store-filter')
 const { buildLocationPayload } = require('../../utils/store-location')
 const notifyStore = require('../../utils/notify-store')
+const { API_ORIGIN } = require('../../config')
 
 Page({
   data: {
@@ -11,6 +12,7 @@ Page({
     allStores: [],
     keyword: '',
     unreadCount: 0,
+    imgBase: API_ORIGIN,
   },
 
   onLoad() {

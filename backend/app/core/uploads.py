@@ -40,6 +40,10 @@ def save_banner_image(data: bytes, store_id: int, content_type: str) -> str:
     return _validate_and_save(data, store_id, "banner", content_type)
 
 
+def save_store_image(data: bytes, store_id: int, content_type: str) -> str:
+    return _validate_and_save(data, store_id, "store", content_type)
+
+
 def delete_image(relative_path: str | None) -> None:
     if not relative_path or not relative_path.startswith("/uploads/"):
         return

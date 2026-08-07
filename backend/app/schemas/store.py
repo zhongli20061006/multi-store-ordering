@@ -39,6 +39,7 @@ class StoreOut(StoreBase):
 
     id: int
     status: StoreStatus
+    image_url: str | None = None
 
 
 class StoreStatusUpdate(BaseModel):
