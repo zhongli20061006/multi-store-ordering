@@ -3,8 +3,16 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
 </wxs>
 <view class="cart-bar">
   <view class="summary" bindtap="onToggle">
-    <text class="count">{{count}} 件</text>
-    <text class="total">合计 ¥{{fmt.yuan(totalCents)}}</text>
+    <view class="cart-icon">
+      <view class="cart-handle"></view>
+      <view class="cart-body"></view>
+      <view class="cart-wheel left"></view>
+      <view class="cart-wheel right"></view>
+    </view>
+    <view class="cart-label">
+      <text class="cart-text">购物车</text>
+      <text class="cart-meta tabular">{{count}} 件 · ¥{{fmt.yuan(totalCents)}}</text>
+    </view>
   </view>
   <button class="checkout" size="mini" hover-class="checkout-hover" disabled="{{count === 0}}" bindtap="onCheckout">去结算</button>
 </view>
