@@ -1,4 +1,6 @@
 """初始化本地数据库与演示数据（幂等）。运行：python seed.py"""
+import json
+
 from sqlalchemy import select
 
 from app.core.config import settings
@@ -59,11 +61,47 @@ def main() -> None:
 
         db.add_all(
             [
-                MenuItem(store_id=store1.id, category_id=cat1.id, name="招牌奶茶", price_cents=1200, sort_order=1),
-                MenuItem(store_id=store1.id, category_id=cat1.id, name="每日限量奶昔", price_cents=1800, stock=5, sort_order=2),
-                MenuItem(store_id=store1.id, category_id=cat2.id, name="满杯百香果", price_cents=1000, sort_order=1),
-                MenuItem(store_id=store2.id, category_id=cat3.id, name="招牌奶茶", price_cents=1300, sort_order=1),
-                MenuItem(store_id=store2.id, category_id=cat3.id, name="生椰拿铁", price_cents=1600, sort_order=2),
+                MenuItem(
+                    store_id=store1.id,
+                    category_id=cat1.id,
+                    name="招牌奶茶",
+                    price_cents=1200,
+                    sort_order=1,
+                    spec_groups=_drink_specs(),
+                ),
+                MenuItem(
+                    store_id=store1.id,
+                    category_id=cat1.id,
+                    name="每日限量奶昔",
+                    price_cents=1800,
+                    stock=5,
+                    sort_order=2,
+                    spec_groups=_drink_specs(),
+                ),
+                MenuItem(
+                    store_id=store1.id,
+                    category_id=cat2.id,
+                    name="满杯百香果",
+                    price_cents=1000,
+                    sort_order=1,
+                    spec_groups=_drink_specs(),
+                ),
+                MenuItem(
+                    store_id=store2.id,
+                    category_id=cat3.id,
+                    name="招牌奶茶",
+                    price_cents=1300,
+                    sort_order=1,
+                    spec_groups=_drink_specs(),
+                ),
+                MenuItem(
+                    store_id=store2.id,
+                    category_id=cat3.id,
+                    name="生椰拿铁",
+                    price_cents=1600,
+                    sort_order=2,
+                    spec_groups=_drink_specs(),
+                ),
             ]
         )
         db.commit()
@@ -73,6 +111,16 @@ def main() -> None:
         )
     finally:
         db.close()
+
+
+def _drink_specs() -> str:
+    return json.dumps(
+        [
+            {"name": "糖度", "options": ["正常", "少糖", "多糖", "无糖"]},
+            {"name": "冰量", "options": ["正常冰", "少冰", "多冰", "去冰"]},
+        ],
+        ensure_ascii=False,
+    )
 
 
 if __name__ == "__main__":

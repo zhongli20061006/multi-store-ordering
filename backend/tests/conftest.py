@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -60,7 +62,20 @@ def seed(db_session_factory):
     db.add_all([cat1, cat2])
     db.flush()
 
-    item1 = MenuItem(store_id=store1.id, category_id=cat1.id, name="招牌奶茶", price_cents=1200, sort_order=1)
+    item1 = MenuItem(
+        store_id=store1.id,
+        category_id=cat1.id,
+        name="招牌奶茶",
+        price_cents=1200,
+        sort_order=1,
+        spec_groups=json.dumps(
+            [
+                {"name": "糖度", "options": ["正常", "少糖", "多糖", "无糖"]},
+                {"name": "冰量", "options": ["正常冰", "少冰", "多冰", "去冰"]},
+            ],
+            ensure_ascii=False,
+        ),
+    )
     item2 = MenuItem(store_id=store1.id, category_id=cat1.id, name="限量奶昔", price_cents=1800, stock=1, sort_order=2)
     item3 = MenuItem(store_id=store2.id, category_id=cat2.id, name="招牌奶茶", price_cents=1300, sort_order=1)
     db.add_all([item1, item2, item3])

@@ -10,6 +10,31 @@ def test_public_menu_returns_groups_and_items(client, seed):
     assert {item["name"] for item in items} == {"招牌奶茶", "限量奶昔"}
 
 
+def test_public_item_detail_returns_item_with_spec_groups(client, seed):
+    resp = client.get(f"/api/v1/stores/{seed['store1_id']}/items/{seed['item1_id']}")
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data["id"] == seed["item1_id"]
+    assert data["name"] == "招牌奶茶"
+    assert data["spec_groups"] == [
+        {"name": "糖度", "options": ["正常", "少糖", "多糖", "无糖"]},
+        {"name": "冰量", "options": ["正常冰", "少冰", "多冰", "去冰"]},
+    ]
+
+
+def test_public_item_detail_not_found_or_inactive(client, seed):
+    assert client.get(f"/api/v1/stores/{seed['store1_id']}/items/99999").status_code == 404
+    headers = login(client, "admin1")
+    client.delete(f"/api/v1/admin/stores/{seed['store1_id']}/items/{seed['item2_id']}", headers=headers)
+    resp = client.get(f"/api/v1/stores/{seed['store1_id']}/items/{seed['item2_id']}")
+    assert resp.status_code == 404
+
+
+def test_public_item_detail_wrong_store(client, seed):
+    resp = client.get(f"/api/v1/stores/{seed['store2_id']}/items/{seed['item1_id']}")
+    assert resp.status_code == 404
+
+
 def test_create_item_with_other_store_category_rejected(client, seed):
     headers = login(client, "admin1")
     resp = client.post(

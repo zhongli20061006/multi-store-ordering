@@ -1,6 +1,7 @@
+import json
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class OrderEntryType(str, Enum):
@@ -38,6 +39,12 @@ class MerchantCancelRequest(BaseModel):
 class OrderItemInput(BaseModel):
     menu_item_id: int
     quantity: int = Field(ge=1, le=99)
+    specs: list["SpecSelection"] | None = None
+
+
+class SpecSelection(BaseModel):
+    name: str = Field(min_length=1, max_length=20)
+    option: str = Field(min_length=1, max_length=20)
 
 
 class OrderCreate(BaseModel):
@@ -58,8 +65,18 @@ class OrderItemOut(BaseModel):
     item_name: str
     category_name: str | None
     unit_price_cents: int
+    specs: dict | None = None
     quantity: int
     subtotal_cents: int
+
+    @field_validator("specs", mode="before")
+    @classmethod
+    def _parse_specs(cls, value):
+        if value is None:
+            return None
+        if isinstance(value, str):
+            return json.loads(value) if value else None
+        return value
 
 
 class OrderOut(BaseModel):

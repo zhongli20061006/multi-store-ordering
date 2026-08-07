@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Index, Integer, String
+from sqlalchemy import ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, utcnow
@@ -43,6 +43,7 @@ class OrderItem(Base):
     item_name: Mapped[str] = mapped_column(String(60))
     category_name: Mapped[str | None] = mapped_column(String(40), nullable=True)
     unit_price_cents: Mapped[int] = mapped_column(Integer)
+    specs: Mapped[str | None] = mapped_column(Text, nullable=True)
     quantity: Mapped[int] = mapped_column(Integer)
     subtotal_cents: Mapped[int] = mapped_column(Integer)
 

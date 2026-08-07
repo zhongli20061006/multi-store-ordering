@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, ForeignKey, Integer, String
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base, utcnow
@@ -30,6 +30,7 @@ class MenuItem(Base):
     name: Mapped[str] = mapped_column(String(60))
     description: Mapped[str | None] = mapped_column(String(200), nullable=True)
     price_cents: Mapped[int] = mapped_column(Integer)
+    spec_groups: Mapped[str | None] = mapped_column(Text, nullable=True)
     stock: Mapped[int | None] = mapped_column(Integer, nullable=True)
     image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, index=True)

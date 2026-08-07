@@ -24,7 +24,14 @@ def test_ensure_additive_columns_adds_coordinates(tmp_path):
         conn.exec_driver_sql(
             "CREATE TABLE order_items (id INTEGER PRIMARY KEY, order_id INTEGER, item_name VARCHAR(80))"
         )
+        conn.exec_driver_sql(
+            "CREATE TABLE menu_items (id INTEGER PRIMARY KEY, store_id INTEGER, name VARCHAR(60), price_cents INTEGER)"
+        )
     ensure_additive_columns(engine)
     store_cols = {c["name"] for c in inspect(engine).get_columns("stores")}
+    item_cols = {c["name"] for c in inspect(engine).get_columns("order_items")}
+    menu_cols = {c["name"] for c in inspect(engine).get_columns("menu_items")}
     assert {"latitude", "longitude"} <= store_cols
+    assert "specs" in item_cols
+    assert "spec_groups" in menu_cols
     engine.dispose()

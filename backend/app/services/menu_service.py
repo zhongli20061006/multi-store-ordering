@@ -1,3 +1,5 @@
+import json
+
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
@@ -90,7 +92,10 @@ def list_items(db: Session, store_id: int) -> list[MenuItem]:
 def create_item(db: Session, store_id: int, data: ItemCreate) -> MenuItem:
     _get_store(db, store_id)
     _ensure_category_in_store(db, store_id, data.category_id)
-    item = MenuItem(store_id=store_id, **data.model_dump())
+    payload = data.model_dump()
+    if payload.get("spec_groups") is not None:
+        payload["spec_groups"] = json.dumps(payload["spec_groups"], ensure_ascii=False)
+    item = MenuItem(store_id=store_id, **payload)
     db.add(item)
     db.commit()
     db.refresh(item)
@@ -100,6 +105,8 @@ def create_item(db: Session, store_id: int, data: ItemCreate) -> MenuItem:
 def update_item(db: Session, store_id: int, item: MenuItem, data: ItemUpdate) -> MenuItem:
     _ensure_category_in_store(db, store_id, data.category_id)
     for field, value in data.model_dump(exclude_unset=True).items():
+        if field == "spec_groups" and value is not None:
+            value = json.dumps(value, ensure_ascii=False)
         setattr(item, field, value)
     db.commit()
     db.refresh(item)

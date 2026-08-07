@@ -123,12 +123,14 @@ def create_order(db: Session, payload: OrderCreate) -> tuple[Order, bool]:
         subtotal = item.price_cents * line.quantity
         total_cents += subtotal
         item_count += line.quantity
+        specs_dict = _validate_specs(item, line)
         order_items.append(
             OrderItem(
                 menu_item_id=item.id,
                 item_name=item.name,
                 category_name=item.category.name if item.category else None,
                 unit_price_cents=item.price_cents,
+                specs=json.dumps(specs_dict, ensure_ascii=False) if specs_dict else None,
                 quantity=line.quantity,
                 subtotal_cents=subtotal,
             )
@@ -153,6 +155,26 @@ def create_order(db: Session, payload: OrderCreate) -> tuple[Order, bool]:
     db.commit()
     db.refresh(order)
     return order, True
+
+
+def _validate_specs(item: MenuItem, line) -> dict | None:
+    """规格校验：所选名称/选项必须属于商品 spec_groups；未配置规格的商品不得传 specs。"""
+    if not line.specs:
+        return None
+    if not item.spec_groups:
+        raise BusinessError(400, f"商品「{item.name}」未配置规格，不能选择规格")
+    groups = {}
+    for group in json.loads(item.spec_groups):
+        groups[group["name"]] = group["options"]
+    specs = {}
+    for selection in line.specs:
+        options = groups.get(selection.name)
+        if options is None:
+            raise BusinessError(400, f"商品「{item.name}」不存在规格「{selection.name}」")
+        if selection.option not in options:
+            raise BusinessError(400, f"商品「{item.name}」规格「{selection.name}」选项「{selection.option}」不合法")
+        specs[selection.name] = selection.option
+    return specs
 
 
 def get_order(db: Session, order_id: int) -> Order | None:

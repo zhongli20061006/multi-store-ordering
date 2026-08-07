@@ -46,6 +46,63 @@ def test_duplicate_item_in_one_order_rejected(client, seed):
     assert resp.status_code == 400
 
 
+def test_order_with_valid_specs_snapshot(client, seed):
+    payload = _order_payload(
+        seed,
+        idempotency_key="specs-ok-001",
+        items=[
+            {
+                "menu_item_id": seed["item1_id"],
+                "quantity": 2,
+                "specs": [{"name": "糖度", "option": "少糖"}, {"name": "冰量", "option": "少冰"}],
+            }
+        ],
+    )
+    resp = client.post("/api/v1/orders", json=payload)
+    assert resp.status_code == 201
+    item = resp.json()["data"]["items"][0]
+    assert item["specs"] == {"糖度": "少糖", "冰量": "少冰"}
+
+
+def test_order_rejects_spec_not_in_groups(client, seed):
+    payload = _order_payload(
+        seed,
+        idempotency_key="specs-bad-001",
+        items=[{"menu_item_id": seed["item1_id"], "quantity": 1, "specs": [{"name": "温度", "option": "热"}]}],
+    )
+    resp = client.post("/api/v1/orders", json=payload)
+    assert resp.status_code == 400
+    assert "规格" in resp.json()["message"]
+
+
+def test_order_rejects_invalid_spec_option(client, seed):
+    payload = _order_payload(
+        seed,
+        idempotency_key="specs-bad-002",
+        items=[{"menu_item_id": seed["item1_id"], "quantity": 1, "specs": [{"name": "糖度", "option": "全糖"}]}],
+    )
+    resp = client.post("/api/v1/orders", json=payload)
+    assert resp.status_code == 400
+
+
+def test_order_rejects_specs_on_item_without_groups(client, seed):
+    payload = {
+        "store_id": seed["store2_id"],
+        "customer_name": "测试顾客",
+        "customer_phone": "13900000002",
+        "idempotency_key": "specs-bad-003",
+        "items": [{"menu_item_id": seed["item3_id"], "quantity": 1, "specs": [{"name": "糖度", "option": "少糖"}]}],
+    }
+    resp = client.post("/api/v1/orders", json=payload)
+    assert resp.status_code == 400
+
+
+def test_order_without_specs_still_ok(client, seed):
+    resp = client.post("/api/v1/orders", json=_order_payload(seed, idempotency_key="specs-none-001"))
+    assert resp.status_code == 201
+    assert resp.json()["data"]["items"][0]["specs"] is None
+
+
 def test_unknown_item_rejected(client, seed):
     payload = _order_payload(seed, idempotency_key="unknown-key-001", items=[{"menu_item_id": 99999, "quantity": 1}])
     resp = client.post("/api/v1/orders", json=payload)
