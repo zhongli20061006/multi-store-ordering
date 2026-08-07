@@ -8,6 +8,9 @@ Component({
     imgBase: API_ORIGIN,
   },
   methods: {
+    onDetail() {
+      this.triggerEvent('detail', { item: this.data.item })
+    },
     onAdd() {
       this.triggerEvent('add', this.data.item)
     },

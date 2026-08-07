@@ -8,6 +8,9 @@
   padding: var(--space-3);
   margin-bottom: var(--space-3);
 }
+.card-hover {
+  background: #fef9f5;
+}
 .thumb {
   width: 120rpx;
   height: 120rpx;

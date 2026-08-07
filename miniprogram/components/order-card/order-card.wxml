@@ -1,3 +1,6 @@
+<wxs module="fmt">
+module.exports = { specs: function (s) { if (!s) return ''; return Object.keys(s).map(function (k) { return s[k] }).join(' · ') } }
+</wxs>
 <view class="order-card" wx:if="{{order}}" bindtap="onDetail" hover-class="card-hover">
   <view class="head">
     <text class="no">{{order.order_no}}</text>
@@ -9,7 +12,10 @@
   </view>
   <view class="items">
     <view class="item" wx:for="{{order.items}}" wx:key="id">
-      <text class="item-name">{{item.item_name}} × {{item.quantity}}</text>
+      <view class="item-main">
+        <text class="item-name">{{item.item_name}} × {{item.quantity}}</text>
+        <text wx:if="{{item.specs}}" class="item-specs">{{fmt.specs(item.specs)}}</text>
+      </view>
       <price cents="{{item.subtotal_cents}}" />
     </view>
   </view>

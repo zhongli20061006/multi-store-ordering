@@ -42,6 +42,15 @@
 .item-name {
   color: var(--text-main);
 }
+.item-main {
+  display: flex;
+  flex-direction: column;
+}
+.item-specs {
+  margin-top: 2rpx;
+  font-size: 22rpx;
+  color: var(--text-secondary);
+}
 .foot {
   display: flex;
   align-items: center;

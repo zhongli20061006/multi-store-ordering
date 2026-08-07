@@ -3,6 +3,7 @@
     "pages/store-list/store-list",
     "pages/menu/menu",
     "pages/checkout/checkout",
+    "pages/item-detail/item-detail",
     "pages/order-success/order-success",
     "pages/order-detail/order-detail",
     "pages/profile/profile",

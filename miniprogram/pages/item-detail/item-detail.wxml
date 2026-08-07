@@ -1,0 +1,62 @@
+<wxs module="fmt">
+module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
+</wxs>
+<view class="page">
+  <block wx:if="{{item}}">
+    <view class="hero">
+      <image wx:if="{{item.image_url}}" class="hero-img" src="{{imgBase + item.image_url}}" mode="aspectFill" />
+      <view wx:else class="hero-img placeholder">暂无图片</view>
+    </view>
+
+    <view class="panel">
+      <text class="name">{{item.name}}</text>
+      <text wx:if="{{item.description}}" class="desc">{{item.description}}</text>
+      <text class="price">¥{{fmt.yuan(item.price_cents)}}</text>
+    </view>
+
+    <view class="panel" wx:if="{{groups.length}}">
+      <view class="group" wx:for="{{groups}}" wx:for-item="group" wx:for-index="groupIndex" wx:key="name">
+        <text class="group-name">{{group.name}}</text>
+        <view class="options">
+          <text
+            wx:for="{{group.options}}"
+            wx:for-item="option"
+            wx:key="*this"
+            class="option {{selections[groupIndex] && selections[groupIndex].option === option ? 'active' : ''}}"
+            data-name="{{group.name}}"
+            data-option="{{option}}"
+            bindtap="onSelectSpec"
+          >{{option}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="panel">
+      <view class="row">
+        <text class="label">数量</text>
+        <view class="stepper">
+          <button class="step" size="mini" hover-class="step-hover" bindtap="onMinus">−</button>
+          <text class="num tabular">{{quantity}}</text>
+          <button class="step" size="mini" hover-class="step-hover" bindtap="onPlus">＋</button>
+        </view>
+      </view>
+      <view class="row">
+        <text class="label">备注</text>
+        <input class="remark" placeholder="口味/备注（选填）" data-field="remark" value="{{remark}}" bindinput="onInput" />
+      </view>
+      <view class="row">
+        <text class="label">联系人</text>
+        <input class="remark" placeholder="姓名" data-field="customerName" value="{{customerName}}" bindinput="onInput" />
+      </view>
+      <view class="row">
+        <text class="label">手机号</text>
+        <input class="remark" type="number" maxlength="11" placeholder="用于查单与联系" data-field="customerPhone" value="{{customerPhone}}" bindinput="onInput" />
+      </view>
+    </view>
+
+    <button class="submit" hover-class="submit-hover" loading="{{submitting}}" disabled="{{submitting}}" bindtap="onSubmit">
+      立即下单
+    </button>
+  </block>
+  <empty-state wx:else title="商品不存在" desc="该商品可能已下架" />
+</view>

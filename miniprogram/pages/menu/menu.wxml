@@ -75,6 +75,7 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
         wx:key="id"
         item="{{item}}"
         bind:add="onAddItem"
+        bind:detail="onItemDetail"
       />
     </scroll-view>
   </view>

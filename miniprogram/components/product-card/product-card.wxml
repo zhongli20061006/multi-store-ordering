@@ -1,7 +1,7 @@
 <wxs module="fmt">
 module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
 </wxs>
-<view class="product-card">
+<view class="product-card" hover-class="card-hover" bindtap="onDetail">
   <image wx:if="{{item.image_url}}" class="thumb" src="{{imgBase + item.image_url}}" mode="aspectFill" />
   <view wx:else class="thumb placeholder">无图</view>
   <view class="info">

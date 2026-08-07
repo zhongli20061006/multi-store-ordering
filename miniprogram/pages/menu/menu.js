@@ -142,6 +142,14 @@ Page({
 
   noop() {},
 
+  onItemDetail(e) {
+    const { item } = e.detail
+    if (!item) return
+    wx.navigateTo({
+      url: `/pages/item-detail/item-detail?store_id=${this.data.storeId}&item_id=${item.id}&entry_type=${this.data.entryType}&store_name=${encodeURIComponent(this.data.storeName)}`,
+    })
+  },
+
   onNavigate() {
     const payload = buildLocationPayload({
       latitude: this.data.latitude,
