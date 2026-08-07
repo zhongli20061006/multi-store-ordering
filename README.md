@@ -22,6 +22,7 @@
 - 「我的」个人主页（本地资料、订单状态筛选、全局订单监控通知）、菜单页轮播图
 - 下单联系人预填（个人资料优先、最近一单兜底）
 - 结算页可直接改数量/删除商品，库存不足自动调整
+- 商品详情页（规格选择/数量/备注）直接下单，成功返回菜单浮窗通知
 - 历史记录（按类别筛选/订单号搜索/单条删除）、首页通知入口（未读角标）
 
 ### 商家端（网页后台 `admin/`）
@@ -122,9 +123,9 @@ npm run dev
 ## 测试
 
 ```powershell
-cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 108 passed
+cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 116 passed
 cd admin && npm run test && npm run build                 # vitest 14 passed + 构建通过
-cd miniprogram && npm test                                # 68 passed
+cd miniprogram && npm test                                # 72 passed
 ```
 
 ## 已知限制与未验证项
