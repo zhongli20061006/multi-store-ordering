@@ -36,6 +36,7 @@
 - 订单导出 CSV（按当前筛选；手机号脱敏）
 - 订单日期范围筛选 + 分页；统计卡独立全量口径；订单详情含操作记录（审计）
 - 门店营业时间支持跨天（22:00-02:00）
+- 操作审计页面（按门店/日期查看操作记录，分页 + CSV 导出）
 
 ### 后端（FastAPI `backend/`）
 
@@ -121,8 +122,8 @@ npm run dev
 ## 测试
 
 ```powershell
-cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 104 passed
-cd admin && npm run test && npm run build                 # vitest 13 passed + 构建通过
+cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 108 passed
+cd admin && npm run test && npm run build                 # vitest 14 passed + 构建通过
 cd miniprogram && npm test                                # 68 passed
 ```
 
