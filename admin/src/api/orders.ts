@@ -17,6 +17,7 @@ export interface Order {
 export interface OrderItem {
   id: number
   item_name: string
+  specs?: Record<string, string> | null
   unit_price_cents: number
   quantity: number
   subtotal_cents: number

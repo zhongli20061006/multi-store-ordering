@@ -6,7 +6,7 @@ import { useAsync } from '@/composables/useAsync'
 import { useCurrentStore } from '@/stores/store'
 import PriceText from '@/components/PriceText.vue'
 import StatusBadge from '@/components/StatusBadge.vue'
-import { centsToYuan } from '@/utils/format'
+import { centsToYuan, formatSpecs } from '@/utils/format'
 import { detectNewPending } from '@/utils/order-alert'
 import { playAlertSound } from '@/utils/sound'
 import { ensureNotifyPermission, notifyOrder } from '@/utils/desktop-notify'
@@ -149,7 +149,7 @@ function printReceipt(order: OrderDetail) {
   const lines = order.items
     .map(
       (i) =>
-        `<tr><td>${i.item_name} ×${i.quantity}</td><td style="text-align:right">¥${centsToYuan(i.subtotal_cents)}</td></tr>`,
+        `<tr><td>${i.item_name}${i.specs ? `<div style="font-size:10px;color:#666">${formatSpecs(i.specs)}</div>` : ''} ×${i.quantity}</td><td style="text-align:right">¥${centsToYuan(i.subtotal_cents)}</td></tr>`,
     )
     .join('')
   win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>订单小票</title><style>
@@ -321,6 +321,9 @@ watch(() => store.id, () => {
         </el-descriptions>
         <el-table :data="detail.items" style="margin-top: 12px">
           <el-table-column prop="item_name" label="商品" />
+          <el-table-column label="规格" width="140">
+            <template #default="{ row }">{{ formatSpecs(row.specs) || '—' }}</template>
+          </el-table-column>
           <el-table-column label="单价" width="100">
             <template #default="{ row }">¥{{ centsToYuan(row.unit_price_cents) }}</template>
           </el-table-column>
