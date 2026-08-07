@@ -1,16 +1,17 @@
 .cart-bar {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  /* 左侧避开菜单页分类栏（180rpx），右侧留边距：不进入侧边栏、不贴边 */
+  left: 196rpx;
+  right: 24rpx;
+  bottom: var(--space-3);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #26221e;
-  color: #fff;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  box-shadow: 0 -6rpx 24rpx rgba(38, 34, 30, 0.1);
+  background: var(--surface);
+  color: var(--text-main);
+  border-radius: 999rpx;
+  padding: 12rpx 12rpx 12rpx 24rpx;
+  box-shadow: 0 8rpx 28rpx rgba(38, 34, 30, 0.12);
 }
 .summary {
   display: flex;
@@ -28,7 +29,7 @@
   left: 12rpx;
   width: 22rpx;
   height: 14rpx;
-  border: 3rpx solid #fff;
+  border: 3rpx solid var(--brand-primary);
   border-bottom: none;
   border-top-left-radius: 12rpx;
   border-top-right-radius: 12rpx;
@@ -40,7 +41,7 @@
   left: 4rpx;
   width: 40rpx;
   height: 24rpx;
-  border: 3rpx solid #fff;
+  border: 3rpx solid var(--brand-primary);
   border-top: none;
   border-bottom-left-radius: 6rpx;
   border-bottom-right-radius: 6rpx;
@@ -51,10 +52,10 @@
   bottom: 0;
   width: 10rpx;
   height: 10rpx;
-  border: 3rpx solid #fff;
+  border: 3rpx solid var(--brand-primary);
   border-radius: 50%;
   box-sizing: border-box;
-  background: #26221e;
+  background: var(--surface);
 }
 .cart-wheel.left {
   left: 10rpx;
@@ -69,11 +70,12 @@
 .cart-text {
   font-size: 28rpx;
   font-weight: 600;
+  color: var(--brand-primary);
 }
 .cart-meta {
   margin-top: 2rpx;
   font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--text-secondary);
 }
 .tabular {
   font-variant-numeric: tabular-nums;
@@ -81,15 +83,18 @@
 }
 .checkout {
   min-width: 160rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  padding: 0 32rpx;
+  border-radius: 999rpx;
   background: var(--brand-primary);
   color: #fff;
-  border-radius: var(--radius-sm);
   font-size: 28rpx;
 }
 .checkout-hover {
   background: var(--brand-strong);
 }
 .checkout[disabled] {
-  background: #57504a;
-  color: rgba(255, 255, 255, 0.55);
+  background: var(--surface-muted);
+  color: var(--text-disabled);
 }
