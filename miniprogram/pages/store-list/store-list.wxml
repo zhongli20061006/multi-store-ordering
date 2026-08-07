@@ -2,7 +2,10 @@
   <view class="top-bar">
     <text class="top-title">多门店点单</text>
     <view class="bell" bindtap="goNotify">
-      <text class="bell-icon">🔔</text>
+      <view class="bell-icon">
+        <view class="bell-body"></view>
+        <view class="bell-clapper"></view>
+      </view>
       <view wx:if="{{unreadCount > 0}}" class="badge">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
     </view>
   </view>
@@ -39,7 +42,7 @@
       </view>
       <view class="store-side">
         <text class="store-status">营业中</text>
-        <button class="nav-btn" size="mini" catchtap="onNavigate" data-item="{{item}}">导航</button>
+        <button class="nav-btn" size="mini" hover-class="nav-btn-hover" catchtap="onNavigate" data-item="{{item}}">导航</button>
       </view>
     </view>
   </view>

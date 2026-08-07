@@ -6,5 +6,5 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
     <text class="count">{{count}} 件</text>
     <text class="total">合计 ¥{{fmt.yuan(totalCents)}}</text>
   </view>
-  <button class="checkout" size="mini" disabled="{{count === 0}}" bindtap="onCheckout">去结算</button>
+  <button class="checkout" size="mini" hover-class="checkout-hover" disabled="{{count === 0}}" bindtap="onCheckout">去结算</button>
 </view>

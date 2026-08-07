@@ -6,10 +6,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #303133;
+  background: #26221e;
   color: #fff;
-  padding: 20rpx 32rpx;
-  border-radius: 24rpx 24rpx 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: 0 -6rpx 24rpx rgba(38, 34, 30, 0.1);
 }
 .summary {
   display: flex;
@@ -17,18 +18,24 @@
 }
 .count {
   font-size: 26rpx;
-  margin-right: 20rpx;
+  color: rgba(255, 255, 255, 0.85);
+  margin-right: var(--space-2);
 }
 .total {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
 }
 .checkout {
   background: var(--brand-primary);
   color: #fff;
   border-radius: var(--radius-sm);
 }
+.checkout-hover {
+  background: var(--brand-strong);
+}
 .checkout[disabled] {
-  background: #c0c4cc;
-  color: #fff;
+  background: #57504a;
+  color: rgba(255, 255, 255, 0.55);
 }

@@ -1,15 +1,16 @@
 .page {
-  padding: 16rpx 24rpx;
+  padding: var(--space-3) var(--space-4) var(--space-5);
 }
 .top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 16rpx;
+  padding-bottom: var(--space-2);
 }
 .top-title {
-  font-size: 36rpx;
-  font-weight: 700;
+  font-size: 40rpx;
+  font-weight: 600;
+  letter-spacing: -1rpx;
   color: var(--text-main);
 }
 .bell {
@@ -17,7 +18,34 @@
   padding: 8rpx;
 }
 .bell-icon {
-  font-size: 40rpx;
+  position: relative;
+  width: 40rpx;
+  height: 40rpx;
+}
+.bell-body {
+  position: absolute;
+  top: 4rpx;
+  left: 8rpx;
+  width: 24rpx;
+  height: 22rpx;
+  border: 3rpx solid var(--text-main);
+  border-top-left-radius: 14rpx;
+  border-top-right-radius: 14rpx;
+  border-bottom-left-radius: 5rpx;
+  border-bottom-right-radius: 5rpx;
+  box-sizing: border-box;
+}
+.bell-clapper {
+  position: absolute;
+  left: 14rpx;
+  bottom: 2rpx;
+  width: 12rpx;
+  height: 8rpx;
+  border-left: 3rpx solid var(--text-main);
+  border-right: 3rpx solid var(--text-main);
+  border-bottom: 3rpx solid var(--text-main);
+  border-radius: 0 0 8rpx 8rpx;
+  box-sizing: border-box;
 }
 .badge {
   position: absolute;
@@ -27,20 +55,20 @@
   height: 30rpx;
   padding: 0 6rpx;
   border-radius: 15rpx;
-  background: #f56c6c;
+  background: var(--danger);
   color: #fff;
   font-size: 20rpx;
   line-height: 30rpx;
   text-align: center;
 }
 .search-box {
-  padding-bottom: 16rpx;
+  padding-bottom: var(--space-3);
 }
 .search-input {
   background: var(--surface);
   border: 1rpx solid var(--border-color);
   border-radius: var(--radius-sm);
-  padding: 14rpx 20rpx;
+  padding: 16rpx 24rpx;
   font-size: 26rpx;
 }
 .loading {
@@ -53,32 +81,32 @@
   align-items: center;
   justify-content: space-between;
   background: var(--surface);
-  border: 1rpx solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 28rpx;
-  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-card);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 .store-main {
   display: flex;
   flex-direction: column;
 }
 .store-name {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 600;
   color: var(--text-main);
 }
 .store-address {
-  margin-top: 8rpx;
+  margin-top: 10rpx;
   font-size: 26rpx;
   color: var(--text-secondary);
 }
 .store-phone {
-  margin-top: 4rpx;
+  margin-top: 6rpx;
   font-size: 24rpx;
   color: var(--text-secondary);
 }
 .store-hours {
-  margin-top: 8rpx;
+  margin-top: 10rpx;
   font-size: 24rpx;
   color: var(--text-disabled);
 }
@@ -89,7 +117,7 @@
 }
 .store-status {
   font-size: 24rpx;
-  color: #67c23a;
+  color: var(--success);
 }
 .nav-btn {
   margin-top: 12rpx;
@@ -99,4 +127,7 @@
   border-radius: var(--radius-sm);
   font-size: 24rpx;
   line-height: 1.6;
+}
+.nav-btn-hover {
+  background: var(--brand-soft);
 }

@@ -12,7 +12,7 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
     </view>
     <view class="header-side">
       <text wx:if="{{hours}}" class="store-hours">{{hours}}</text>
-      <button wx:if="{{phone}}" class="nav-btn" size="mini" catchtap="onNavigate">导航</button>
+      <button wx:if="{{phone}}" class="nav-btn" size="mini" hover-class="nav-btn-hover" catchtap="onNavigate">导航</button>
     </view>
   </view>
 
@@ -88,7 +88,7 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
         </view>
         <quantity-stepper item="{{item}}" bind:change="onChangeQuantity" />
       </view>
-      <button class="checkout-btn" bindtap="goCheckout">去结算（¥{{fmt.yuan(cartTotalCents)}}）</button>
+      <button class="checkout-btn" hover-class="checkout-btn-hover" bindtap="goCheckout">去结算（¥{{fmt.yuan(cartTotalCents)}}）</button>
     </view>
   </view>
 

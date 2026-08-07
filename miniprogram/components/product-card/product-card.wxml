@@ -14,6 +14,6 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
       </text>
     </view>
   </view>
-  <button wx:if="{{item.stock !== 0}}" class="add" size="mini" catchtap="onAdd">＋</button>
+  <button wx:if="{{item.stock !== 0}}" class="add" size="mini" hover-class="add-hover" catchtap="onAdd">＋</button>
   <button wx:else class="add disabled" size="mini" disabled>售罄</button>
 </view>
