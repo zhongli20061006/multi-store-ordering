@@ -283,6 +283,59 @@ def get_store_order_stats(
     }
 
 
+def list_audit_logs(
+    db: Session,
+    store_ids: list[int],
+    store_id: int | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    page: int | None = None,
+    page_size: int | None = None,
+) -> list[tuple[AuditLog, str, str]]:
+    """门店级审计列表（归属由调用方校验）；返回 (audit_log, order_no, store_name)。"""
+    query = _apply_audit_filters(
+        select(AuditLog, Order.order_no, Store.name)
+        .join(Order, AuditLog.order_id == Order.id)
+        .join(Store, AuditLog.store_id == Store.id),
+        store_ids,
+        store_id,
+        date_from,
+        date_to,
+    )
+    if page is not None and page_size is not None:
+        query = query.offset((page - 1) * page_size).limit(page_size)
+    return list(db.execute(query.order_by(AuditLog.created_at.desc(), AuditLog.id.desc())).all())
+
+
+def count_audit_logs(
+    db: Session,
+    store_ids: list[int],
+    store_id: int | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+) -> int:
+    query = _apply_audit_filters(
+        select(func.count(AuditLog.id)).select_from(AuditLog),
+        store_ids,
+        store_id,
+        date_from,
+        date_to,
+    )
+    return db.scalar(query) or 0
+
+
+def _apply_audit_filters(query, store_ids: list[int], store_id: int | None, date_from: str | None, date_to: str | None):
+    query = query.where(AuditLog.store_id.in_(store_ids))
+    if store_id is not None:
+        query = query.where(AuditLog.store_id == store_id)
+    start_utc, end_utc = _date_range_utc(date_from, date_to)
+    if start_utc is not None:
+        query = query.where(AuditLog.created_at >= start_utc)
+    if end_utc is not None:
+        query = query.where(AuditLog.created_at < end_utc)
+    return query
+
+
 def update_order_status(db: Session, order: Order, new_status: OrderStatus, actor_id: int | None = None) -> Order:
     current = OrderStatus(order.order_status)
     if new_status not in ALLOWED_TRANSITIONS[current]:

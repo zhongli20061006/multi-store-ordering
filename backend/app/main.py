@@ -5,7 +5,17 @@ from fastapi.staticfiles import StaticFiles
 from app.core import uploads
 from app.core.config import settings
 from app.core.response import ok, register_exception_handlers
-from app.api.v1 import admin_banners, admin_dashboard, admin_menus, admin_orders, admin_stores, auth, orders, stores
+from app.api.v1 import (
+    admin_audit,
+    admin_banners,
+    admin_dashboard,
+    admin_menus,
+    admin_orders,
+    admin_stores,
+    auth,
+    orders,
+    stores,
+)
 
 
 app = FastAPI(title=settings.app_name, version="0.1.0")
@@ -39,4 +49,5 @@ api.include_router(admin_dashboard.router)
 api.include_router(admin_banners.router)
 api.include_router(admin_menus.router)
 api.include_router(admin_orders.router)
+api.include_router(admin_audit.router)
 app.include_router(api)

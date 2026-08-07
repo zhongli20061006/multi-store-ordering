@@ -7,13 +7,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from starlette.responses import StreamingResponse
 
+from app.core.csv_utils import csv_safe, format_local
 from app.core.database import get_db
 from app.core.errors import BusinessError
 from app.core.response import ok
 from app.models import AuditLog, Order, Store
 from app.schemas.order import MerchantCancelRequest, OrderOut, OrderStatusUpdate, PaymentUpdate
 from app.services.order_service import (
-    CN_TZ,
     cancel_order,
     count_admin_orders,
     get_order,
@@ -42,22 +42,6 @@ STATUS_TEXT = {
 }
 PAYMENT_TEXT = {"unpaid": "未付款", "paid": "已付款"}
 ENTRY_TEXT = {"preorder": "提前点单", "dinein": "到店点单"}
-
-
-def _csv_safe(value) -> str:
-    """CSV 公式注入防护：以 = + - @ 或 Tab/CR 开头的单元格前置单引号。"""
-    if value is None:
-        return ""
-    text = str(value)
-    if text[:1] in ("=", "+", "-", "@", "\t", "\r"):
-        return "'" + text
-    return text
-
-
-def _format_local(dt) -> str:
-    """落库时间为无时区 UTC，转 UTC+8 后格式化。"""
-    offset = CN_TZ.utcoffset(None)
-    return (dt + offset).strftime("%Y-%m-%d %H:%M:%S")
 
 
 @router.get("")
@@ -110,16 +94,16 @@ def export_admin_orders(
         writer.writerow(
             [
                 order.order_no,
-                _format_local(order.created_at),
+                format_local(order.created_at),
                 store_names.get(order.store_id, ""),
                 ENTRY_TEXT.get(order.entry_type, order.entry_type),
-                _csv_safe(order.customer_name),
+                csv_safe(order.customer_name),
                 mask_phone(order.customer_phone),
                 order.item_count,
                 f"{order.total_cents / 100:.2f}",
                 STATUS_TEXT.get(order.order_status, order.order_status),
                 PAYMENT_TEXT.get(order.payment_status, order.payment_status),
-                _csv_safe(order.remark),
+                csv_safe(order.remark),
             ]
         )
     content = "\ufeff" + buffer.getvalue()
