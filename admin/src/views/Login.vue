@@ -26,8 +26,9 @@ async function onSubmit() {
 
 <template>
   <div class="login-page">
-    <el-card class="login-card">
-      <h2 style="margin-top: 0">商家后台</h2>
+    <div class="login-card">
+      <h2 class="login-title">商家后台</h2>
+      <p class="login-sub">多门店点单 · 门店运营台</p>
       <el-form :model="form" @submit.prevent>
         <el-form-item label="账号">
           <el-input v-model="form.username" placeholder="admin1" />
@@ -35,9 +36,9 @@ async function onSubmit() {
         <el-form-item label="密码">
           <el-input v-model="form.password" type="password" show-password placeholder="admin123456" />
         </el-form-item>
-        <el-button type="primary" :loading="loading" style="width: 100%" @click="onSubmit">登录</el-button>
+        <el-button type="primary" :loading="loading" class="login-btn" @click="onSubmit">登录</el-button>
       </el-form>
-    </el-card>
+    </div>
   </div>
 </template>
 
@@ -47,14 +48,36 @@ async function onSubmit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--brand-gradient);
+  background: var(--bg-page);
+  position: relative;
+}
+.login-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(240, 100, 58, 0.12), transparent 60%);
+  pointer-events: none;
 }
 .login-card {
-  width: 360px;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  position: relative;
+  width: 380px;
+  padding: var(--space-5);
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 }
-.login-card h2 {
+.login-title {
+  margin: 0;
   color: var(--brand-primary);
+  font-size: 20px;
+  font-weight: 600;
+}
+.login-sub {
+  margin: 4px 0 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+.login-btn {
+  width: 100%;
 }
 </style>

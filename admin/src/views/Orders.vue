@@ -189,36 +189,28 @@ watch(() => store.id, () => {
 
 <template>
   <div v-loading="loading">
-    <el-row :gutter="16" style="margin-bottom: 16px">
-      <el-col :span="6">
-        <el-card>
-          <div class="stat-num" style="color: var(--brand-primary)">{{ stats.today }}</div>
-          <div class="stat-label">今日订单</div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card>
-          <div class="stat-num" style="color: #e6a23c">{{ stats.pending }}</div>
-          <div class="stat-label">待接单</div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card>
-          <div class="stat-num" style="color: #67c23a">{{ stats.completed }}</div>
-          <div class="stat-label">已完成</div>
-        </el-card>
-      </el-col>
-      <el-col :span="6">
-        <el-card>
-          <div class="stat-num" style="color: var(--brand-primary)">¥{{ centsToYuan(stats.revenueToday) }}</div>
-          <div class="stat-label">今日营业额</div>
-        </el-card>
-      </el-col>
-    </el-row>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-num tabular">{{ stats.today }}</div>
+        <div class="stat-label">今日订单</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num warning tabular">{{ stats.pending }}</div>
+        <div class="stat-label">待接单</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num success tabular">{{ stats.completed }}</div>
+        <div class="stat-label">已完成</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num accent tabular">¥{{ centsToYuan(stats.revenueToday) }}</div>
+        <div class="stat-label">今日营业额</div>
+      </div>
+    </div>
 
-    <el-card>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 12px">
-        <h3 style="margin: 0">订单管理：{{ store.name }}</h3>
+    <div class="panel">
+      <div class="panel-head">
+        <h3 class="panel-title">订单管理：{{ store.name }}</h3>
         <div style="display: flex; gap: 8px; align-items: center">
           <el-input
             v-model="filter.keyword"
@@ -252,7 +244,7 @@ watch(() => store.id, () => {
         </div>
       </div>
 
-      <el-table :data="orders">
+      <el-table :data="orders" class="data-table">
         <el-table-column prop="order_no" label="订单号" width="190" />
         <el-table-column label="类型" width="90">
           <template #default="{ row }">{{ row.entry_type === 'dinein' ? '扫码' : '提前点' }}</template>
@@ -304,7 +296,7 @@ watch(() => store.id, () => {
           @size-change="onSizeChange"
         />
       </div>
-    </el-card>
+    </div>
 
     <el-dialog v-model="cancelDialog" title="取消订单" width="420px">
       <el-radio-group v-model="cancelReason">
@@ -359,13 +351,62 @@ watch(() => store.id, () => {
 </template>
 
 <style scoped>
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
 .stat-num {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-main);
+}
+.stat-num.accent {
+  color: var(--brand-primary);
+}
+.stat-num.warning {
+  color: var(--warning);
+}
+.stat-num.success {
+  color: var(--success);
 }
 .stat-label {
-  margin-top: 4px;
+  margin-top: 8px;
   color: var(--text-secondary);
   font-size: 13px;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.panel-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.data-table {
+  --el-table-header-bg-color: var(--surface-muted);
+  --el-table-row-hover-bg-color: #fef4ef;
+  --el-table-border-color: var(--border-color);
 }
 </style>

@@ -20,31 +20,32 @@ onMounted(load)
 </script>
 
 <template>
-  <div v-loading="loading">
-    <el-card style="margin-bottom: 16px">
-      <h3 style="margin: 0 0 16px">数据看板：{{ store.name }}</h3>
-      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px">
-        <el-card shadow="never">
-          <div class="stat-num" style="color: var(--brand-primary)">{{ data?.today.order_count ?? 0 }}</div>
+  <div class="page">
+    <div class="panel">
+      <h3 class="panel-title">数据看板：{{ store.name }}</h3>
+      <el-skeleton v-if="loading" :rows="2" animated />
+      <div v-else class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-num tabular">{{ data?.today.order_count ?? 0 }}</div>
           <div class="stat-label">今日订单</div>
-        </el-card>
-        <el-card shadow="never">
-          <div class="stat-num" style="color: #e6a23c">{{ data?.today.pending ?? 0 }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num warning tabular">{{ data?.today.pending ?? 0 }}</div>
           <div class="stat-label">待接单</div>
-        </el-card>
-        <el-card shadow="never">
-          <div class="stat-num" style="color: #67c23a">{{ data?.today.completed ?? 0 }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num success tabular">{{ data?.today.completed ?? 0 }}</div>
           <div class="stat-label">今日已完成</div>
-        </el-card>
-        <el-card shadow="never">
-          <div class="stat-num" style="color: var(--brand-primary)"><PriceText :cents="data?.today.revenue_cents ?? 0" /></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num accent tabular"><PriceText :cents="data?.today.revenue_cents ?? 0" /></div>
           <div class="stat-label">今日营业额</div>
-        </el-card>
+        </div>
       </div>
-    </el-card>
+    </div>
 
-    <el-card>
-      <h3 style="margin: 0 0 16px">近 7 天营业额</h3>
+    <div class="panel">
+      <h3 class="panel-title">近 7 天营业额</h3>
       <div class="chart">
         <div v-for="d in data?.daily ?? []" :key="d.date" class="bar-col">
           <div class="bar-wrap">
@@ -56,37 +57,82 @@ onMounted(load)
           <div class="bar-count">{{ d.order_count }} 单</div>
         </div>
       </div>
-    </el-card>
+    </div>
 
-    <el-card style="margin-top: 16px">
-      <h3 style="margin: 0 0 12px">近 7 天明细</h3>
-      <el-table :data="data?.daily ?? []">
+    <div class="panel">
+      <h3 class="panel-title">近 7 天明细</h3>
+      <el-table :data="data?.daily ?? []" class="data-table">
         <el-table-column prop="date" label="日期" width="120" />
         <el-table-column prop="order_count" label="订单数" width="120" />
         <el-table-column label="营业额">
           <template #default="{ row }"><PriceText :cents="row.revenue_cents" /></template>
         </el-table-column>
       </el-table>
-    </el-card>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.stat-num {
-  font-size: 24px;
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+.panel-title {
+  margin: 0 0 var(--space-3);
+  font-size: 16px;
   font-weight: 600;
+  color: var(--text-main);
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+}
+.stat-card {
+  background: var(--surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+.stat-num {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-main);
+}
+.stat-num.accent {
+  color: var(--brand-primary);
+}
+.stat-num.warning {
+  color: var(--warning);
+}
+.stat-num.success {
+  color: var(--success);
 }
 .stat-label {
-  margin-top: 4px;
+  margin-top: 8px;
   color: var(--text-secondary);
   font-size: 13px;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
 }
 .chart {
   display: flex;
   align-items: flex-end;
-  gap: 16px;
+  gap: var(--space-3);
   height: 180px;
-  padding: 0 8px;
+  padding: var(--space-3);
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
 }
 .bar-col {
   flex: 1;
@@ -104,6 +150,10 @@ onMounted(load)
   background: var(--brand-primary);
   border-radius: 6px 6px 0 0;
   position: relative;
+  transition: background 200ms ease;
+}
+.bar:hover {
+  background: var(--brand-strong);
 }
 .bar-val {
   position: absolute;
@@ -122,5 +172,10 @@ onMounted(load)
 .bar-count {
   font-size: 11px;
   color: var(--text-disabled);
+}
+.data-table {
+  --el-table-header-bg-color: var(--surface-muted);
+  --el-table-row-hover-bg-color: #fef4ef;
+  --el-table-border-color: var(--border-color);
 }
 </style>
