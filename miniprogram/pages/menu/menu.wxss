@@ -123,6 +123,8 @@
   width: 180rpx;
   background: var(--bg-page);
   height: 100%;
+  border-right: 2rpx solid var(--border-color);
+  box-shadow: 2rpx 0 6rpx rgba(38, 34, 30, 0.04);
 }
 .cat {
   padding: var(--space-3) var(--space-2);
