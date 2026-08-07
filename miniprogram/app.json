@@ -23,9 +23,24 @@
     "backgroundColor": "#FFFFFF",
     "borderStyle": "black",
     "list": [
-      { "pagePath": "pages/store-list/store-list", "text": "首页" },
-      { "pagePath": "pages/my-orders/my-orders", "text": "我的订单" },
-      { "pagePath": "pages/profile/profile", "text": "我的" }
+      {
+        "pagePath": "pages/store-list/store-list",
+        "text": "首页",
+        "iconPath": "assets/tabbar/home.png",
+        "selectedIconPath": "assets/tabbar/home-active.png"
+      },
+      {
+        "pagePath": "pages/my-orders/my-orders",
+        "text": "我的订单",
+        "iconPath": "assets/tabbar/orders.png",
+        "selectedIconPath": "assets/tabbar/orders-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/tabbar/profile.png",
+        "selectedIconPath": "assets/tabbar/profile-active.png"
+      }
     ]
   },
   "style": "v2",
