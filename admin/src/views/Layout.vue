@@ -45,6 +45,7 @@ const bannerIndex = computed(() => (current.hasStore ? `/stores/${current.id}/ba
         <el-menu-item :index="bannerIndex" :disabled="!current.hasStore">轮播图</el-menu-item>
         <el-menu-item index="/dashboard">数据看板</el-menu-item>
         <el-menu-item index="/orders">订单管理</el-menu-item>
+        <el-menu-item index="/audit">操作审计</el-menu-item>
         <el-menu-item index="/profile">个人中心</el-menu-item>
       </el-menu>
     </el-aside>
