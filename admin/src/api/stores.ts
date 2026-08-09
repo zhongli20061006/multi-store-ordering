@@ -8,6 +8,7 @@ export interface Store {
   latitude: number | null
   longitude: number | null
   image_url: string | null
+  theme: 'warm' | 'white' | 'night' | 'berry'
   status: 'open' | 'closed'
   sort_order: number
   open_time: string | null

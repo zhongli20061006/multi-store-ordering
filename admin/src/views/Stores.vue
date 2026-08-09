@@ -5,6 +5,7 @@ import { storesApi, type Store } from '@/api/stores'
 import { useAsync } from '@/composables/useAsync'
 import { apiOrigin } from '@/api/http'
 import StatusBadge from '@/components/StatusBadge.vue'
+import { THEME_OPTIONS } from '@/theme-options'
 
 const list = ref<Store[]>([])
 const { loading, run: load } = useAsync(async () => {
@@ -21,6 +22,7 @@ const form = reactive({
   latitude: null as number | null,
   longitude: null as number | null,
   image_url: null as string | null,
+  theme: 'warm' as 'warm' | 'white' | 'night' | 'berry',
   sort_order: 0,
   open_time: null as string | null,
   close_time: null as string | null,
@@ -34,6 +36,7 @@ function openCreate() {
   form.latitude = null
   form.longitude = null
   form.image_url = null
+  form.theme = 'warm'
   form.sort_order = 0
   form.open_time = null
   form.close_time = null
@@ -48,6 +51,7 @@ function openEdit(store: Store) {
   form.latitude = store.latitude ?? null
   form.longitude = store.longitude ?? null
   form.image_url = store.image_url ?? null
+  form.theme = store.theme ?? 'warm'
   form.sort_order = store.sort_order
   form.open_time = store.open_time ?? null
   form.close_time = store.close_time ?? null
@@ -112,6 +116,22 @@ onMounted(load)
         <el-table-column prop="name" label="名称" />
         <el-table-column prop="address" label="地址" />
         <el-table-column prop="phone" label="电话" />
+        <el-table-column label="主题" width="130">
+          <template #default="{ row }">
+            <span style="display: inline-flex; align-items: center; gap: 6px">
+              <span
+                :style="{
+                  display: 'inline-block',
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '3px',
+                  background: THEME_OPTIONS.find((t) => t.value === row.theme)?.primary || '#ccc',
+                }"
+              ></span>
+              {{ THEME_OPTIONS.find((t) => t.value === row.theme)?.label.split('（')[0] || row.theme }}
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column label="封面" width="80">
           <template #default="{ row }">
             <el-image
@@ -157,6 +177,25 @@ onMounted(load)
         </el-form-item>
         <el-form-item label="电话">
           <el-input v-model="form.phone" />
+        </el-form-item>
+        <el-form-item label="主题">
+          <el-select v-model="form.theme" style="width: 100%">
+            <el-option v-for="t in THEME_OPTIONS" :key="t.value" :label="t.label" :value="t.value">
+              <span style="display: inline-flex; align-items: center; gap: 8px">
+                <span
+                  :style="{
+                    display: 'inline-block',
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '4px',
+                    background: `linear-gradient(135deg, ${t.primary} 0%, ${t.bg} 100%)`,
+                    border: '1px solid #e8e1d8',
+                  }"
+                ></span>
+                {{ t.label }}
+              </span>
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="封面图">
           <div style="display: flex; align-items: center; gap: 8px">
