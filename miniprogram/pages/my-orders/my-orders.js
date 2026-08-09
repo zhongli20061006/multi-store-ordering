@@ -3,6 +3,7 @@ const { getStores } = require('../../utils/api/stores')
 const recentOrders = require('../../store/recent-orders')
 const { filterOrders } = require('../../utils/order-filter')
 const { checkActiveOrders } = require('../../utils/order-watcher')
+const { themeStyle, themeOf, rememberTheme } = require('../../utils/theme')
 
 Page({
   data: {
@@ -20,6 +21,7 @@ Page({
       { group: 'completed', label: '已完成' },
       { group: 'cancelled', label: '已取消' },
     ],
+    themeStyle: '',
   },
 
   onLoad() {
@@ -42,6 +44,7 @@ Page({
         const map = {}
         stores.forEach((s) => {
           map[s.id] = s.name
+          rememberTheme(s.id, s.theme)
         })
         this.setData({ storeNames: map })
       })
@@ -56,7 +59,8 @@ Page({
     const orders = filterOrders(recentOrders.list(), this.data.filterGroup).map((o) =>
       Object.assign({}, o, { storeName: this.storeNameOf(o.store_id) })
     )
-    this.setData({ orders })
+    const first = orders[0]
+    this.setData({ orders, themeStyle: themeStyle(first ? themeOf(first.store_id) : 'warm') })
   },
 
   onFilter(e) {

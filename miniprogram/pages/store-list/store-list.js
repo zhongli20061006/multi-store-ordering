@@ -3,6 +3,7 @@ const { filterStores } = require('../../utils/store-filter')
 const { buildLocationPayload } = require('../../utils/store-location')
 const notifyStore = require('../../utils/notify-store')
 const { API_ORIGIN } = require('../../config')
+const { themeStyle, rememberTheme } = require('../../utils/theme')
 
 Page({
   data: {
@@ -13,6 +14,7 @@ Page({
     keyword: '',
     unreadCount: 0,
     imgBase: API_ORIGIN,
+    themeStyle: '',
   },
 
   onLoad() {
@@ -36,6 +38,8 @@ Page({
     return getStores()
       .then((stores) => {
         this.setData({ allStores: stores })
+        stores.forEach((store) => rememberTheme(store.id, store.theme))
+        this.setData({ themeStyle: themeStyle('warm') })
         this.applyFilter()
       })
       .catch(() => this.setData({ error: true, allStores: [], stores: [] }))

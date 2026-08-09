@@ -7,6 +7,7 @@ const recentOrders = require('../../store/recent-orders')
 const notifyStore = require('../../utils/notify-store')
 const profileStore = require('../../utils/profile-store')
 const { resolveContact } = require('../../utils/contact-prefill')
+const { themeStyle, themeOf } = require('../../utils/theme')
 
 Page({
   data: {
@@ -24,6 +25,7 @@ Page({
     imgBase: API_ORIGIN,
     submitting: false,
     submitKey: '',
+    themeStyle: '',
   },
 
   onLoad(options) {
@@ -32,7 +34,15 @@ Page({
     const entryType = options.entry_type === 'preorder' ? 'preorder' : 'dinein'
     const storeName = decodeURIComponent(options.store_name || '')
     const contact = resolveContact(profileStore.read(), recentOrders.list())
-    this.setData({ storeId, itemId, entryType, storeName, customerName: contact.name, customerPhone: contact.phone })
+    this.setData({
+      storeId,
+      itemId,
+      entryType,
+      storeName,
+      customerName: contact.name,
+      customerPhone: contact.phone,
+      themeStyle: themeStyle(themeOf(storeId)),
+    })
     this.load()
   },
 

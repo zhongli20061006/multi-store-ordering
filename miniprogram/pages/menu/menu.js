@@ -3,6 +3,7 @@ const { API_ORIGIN } = require('../../config')
 const { filterMenu } = require('../../utils/menu-filter')
 const { buildLocationPayload } = require('../../utils/store-location')
 const cart = require('../../store/cart')
+const { themeStyle, themeOf, rememberTheme } = require('../../utils/theme')
 
 Page({
   data: {
@@ -35,7 +36,7 @@ Page({
     const storeName = decodeURIComponent(options.store_name || '')
     // 列表进入显式带 entry_type=preorder；扫码直达 URL 只有 store_id，缺省 dinein
     const entryType = options.entry_type === 'preorder' ? 'preorder' : 'dinein'
-    this.setData({ storeId, storeName, entryType })
+    this.setData({ storeId, storeName, entryType, themeStyle: themeStyle(themeOf(storeId)) })
     cart.ensureStore(storeId, storeName)
     this.loadMenu()
     this.loadBanners(storeId)
@@ -65,6 +66,8 @@ Page({
           patch.storeName = found.name
           cart.ensureStore(storeId, found.name)
         }
+        rememberTheme(storeId, found.theme)
+        patch.themeStyle = themeStyle(found.theme)
         this.setData(patch)
       })
       .catch(() => {})

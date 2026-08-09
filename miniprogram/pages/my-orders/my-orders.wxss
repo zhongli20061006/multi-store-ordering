@@ -1,4 +1,7 @@
 .page {
+  background: var(--bg-page);
+  min-height: 100vh;
+  box-sizing: border-box;
   padding: 24rpx;
 }
 .filter-bar {

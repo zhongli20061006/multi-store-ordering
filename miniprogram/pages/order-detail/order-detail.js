@@ -4,6 +4,7 @@ const { itemsFromOrder } = require('../../utils/reorder')
 const { formatTime } = require('../../utils/format')
 const recentOrders = require('../../store/recent-orders')
 const cart = require('../../store/cart')
+const { themeStyle, themeOf } = require('../../utils/theme')
 
 Page({
   data: {
@@ -11,6 +12,7 @@ Page({
     phone: '',
     order: null,
     store: null,
+    themeStyle: '',
   },
 
   onLoad(options) {
@@ -20,6 +22,7 @@ Page({
     const found = recentOrders.list().find((o) => o.order_no === orderNo)
     if (found) {
       this.setData({ order: this.decorate(found) })
+      this.setData({ themeStyle: themeStyle(themeOf(found.store_id)) })
       this.loadStoreInfo(found.store_id)
     }
     this.refresh()
@@ -47,6 +50,7 @@ Page({
     queryOrder(this.data.phone, this.data.orderNo)
       .then((order) => {
         this.setData({ order: this.decorate(order) })
+        this.setData({ themeStyle: themeStyle(themeOf(order.store_id)) })
         this.loadStoreInfo(order.store_id)
       })
       .catch(() => {})

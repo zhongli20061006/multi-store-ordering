@@ -1,7 +1,7 @@
 <wxs module="fmt">
 module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
 </wxs>
-<view class="page">
+<view class="page" style="{{themeStyle}}">
   <view class="card">
     <view class="card-title">{{storeName}} · {{entryType === 'dinein' ? '到店点单' : '提前点单'}}</view>
     <view class="line" wx:for="{{items}}" wx:key="menu_item_id">

@@ -1,4 +1,5 @@
 const { getStore } = require('../../utils/api/stores')
+const { themeStyle, themeOf, rememberTheme } = require('../../utils/theme')
 
 Page({
   data: {
@@ -7,6 +8,7 @@ Page({
     storeId: 0,
     storeName: '',
     store: null,
+    themeStyle: '',
   },
 
   onLoad(options) {
@@ -16,13 +18,17 @@ Page({
       totalCents: Number(options.total_cents || 0),
       storeId,
       storeName: decodeURIComponent(options.store_name || ''),
+      themeStyle: themeStyle(themeOf(storeId)),
     })
     if (storeId) this.loadStore(storeId)
   },
 
   loadStore(storeId) {
     getStore(storeId)
-      .then((store) => this.setData({ store }))
+      .then((store) => {
+        rememberTheme(storeId, store.theme)
+        this.setData({ store, themeStyle: themeStyle(store.theme) })
+      })
       .catch(() => {})
   },
 

@@ -1,4 +1,7 @@
 .page {
+  background: var(--bg-page);
+  min-height: 100vh;
+  box-sizing: border-box;
   padding: var(--space-3) var(--space-4) var(--space-5);
 }
 .hero {

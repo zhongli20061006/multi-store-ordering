@@ -6,6 +6,7 @@ const recentOrders = require('../../store/recent-orders')
 const profileStore = require('../../utils/profile-store')
 const { resolveContact } = require('../../utils/contact-prefill')
 const { applyStockCorrection } = require('../../utils/stock-correction')
+const { themeStyle, themeOf } = require('../../utils/theme')
 
 Page({
   data: {
@@ -20,6 +21,7 @@ Page({
     remark: '',
     submitting: false,
     submitKey: '',
+    themeStyle: '',
   },
 
   onLoad(options) {
@@ -42,6 +44,7 @@ Page({
       totalCents: cart.getTotalCents(),
       customerPhone: contact.phone,
       customerName: contact.name,
+      themeStyle: themeStyle(themeOf(storeId)),
     })
     this.refreshStockSnapshot()
   },
