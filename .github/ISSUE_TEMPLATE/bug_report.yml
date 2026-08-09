@@ -1,0 +1,35 @@
+name: Bug 报告
+description: 提交一个可复现的问题
+title: "[bug] 简短的标题"
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: 问题描述
+      description: 实际发生了什么？期望是什么？
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 复现步骤
+      description: 尽量给出最小复现路径（哪一端、什么操作、请求/截图）。
+      placeholder: |
+        1. 启动后端并 seed
+        2. 调用 xxx 接口 / 操作 xxx 页面
+        3. 看到 xxx 错误
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: 环境
+      description: Python/Node 版本、操作系统、后端与前端提交号（如 git rev-parse HEAD）
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 日志/输出
+      description: 后端日志、浏览器控制台、pytest 失败输出等。注意不要粘贴真实密钥或完整手机号。
