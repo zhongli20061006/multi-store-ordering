@@ -50,13 +50,18 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
 def init_db() -> None:
-    """原型期：按模型建表（幂等）。正式迁移见 database-design.md。"""
-    from app import models  # noqa: F401  确保模型已注册
+    """按 Alembic 迁移建库/升级（幂等，替代 create_all + 幂等加列）。
 
-    Base.metadata.create_all(bind=engine)
-    from app.core.db_migrate import ensure_additive_columns
+    全新空库由 0001 基线建全表；存量演示库由基线迁移收敛（跳过已有表、
+    补历史缺失列），后续 schema 变更走增量迁移。
+    """
+    from alembic import command
+    from alembic.config import Config
 
-    ensure_additive_columns(engine)
+    backend_dir = Path(__file__).resolve().parents[2]
+    cfg = Config(str(backend_dir / "alembic.ini"))
+    cfg.set_main_option("script_location", str(backend_dir / "migrations"))
+    command.upgrade(cfg, "head")
 
 
 def get_db():
