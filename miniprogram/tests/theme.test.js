@@ -13,7 +13,7 @@ const { THEMES, themeStyle, rememberTheme, themeOf } = require('../utils/theme')
 test.beforeEach(() => storage.clear())
 
 test('四套主题 token 齐全', () => {
-  for (const name of ['warm', 'white', 'night', 'berry']) {
+  for (const name of ['warm', 'white', 'green', 'berry']) {
     assert.ok(THEMES[name]['--brand-primary'])
     assert.ok(THEMES[name]['--bg-page'])
     assert.ok(THEMES[name]['--text-main'])

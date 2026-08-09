@@ -79,7 +79,7 @@ STORES = [
     },
     {
         "name": "夜宵摊",
-        "theme": "night",
+        "theme": "green",
         "mode": "夜宵",
         "address": "河坊街夜市 12 号",
         "phone": "0571-88880003",

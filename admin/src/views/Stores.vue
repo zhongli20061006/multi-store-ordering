@@ -22,7 +22,7 @@ const form = reactive({
   latitude: null as number | null,
   longitude: null as number | null,
   image_url: null as string | null,
-  theme: 'warm' as 'warm' | 'white' | 'night' | 'berry',
+  theme: 'warm' as 'warm' | 'white' | 'green' | 'berry',
   sort_order: 0,
   open_time: null as string | null,
   close_time: null as string | null,

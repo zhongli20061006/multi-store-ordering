@@ -11,7 +11,7 @@ class StoreStatus(str, Enum):
 class StoreTheme(str, Enum):
     WARM = "warm"
     WHITE = "white"
-    NIGHT = "night"
+    GREEN = "green"
     BERRY = "berry"
 
 
