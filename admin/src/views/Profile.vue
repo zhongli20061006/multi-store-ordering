@@ -57,33 +57,33 @@ onMounted(load)
 </script>
 
 <template>
-  <div v-loading="loading">
+  <div v-loading="loading" class="page">
     <el-row :gutter="16">
       <el-col :span="10">
-        <el-card>
-          <h3 style="margin-top: 0">账号信息</h3>
+        <div class="panel">
+          <h3 class="panel-title">账号信息</h3>
           <el-descriptions :column="1" border>
             <el-descriptions-item label="用户名">{{ me?.username }}</el-descriptions-item>
             <el-descriptions-item label="显示名">{{ me?.display_name }}</el-descriptions-item>
           </el-descriptions>
-          <h4 style="margin-bottom: 8px">绑定门店</h4>
+          <h4 class="panel-sub">绑定门店</h4>
           <div
             v-for="s in stores"
             :key="s.id"
-            style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0"
+            class="store-row"
           >
             <span>{{ s.name }}</span>
             <el-button size="small" :type="current.id === s.id ? 'primary' : 'default'" plain @click="switchStore(s.id)">
               {{ current.id === s.id ? '当前门店' : '切换' }}
             </el-button>
           </div>
-          <el-button type="danger" plain style="margin-top: 12px" @click="onLogout">退出登录</el-button>
-        </el-card>
+          <el-button type="danger" plain class="logout-btn" @click="onLogout">退出登录</el-button>
+        </div>
       </el-col>
       <el-col :span="14">
-        <el-card>
-          <h3 style="margin-top: 0">修改密码</h3>
-          <el-form :model="pwd" label-width="90px" style="max-width: 420px">
+        <div class="panel">
+          <h3 class="panel-title">修改密码</h3>
+          <el-form :model="pwd" label-width="90px" class="pwd-form">
             <el-form-item label="旧密码">
               <el-input v-model="pwd.old_password" type="password" show-password />
             </el-form-item>
@@ -95,8 +95,45 @@ onMounted(load)
             </el-form-item>
             <el-button type="primary" :loading="submitting" @click="onSubmitPassword">保存新密码</el-button>
           </el-form>
-        </el-card>
+        </div>
       </el-col>
     </el-row>
   </div>
 </template>
+
+<style scoped>
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+.panel-title {
+  margin: 0 0 var(--space-3);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.panel-sub {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: 14px;
+  color: var(--text-main);
+}
+.store-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+.logout-btn {
+  margin-top: var(--space-3);
+}
+.pwd-form {
+  max-width: 420px;
+}
+</style>

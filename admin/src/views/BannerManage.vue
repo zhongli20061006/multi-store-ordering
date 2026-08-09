@@ -49,15 +49,15 @@ onMounted(load)
 </script>
 
 <template>
-  <div v-loading="loading">
-    <el-card>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 12px">
-        <h3 style="margin: 0">轮播图管理：{{ store.name }}</h3>
+  <div v-loading="loading" class="page">
+    <div class="panel">
+      <div class="panel-head">
+        <h3 class="panel-title">轮播图管理：{{ store.name }}</h3>
         <el-upload :show-file-list="false" :http-request="onUpload" accept="image/jpeg,image/png,image/webp">
           <el-button type="primary" :loading="uploading">上传轮播图</el-button>
         </el-upload>
       </div>
-      <el-table :data="list">
+      <el-table :data="list" class="data-table">
         <el-table-column label="图片" width="180">
           <template #default="{ row }">
             <el-image
@@ -85,6 +85,36 @@ onMounted(load)
         </el-table-column>
       </el-table>
       <el-empty v-if="list.length === 0" description="暂无轮播图，上传后小程序菜单页顶部展示" />
-    </el-card>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.panel-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.data-table {
+  --el-table-header-bg-color: var(--surface-muted);
+  --el-table-row-hover-bg-color: #fef4ef;
+  --el-table-border-color: var(--border-color);
+}
+</style>

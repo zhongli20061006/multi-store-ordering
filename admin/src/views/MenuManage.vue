@@ -159,17 +159,17 @@ onMounted(loadAll)
 </script>
 
 <template>
-  <div v-loading="loading">
-    <el-card>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 12px">
-        <h3 style="margin: 0">菜单管理：{{ store.name }}</h3>
+  <div v-loading="loading" class="page">
+    <div class="panel">
+      <div class="panel-head">
+        <h3 class="panel-title">菜单管理：{{ store.name }}</h3>
         <el-button type="primary" @click="openCategoryCreate">新建分类</el-button>
       </div>
 
-      <div style="display: flex; gap: 16px">
-        <div style="width: 220px; flex-shrink: 0">
-          <el-card shadow="never" style="border: 1px solid var(--border-color)">
-            <div v-for="category in categories" :key="category.id" style="display: flex; justify-content: space-between; padding: 6px 0">
+      <div class="menu-layout">
+        <div class="cat-col">
+          <div class="cat-panel">
+            <div v-for="category in categories" :key="category.id" class="cat-row">
               <span>{{ category.name }}</span>
               <span>
                 <el-button link type="primary" size="small" @click="openCategoryEdit(category)">编辑</el-button>
@@ -177,14 +177,14 @@ onMounted(loadAll)
               </span>
             </div>
             <el-empty v-if="categories.length === 0" description="暂无分类" :image-size="60" />
-          </el-card>
+          </div>
         </div>
 
-        <div style="flex: 1">
-          <div style="display: flex; justify-content: flex-end; margin-bottom: 12px">
+        <div class="item-col">
+          <div class="item-head">
             <el-button type="primary" plain @click="openItemCreate">新增商品</el-button>
           </div>
-          <el-table :data="items">
+          <el-table :data="items" class="data-table">
             <el-table-column label="图片" width="80">
               <template #default="{ row }">
                 <el-image
@@ -210,7 +210,7 @@ onMounted(loadAll)
               <template #default="{ row }">
                 <template v-if="row.stock !== null && row.stock !== undefined && row.stock <= 5">
                   <el-tag type="danger" size="small">{{ row.stock }}</el-tag>
-                  <span style="color: #f56c6c; margin-left: 4px; font-size: 12px">低库存</span>
+                  <span class="low-stock">低库存</span>
                 </template>
                 <template v-else>{{ row.stock === null || row.stock === undefined ? '不限' : row.stock }}</template>
               </template>
@@ -229,7 +229,7 @@ onMounted(loadAll)
           </el-table>
         </div>
       </div>
-    </el-card>
+    </div>
 
     <el-dialog v-model="categoryDialog" :title="categoryId === null ? '新建分类' : '编辑分类'" width="420px">
       <el-form :model="categoryForm" label-width="70px">
@@ -286,3 +286,65 @@ onMounted(loadAll)
     </el-dialog>
   </div>
 </template>
+
+<style scoped>
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.panel-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.menu-layout {
+  display: flex;
+  gap: var(--space-3);
+}
+.cat-col {
+  width: 220px;
+  flex-shrink: 0;
+}
+.cat-panel {
+  background: var(--surface-muted);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+}
+.cat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+}
+.item-col {
+  flex: 1;
+}
+.item-head {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-3);
+}
+.low-stock {
+  color: var(--danger);
+  margin-left: 4px;
+  font-size: 12px;
+}
+.data-table {
+  --el-table-header-bg-color: var(--surface-muted);
+  --el-table-row-hover-bg-color: #fef4ef;
+  --el-table-border-color: var(--border-color);
+}
+</style>
