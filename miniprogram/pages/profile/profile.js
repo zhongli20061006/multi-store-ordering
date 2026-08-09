@@ -4,11 +4,13 @@ Page({
   data: {
     nickname: '微信用户',
     phone: '',
+    avatarText: '客',
   },
 
   onShow() {
     const p = profileStore.read()
-    this.setData({ nickname: p.nickname, phone: p.phone })
+    const avatarText = p.nickname && p.nickname !== '微信用户' ? p.nickname[0] : '客'
+    this.setData({ nickname: p.nickname, phone: p.phone, avatarText })
   },
 
   onInput(e) {

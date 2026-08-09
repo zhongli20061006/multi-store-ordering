@@ -2,4 +2,6 @@
   color: var(--brand-primary);
   font-weight: 600;
   font-size: 30rpx;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
 }

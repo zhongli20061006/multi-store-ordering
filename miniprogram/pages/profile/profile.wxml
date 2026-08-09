@@ -1,6 +1,6 @@
 <view class="page">
   <view class="header">
-    <view class="avatar">👤</view>
+    <view class="avatar">{{avatarText}}</view>
     <view class="header-info">
       <text class="nickname">{{nickname}}</text>
       <text class="sub">本地资料，无登录</text>

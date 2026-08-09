@@ -1,12 +1,15 @@
 .page {
-  padding: 24rpx;
+  background: var(--bg-page);
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: var(--space-3) var(--space-4) var(--space-5);
 }
 .notify-card {
   background: var(--surface);
-  border: 1rpx solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 24rpx;
-  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-card);
+  padding: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 .text {
   font-size: 28rpx;
@@ -18,9 +21,9 @@
   color: var(--text-disabled);
 }
 .clear {
-  margin-top: 24rpx;
-  background: #fff;
-  color: #f56c6c;
-  border: 1rpx solid #f56c6c;
-  border-radius: var(--radius-sm);
+  margin-top: var(--space-3);
+  background: var(--surface);
+  color: var(--danger);
+  border: 1rpx solid var(--danger);
+  border-radius: 999rpx;
 }

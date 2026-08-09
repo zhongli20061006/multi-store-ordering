@@ -6,17 +6,17 @@
   color: var(--text-secondary);
 }
 .title {
-  margin-top: 24rpx;
+  margin-top: var(--space-3);
   font-size: 30rpx;
   color: var(--text-main);
 }
 .desc {
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
   font-size: 26rpx;
 }
 .action {
-  margin-top: 32rpx;
+  margin-top: var(--space-4);
   background: var(--brand-primary);
   color: #fff;
-  border-radius: var(--radius-sm);
+  border-radius: 999rpx;
 }

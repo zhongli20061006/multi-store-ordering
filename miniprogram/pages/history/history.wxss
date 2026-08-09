@@ -1,11 +1,14 @@
 .page {
-  padding: 24rpx;
+  background: var(--bg-page);
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: var(--space-3) var(--space-4) var(--space-5);
 }
 .top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 16rpx;
+  padding-bottom: var(--space-2);
 }
 .top-title {
   font-size: 34rpx;
@@ -25,10 +28,10 @@
   font-weight: 600;
 }
 .action.danger {
-  color: #f56c6c;
+  color: var(--danger);
 }
 .search-box {
-  padding-bottom: 16rpx;
+  padding-bottom: var(--space-2);
 }
 .search-input {
   background: var(--surface);
@@ -39,31 +42,32 @@
 }
 .cats {
   white-space: nowrap;
-  margin-bottom: 16rpx;
+  margin-bottom: var(--space-2);
 }
 .cat {
   display: inline-block;
   padding: 10rpx 24rpx;
-  margin-right: 12rpx;
+  margin-right: var(--space-2);
   font-size: 26rpx;
   color: var(--text-secondary);
   background: var(--surface);
   border: 1rpx solid var(--border-color);
-  border-radius: var(--radius-sm);
+  border-radius: 999rpx;
 }
 .cat.active {
+  background: var(--brand-soft);
   color: var(--brand-primary);
-  border-color: var(--brand-primary);
+  border-color: var(--brand-soft);
   font-weight: 600;
 }
 .row {
   display: flex;
   align-items: center;
   background: var(--surface);
-  border: 1rpx solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 24rpx;
-  margin-bottom: 20rpx;
+  box-shadow: var(--shadow-card);
+  padding: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 .check {
   width: 36rpx;
@@ -80,6 +84,7 @@
   box-shadow: inset 0 0 0 6rpx #fff;
 }
 .row-main {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
@@ -106,9 +111,6 @@
   font-size: 28rpx;
   color: var(--brand-primary);
   font-weight: 600;
-}
-.row-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
 }

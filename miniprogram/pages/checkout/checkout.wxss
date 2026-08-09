@@ -2,25 +2,25 @@
   background: var(--bg-page);
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 24rpx;
+  padding: var(--space-3) var(--space-4) var(--space-5);
 }
 .card {
   background: var(--surface);
-  border: 1rpx solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 24rpx;
-  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-card);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
 }
 .card-title {
   font-size: 30rpx;
   font-weight: 600;
-  margin-bottom: 16rpx;
+  margin-bottom: var(--space-2);
 }
 .line {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12rpx 0;
+  padding: var(--space-2) 0;
   font-size: 28rpx;
 }
 .line-name {
@@ -39,8 +39,8 @@
 .remove {
   margin-top: 8rpx;
   background: var(--surface);
-  color: #f56c6c;
-  border: 1rpx solid #f56c6c;
+  color: var(--danger);
+  border: 1rpx solid var(--danger);
   border-radius: var(--radius-sm);
   font-size: 24rpx;
   line-height: 1.6;
@@ -48,13 +48,15 @@
 .line.total {
   border-top: 1rpx solid var(--border-color);
   margin-top: 8rpx;
-  padding-top: 20rpx;
+  padding-top: var(--space-2);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
 }
 .form-row {
   display: flex;
   align-items: center;
-  padding: 20rpx 0;
+  padding: var(--space-2) 0;
   border-bottom: 1rpx solid var(--border-color);
 }
 .form-row:last-child {
@@ -70,12 +72,15 @@
   font-size: 28rpx;
 }
 .submit {
-  margin-top: 16rpx;
+  margin-top: var(--space-2);
   background: var(--brand-primary);
   color: #fff;
-  border-radius: var(--radius-sm);
+  border-radius: 999rpx;
+}
+.submit-hover {
+  background: var(--brand-strong);
 }
 .submit[disabled] {
-  background: #c0c4cc;
-  color: #fff;
+  background: var(--surface-muted);
+  color: var(--text-disabled);
 }

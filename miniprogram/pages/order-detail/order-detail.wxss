@@ -2,14 +2,14 @@
   background: var(--bg-page);
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 24rpx;
+  padding: var(--space-3) var(--space-4) var(--space-5);
 }
 .card {
   background: var(--surface);
-  border: 1rpx solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 24rpx;
-  margin-bottom: 24rpx;
+  box-shadow: var(--shadow-card);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
 }
 .head {
   display: flex;
@@ -24,7 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 12rpx;
+  margin-top: var(--space-2);
 }
 .store {
   font-size: 26rpx;
@@ -62,31 +62,33 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 20rpx;
+  padding-top: var(--space-2);
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
 }
 .remark {
-  margin-top: 16rpx;
+  margin-top: var(--space-2);
   font-size: 24rpx;
   color: var(--text-secondary);
 }
 .cancel {
-  margin-top: 16rpx;
-  background: #fff;
-  color: #f56c6c;
-  border: 1rpx solid #f56c6c;
-  border-radius: var(--radius-sm);
+  margin-top: var(--space-2);
+  background: var(--surface);
+  color: var(--danger);
+  border: 1rpx solid var(--danger);
+  border-radius: 999rpx;
 }
 .pickup {
-  margin-top: 16rpx;
+  margin-top: var(--space-2);
   background: var(--brand-primary);
   color: #fff;
-  border-radius: var(--radius-sm);
+  border-radius: 999rpx;
 }
 .reorder {
-  margin-top: 20rpx;
+  margin-top: var(--space-3);
   background: var(--surface);
   color: var(--brand-primary);
   border: 1rpx solid var(--brand-primary);
-  border-radius: var(--radius-sm);
+  border-radius: 999rpx;
 }
