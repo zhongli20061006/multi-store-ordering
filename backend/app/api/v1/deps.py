@@ -23,6 +23,24 @@ def get_current_user(
     user = db.get(User, user_id)
     if user is None or not user.is_active:
         raise BusinessError(401, "账号不可用")
+    if user.must_change_password:
+        raise BusinessError(403, "首次登录需先修改默认密码")
+    return user
+
+
+def get_current_user_any(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: Session = Depends(get_db),
+) -> User:
+    """鉴权但不受「首启改密」拦截：仅用于 /auth/me 与 /auth/change-password。"""
+    if credentials is None:
+        raise BusinessError(401, "未登录")
+    user_id = decode_access_token(credentials.credentials)
+    if user_id is None:
+        raise BusinessError(401, "登录已失效，请重新登录")
+    user = db.get(User, user_id)
+    if user is None or not user.is_active:
+        raise BusinessError(401, "账号不可用")
     return user
 
 

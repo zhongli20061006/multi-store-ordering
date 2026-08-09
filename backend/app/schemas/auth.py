@@ -9,6 +9,7 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    must_change_password: bool = False
 
 
 class UserOut(BaseModel):
@@ -17,6 +18,7 @@ class UserOut(BaseModel):
     id: int
     username: str
     display_name: str
+    must_change_password: bool = False
 
 
 class ChangePasswordRequest(BaseModel):

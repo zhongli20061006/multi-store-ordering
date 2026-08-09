@@ -19,6 +19,7 @@ const router = createRouter({
         { path: 'profile', component: () => import('@/views/Profile.vue') },
       ],
     },
+    { path: '/force-password', component: () => import('@/views/ForcePassword.vue') },
   ],
 })
 
@@ -26,6 +27,9 @@ router.beforeEach((to) => {
   const auth = useAuthStore()
   if (to.path !== '/login' && !auth.isLoggedIn) return '/login'
   if (to.path === '/login' && auth.isLoggedIn) return '/'
+  if (auth.isLoggedIn && auth.mustChangePassword && to.path !== '/force-password' && to.path !== '/login') {
+    return '/force-password'
+  }
   return true
 })
 

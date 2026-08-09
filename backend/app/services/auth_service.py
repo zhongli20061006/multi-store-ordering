@@ -17,4 +17,5 @@ def change_password(db: Session, user: User, old_password: str, new_password: st
     if not verify_password(old_password, user.password_hash):
         raise BusinessError(400, "旧密码不正确")
     user.password_hash = hash_password(new_password)
+    user.must_change_password = False
     db.commit()

@@ -5,7 +5,7 @@ from sqlalchemy import select
 
 from app.core.config import settings
 from app.core.database import SessionLocal, init_db
-from app.core.security import hash_password
+from app.core.security import hash_password, verify_password
 from app.models import MenuCategory, MenuItem, Store, StoreAdmin, User
 
 
@@ -14,12 +14,23 @@ def main() -> None:
     db = SessionLocal()
     try:
         if db.scalar(select(User).limit(1)) is not None:
+            _harden_default_passwords(db)
             print("数据库已有数据，跳过种子（如需重置请删除 data/ordering.db 后重跑）")
             return
 
         password = hash_password(settings.seed_admin_password)
-        admin1 = User(username="admin1", password_hash=password, display_name="中山路店长")
-        admin2 = User(username="admin2", password_hash=password, display_name="万达店长")
+        admin1 = User(
+            username="admin1",
+            password_hash=password,
+            display_name="中山路店长",
+            must_change_password=True,
+        )
+        admin2 = User(
+            username="admin2",
+            password_hash=password,
+            display_name="万达店长",
+            must_change_password=True,
+        )
         db.add_all([admin1, admin2])
         db.flush()
 
@@ -109,9 +120,22 @@ def main() -> None:
         print(
             f"种子完成：门店 2 家，管理员 admin1/admin2（密码 {settings.seed_admin_password}）。"
             f"\nadmin1 → 中山路店，admin2 → 万达店"
+            f"\n注意：默认密码仅用于本地演示，首次登录系统会强制要求修改密码。"
         )
     finally:
         db.close()
+
+
+def _harden_default_passwords(db) -> None:
+    """存量库加固：仍在使用默认种子密码的账号标记为「首启需改密」。"""
+    flagged = 0
+    for user in db.scalars(select(User)).all():
+        if verify_password(settings.seed_admin_password, user.password_hash) and not user.must_change_password:
+            user.must_change_password = True
+            flagged += 1
+    if flagged:
+        db.commit()
+        print(f"默认密码加固：{flagged} 个仍使用默认密码的账号已标记为需改密")
 
 
 def _drink_specs() -> str:

@@ -21,8 +21,10 @@ backend/
 │   ├── services/        # 业务规则唯一 owner（金额/状态机/取消回补/归属校验）
 │   ├── api/v1/          # 接口路由（公共 + 商家管理）
 │   └── seed.py          # 演示数据初始化
+├── migrations/          # Alembic 迁移（0001 幂等基线 / 0002 首启改密字段）
 ├── tests/               # pytest 测试
 ├── data/                # 本地 SQLite 数据库（不入库）
+├── alembic.ini
 ├── requirements.txt
 └── .env.example         # 环境变量示例（复制为 .env 使用）
 ```
@@ -39,7 +41,7 @@ python -m venv .venv
 # 2. 配置环境变量（密钥、种子管理员密码）
 Copy-Item .env.example .env
 
-# 3. 初始化本地数据库与演示数据（幂等，重复执行会跳过）
+# 3. 初始化本地数据库与演示数据（自动执行 Alembic 迁移；幂等，重复执行会跳过）
 .\.venv\Scripts\python -m app.seed
 
 # 4. 启动服务
@@ -58,7 +60,14 @@ Copy-Item .env.example .env
 | admin1 | admin123456 | 中山路店 |
 | admin2 | admin123456 | 万达店 |
 
-正式使用前必须修改 `.env` 中的密钥与密码。
+默认密码仅用于本地演示：种子账号带 `must_change_password` 标记，首次登录后台会强制要求修改密码；正式使用前还必须修改 `.env` 中的 JWT 密钥。
+
+## 数据库迁移（Alembic）
+
+- 启动/种子自动执行：`app.core.database.init_db()` 调用 `alembic upgrade head`。
+- 手动执行：`.\.venv\Scripts\python -m alembic upgrade head`。
+- 生成新迁移：先改模型，再执行 `.\.venv\Scripts\python -m alembic revision --autogenerate -m "描述"`，人工复核后提交。
+- 存量演示库兼容：`0001` 基线迁移幂等（跳过已有表、补历史缺失列），存量库首次升级不会重建数据。
 
 ## API 概览
 

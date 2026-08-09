@@ -14,8 +14,8 @@ async function onSubmit() {
   loading.value = true
   try {
     const data = await login(form)
-    auth.setToken(data.access_token, form.username)
-    router.push('/')
+    auth.setLogin(data.access_token, form.username, data.must_change_password)
+    router.push(data.must_change_password ? '/force-password' : '/')
   } catch {
     // 错误提示由 http 拦截器统一处理
   } finally {
