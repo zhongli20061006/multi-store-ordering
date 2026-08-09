@@ -42,6 +42,7 @@ def main() -> None:
             close_time="22:00",
             latitude=30.3299,
             longitude=120.1599,
+            theme="white",
         )
         db.add_all([store1, store2])
         db.flush()

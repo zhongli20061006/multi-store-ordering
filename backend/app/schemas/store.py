@@ -8,12 +8,20 @@ class StoreStatus(str, Enum):
     CLOSED = "closed"
 
 
+class StoreTheme(str, Enum):
+    WARM = "warm"
+    WHITE = "white"
+    NIGHT = "night"
+    BERRY = "berry"
+
+
 class StoreBase(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     address: str = Field(min_length=1, max_length=200)
     phone: str = Field(min_length=1, max_length=20)
     latitude: float | None = Field(default=None, ge=-90, le=90)
     longitude: float | None = Field(default=None, ge=-180, le=180)
+    theme: StoreTheme = StoreTheme.WARM
     sort_order: int = Field(default=0, ge=0)
     open_time: str | None = Field(default=None, pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
     close_time: str | None = Field(default=None, pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
@@ -29,6 +37,7 @@ class StoreUpdate(BaseModel):
     phone: str | None = Field(default=None, min_length=1, max_length=20)
     latitude: float | None = Field(default=None, ge=-90, le=90)
     longitude: float | None = Field(default=None, ge=-180, le=180)
+    theme: StoreTheme | None = None
     sort_order: int | None = Field(default=None, ge=0)
     open_time: str | None = Field(default=None, pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
     close_time: str | None = Field(default=None, pattern=r"^([01]\d|2[0-3]):[0-5]\d$")

@@ -16,6 +16,7 @@ class Store(Base):
     latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    theme: Mapped[str] = mapped_column(String(16), default="warm")
     status: Mapped[str] = mapped_column(String(16), default="open", index=True)
     open_time: Mapped[str | None] = mapped_column(String(5), nullable=True)
     close_time: Mapped[str | None] = mapped_column(String(5), nullable=True)

@@ -216,3 +216,48 @@ def test_update_store_coordinates_and_public_list_returns_them(client, seed):
     target = next(store for store in public if store["id"] == store_id)
     assert target["latitude"] == 30.25
     assert target["longitude"] == 120.16
+
+
+def test_create_store_with_theme(client, seed):
+    headers = login(client, "admin1")
+    resp = client.post(
+        "/api/v1/admin/stores",
+        json={"name": "主题店", "address": "某处", "phone": "13800000017", "sort_order": 11, "theme": "white"},
+        headers=headers,
+    )
+    assert resp.status_code == 201
+    assert resp.json()["data"]["theme"] == "white"
+
+
+def test_store_default_theme_is_warm(client, seed):
+    headers = login(client, "admin1")
+    resp = client.post(
+        "/api/v1/admin/stores",
+        json={"name": "默认主题店", "address": "某处", "phone": "13800000018", "sort_order": 12},
+        headers=headers,
+    )
+    assert resp.status_code == 201
+    assert resp.json()["data"]["theme"] == "warm"
+
+
+def test_update_store_theme_and_public_returns_it(client, seed):
+    headers = login(client, "admin1")
+    resp = client.put(
+        f"/api/v1/admin/stores/{seed['store1_id']}",
+        json={"theme": "berry"},
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    assert resp.json()["data"]["theme"] == "berry"
+    public = client.get("/api/v1/stores").json()["data"]
+    assert next(store for store in public if store["id"] == seed["store1_id"])["theme"] == "berry"
+
+
+def test_store_rejects_invalid_theme(client, seed):
+    headers = login(client, "admin1")
+    resp = client.post(
+        "/api/v1/admin/stores",
+        json={"name": "坏主题", "address": "某处", "phone": "13800000019", "sort_order": 13, "theme": "rainbow"},
+        headers=headers,
+    )
+    assert resp.status_code == 422

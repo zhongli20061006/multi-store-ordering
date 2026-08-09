@@ -19,6 +19,8 @@ def ensure_additive_columns(engine) -> None:
             conn.execute(text("ALTER TABLE stores ADD COLUMN longitude REAL"))
         if "image_url" not in store_cols:
             conn.execute(text("ALTER TABLE stores ADD COLUMN image_url TEXT"))
+        if "theme" not in store_cols:
+            conn.execute(text("ALTER TABLE stores ADD COLUMN theme VARCHAR(16) DEFAULT 'warm'"))
         if "spec_groups" not in menu_cols:
             conn.execute(text("ALTER TABLE menu_items ADD COLUMN spec_groups TEXT"))
         if "specs" not in item_cols:
