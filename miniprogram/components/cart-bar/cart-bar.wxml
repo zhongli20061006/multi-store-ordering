@@ -14,5 +14,11 @@ module.exports = { yuan: function (cents) { return (cents / 100).toFixed(2) } }
       <text class="cart-meta tabular">{{count}} 件 · ¥{{fmt.yuan(totalCents)}}</text>
     </view>
   </view>
-  <button class="checkout" size="mini" hover-class="checkout-hover" disabled="{{count === 0}}" bindtap="onCheckout">去结算</button>
+  <button
+    class="checkout {{count === 0 ? 'is-disabled' : ''}}"
+    size="mini"
+    hover-class="checkout-hover"
+    disabled="{{count === 0}}"
+    bindtap="onCheckout"
+  >去结算</button>
 </view>

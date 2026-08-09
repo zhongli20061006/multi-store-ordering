@@ -94,7 +94,7 @@
 .checkout-hover {
   background: var(--brand-strong);
 }
-.checkout[disabled] {
+.checkout.is-disabled {
   background: var(--surface-muted);
   color: var(--text-disabled);
 }
