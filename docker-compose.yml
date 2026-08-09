@@ -1,0 +1,31 @@
+# 多门店点单系统 · 容器编排（backend + admin）
+# 用法：docker compose up -d --build
+# 后端：http://localhost:8000/docs ；后台：http://localhost:8080/login
+# 可选环境变量（示例）：JWT_SECRET、SEED_ADMIN_PASSWORD、CORS_ORIGINS
+services:
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: sqlite:///./data/ordering.db
+      JWT_SECRET: ${JWT_SECRET:-please-override-in-production-0123456789abcdef}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-1440}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-admin123456}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+    volumes:
+      - backend_data:/app/data
+      - backend_uploads:/app/uploads
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  admin:
+    build: ./admin
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  backend_data:
+  backend_uploads:

@@ -76,6 +76,7 @@
 ├── backend/          # FastAPI 后端（app/api、app/services、app/models、app/schemas、app/core、migrations）
 ├── admin/            # 商家网页后台（Vue 3 + Element Plus）
 ├── miniprogram/      # 顾客微信小程序（原生 JS）
+├── docker-compose.yml # 容器编排（backend + admin）
 ├── .github/          # CI 工作流、issue/PR 模板
 ├── AGENTS.md         # 项目协作约定
 ├── CONTRIBUTING.md   # 贡献指南
@@ -119,6 +120,24 @@ npm run dev
 3. 接口地址在 `miniprogram/config.js` 的 `BASE_URL`：模拟器用 `http://127.0.0.1:8000/api/v1`，真机预览改为电脑局域网 IP（后端需 `--host 0.0.0.0` 启动并放行 8000 端口防火墙）；
 4. 模拟扫码：编译模式启动页 `pages/menu/menu`，参数 `store_id=1`（不带 entry_type，缺省到店点单）。
 
+### 可选：Docker Compose 一键启动（后端 + 后台）
+
+需要本机安装 Docker 与 Docker Compose：
+
+```bash
+docker compose up -d --build
+```
+
+- 后端：<http://localhost:8000/docs>（seed 自动执行 Alembic 迁移与演示数据）
+- 商家后台：<http://localhost:8080/login>（nginx 同源反代 `/api/` 与 `/uploads/`）
+- 数据与上传文件保存在命名卷 `backend_data` / `backend_uploads`；生产部署前必须通过环境变量设置强 `JWT_SECRET` 与种子密码：
+
+```bash
+JWT_SECRET=请替换为足够长的随机串 SEED_ADMIN_PASSWORD=强密码 docker compose up -d --build
+```
+
+> 注：docker-compose 构建未在本机验证（2026-08-09 本机无 Docker），按官方镜像模式编写；如遇问题请提交 issue。
+
 ## 演示账号（仅本地开发）
 
 | 账号 | 密码 | 绑定门店 |
@@ -143,8 +162,8 @@ npm run dev
 ## 测试
 
 ```powershell
-cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 123 passed（2026-08-09 基线）
-cd admin && npm run test && npm run build                 # vitest 16 passed + 构建通过
+cd backend && .\.venv\Scripts\python.exe -m pytest -q     # 126 passed（2026-08-09 基线）
+cd admin && npm run test && npm run build                 # vitest 19 passed + 构建通过
 cd miniprogram && npm test                                # node:test 76 passed
 ```
 
